@@ -1,0 +1,41 @@
+<div class="notice-bar">
+  <i class="pi pi-bolt"></i>
+  <span>عروض خاصة على لابات الأعمال والجيمينج + دعم فني قبل وبعد البيع</span>
+</div>
+
+<header class="main-header">
+  <a routerLink="/" class="brand-link">
+    <i class="pi pi-desktop"></i>
+    <div>
+      <strong>El-Sakka Group</strong>
+      <small>Professional Laptop Store</small>
+    </div>
+  </a>
+
+  <nav class="main-nav">
+    <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
+      >المتجر</a
+    >
+    <a routerLink="/contact" routerLinkActive="is-active">تواصل معنا</a>
+    <a
+      *ngIf="!(ownerMode$ | async)"
+      routerLink="/owner/login"
+      routerLinkActive="is-active"
+      >دخول المالك</a
+    >
+    <a
+      *ngIf="ownerMode$ | async"
+      routerLink="/owner/dashboard"
+      routerLinkActive="is-active"
+      >لوحة المالك</a
+    >
+    <button *ngIf="ownerMode$ | async" type="button" class="nav-btn" (click)="logout()">
+      تسجيل خروج
+    </button>
+  </nav>
+
+  <div class="header-phone">
+    <i class="pi pi-phone"></i>
+    <span dir="ltr">+20 100 000 0000</span>
+  </div>
+</header>

@@ -1,0 +1,22 @@
+<section class="owner-login-page">
+  <form class="owner-login-card" (ngSubmit)="submit()">
+    <h1>تسجيل دخول المالك</h1>
+    <p>ادخل بيانات المالك للوصول إلى لوحة إضافة المنتجات.</p>
+
+    <label>
+      اسم المستخدم
+      <input type="text" name="username" [(ngModel)]="username" required />
+    </label>
+
+    <label>
+      كلمة المرور
+      <input type="password" name="password" [(ngModel)]="password" required />
+    </label>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'جارٍ تسجيل الدخول...' : 'دخول' }}
+    </button>
+
+    <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </form>
+</section>

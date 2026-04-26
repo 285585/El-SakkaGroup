@@ -1,0 +1,151 @@
+<section class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>لوحة تحكم المالك</h1>
+      <p>من هنا تقدر تضيف منتجات جديدة بصورها وتظهر تلقائيًا في المتجر.</p>
+    </div>
+    <button type="button" class="logout-btn" (click)="logout()">تسجيل خروج</button>
+  </div>
+
+  <div class="dashboard-grid">
+    <form class="product-form" (ngSubmit)="submitProduct()">
+      <h2>{{ isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد' }}</h2>
+      <p class="editing-note" *ngIf="isEditing">
+        أنت الآن في وضع التعديل. يمكنك تعديل البيانات ثم الضغط على تحديث المنتج.
+      </p>
+
+      <div class="form-grid">
+        <label>
+          اسم المنتج *
+          <input type="text" name="name" [(ngModel)]="name" required />
+        </label>
+        <label>
+          الماركة *
+          <input type="text" name="brand" [(ngModel)]="brand" required />
+        </label>
+        <label>
+          الفئة *
+          <input type="text" name="category" [(ngModel)]="category" required />
+        </label>
+        <label>
+          السعر الحالي *
+          <input type="number" name="price" [(ngModel)]="price" min="1" required />
+        </label>
+        <label>
+          السعر قبل الخصم
+          <input type="number" name="oldPrice" [(ngModel)]="oldPrice" min="1" />
+        </label>
+        <label>
+          التقييم
+          <input type="number" name="rating" [(ngModel)]="rating" min="1" max="5" step="0.1" />
+        </label>
+        <label>
+          الكمية المتاحة
+          <input type="number" name="stock" [(ngModel)]="stock" min="0" />
+        </label>
+        <label class="toggle-label">
+          منتج مميز
+          <input type="checkbox" name="isFeatured" [(ngModel)]="isFeatured" />
+        </label>
+      </div>
+
+      <label>
+        وصف قصير *
+        <textarea
+          name="shortDescription"
+          [(ngModel)]="shortDescription"
+          rows="3"
+          required
+        ></textarea>
+      </label>
+
+      <div class="form-grid">
+        <label>
+          CPU
+          <input type="text" name="cpu" [(ngModel)]="cpu" />
+        </label>
+        <label>
+          RAM
+          <input type="text" name="ram" [(ngModel)]="ram" />
+        </label>
+        <label>
+          Storage
+          <input type="text" name="storage" [(ngModel)]="storage" />
+        </label>
+        <label>
+          Display
+          <input type="text" name="display" [(ngModel)]="display" />
+        </label>
+        <label>
+          GPU
+          <input type="text" name="gpu" [(ngModel)]="gpu" />
+        </label>
+        <label>
+          Warranty
+          <input type="text" name="warranty" [(ngModel)]="warranty" />
+        </label>
+      </div>
+
+      <label>
+        صور المنتج {{ isEditing ? '(اختيارية)' : '*' }}
+        <input type="file" accept="image/*" multiple (change)="onImagesSelected($event)" />
+      </label>
+      <small class="images-hint"
+        >تقدر ترفع أي عدد صور للمنتج. عند التعديل، لو اخترت صور جديدة سيتم استبدال الصور
+        القديمة.</small
+      >
+
+      <div class="image-preview-grid" *ngIf="imagePreviewUrls.length > 0">
+        <img
+          *ngFor="let previewUrl of imagePreviewUrls"
+          [src]="previewUrl"
+          alt="Product preview"
+          class="image-preview"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'جارٍ الحفظ...' : (isEditing ? 'تحديث المنتج' : 'حفظ المنتج') }}
+        </button>
+        <button type="button" class="secondary-btn" *ngIf="isEditing" (click)="cancelEdit()">
+          إلغاء التعديل
+        </button>
+      </div>
+
+      <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>
+      <a *ngIf="createdProductId" [routerLink]="['/products', createdProductId]" class="view-link">
+        فتح صفحة المنتج الجديدة
+      </a>
+    </form>
+
+    <aside class="products-panel">
+      <h2>المنتجات الحالية</h2>
+      <p *ngIf="isLoadingProducts" class="status">جارٍ تحميل المنتجات...</p>
+      <ul *ngIf="!isLoadingProducts && products.length > 0">
+        <li *ngFor="let product of products; trackBy: trackByProduct">
+          <div>
+            <strong>{{ product.name }}</strong>
+            <span>{{ product.price | number }} جنيه</span>
+          </div>
+          <div class="item-actions">
+            <a [routerLink]="['/products', product.id]">عرض الصفحة</a>
+            <button type="button" (click)="editProduct(product)">تعديل</button>
+            <button
+              type="button"
+              class="danger-btn"
+              [disabled]="isDeletingProductId === product.id"
+              (click)="deleteProduct(product)"
+            >
+              {{ isDeletingProductId === product.id ? 'جارٍ الحذف...' : 'حذف' }}
+            </button>
+          </div>
+        </li>
+      </ul>
+      <p *ngIf="!isLoadingProducts && products.length === 0" class="status">
+        لا توجد منتجات حالياً.
+      </p>
+    </aside>
+  </div>
+</section>

@@ -1,0 +1,63 @@
+<section class="details-page">
+  <a routerLink="/" class="back-link">← الرجوع للمتجر</a>
+
+  <p class="status" *ngIf="isLoading">جارٍ تحميل تفاصيل المنتج...</p>
+  <p class="status status--error" *ngIf="errorMessage && !isLoading">{{ errorMessage }}</p>
+
+  <article class="details-card" *ngIf="product && !isLoading">
+    <div class="details-image">
+      <div
+        class="image-stage"
+        (mousemove)="onMainImageMove($event)"
+        (mouseleave)="onMainImageLeave()"
+      >
+        <img [src]="activeImage || product.image" [alt]="product.name" />
+        <div class="image-lens" *ngIf="zoomVisible" [style.left.px]="lensLeft" [style.top.px]="lensTop"></div>
+      </div>
+
+      <div
+        class="zoom-result"
+        *ngIf="activeImage"
+        [class.zoom-result--visible]="zoomVisible"
+        [style.background-image]="'url(' + activeImage + ')'"
+        [style.background-position]="zoomBackgroundPosition"
+      ></div>
+
+      <div class="thumb-list" *ngIf="productImages.length > 1">
+        <button
+          type="button"
+          *ngFor="let imageUrl of productImages"
+          [class.thumb--active]="imageUrl === activeImage"
+          (click)="selectImage(imageUrl)"
+        >
+          <img [src]="imageUrl" [alt]="product.name" />
+        </button>
+      </div>
+    </div>
+
+    <div class="details-content">
+      <span class="badge">{{ product.brand }} - {{ product.category }}</span>
+      <h1>{{ product.name }}</h1>
+      <p class="description">{{ product.shortDescription }}</p>
+
+      <div class="price-box">
+        <strong>{{ product.price | number }} جنيه</strong>
+        <small>{{ product.oldPrice | number }} جنيه</small>
+      </div>
+
+      <ul class="specs-list">
+        <li><strong>المعالج:</strong> {{ product.specs.cpu }}</li>
+        <li><strong>الرام:</strong> {{ product.specs.ram }}</li>
+        <li><strong>التخزين:</strong> {{ product.specs.storage }}</li>
+        <li><strong>الشاشة:</strong> {{ product.specs.display }}</li>
+        <li><strong>كارت الشاشة:</strong> {{ product.specs.gpu }}</li>
+        <li><strong>الضمان:</strong> {{ product.specs.warranty }}</li>
+        <li><strong>المتاح:</strong> {{ product.stock }} قطعة</li>
+      </ul>
+
+      <div class="cta-row">
+        <a routerLink="/contact" class="contact-link">تواصل لطلب المنتج</a>
+      </div>
+    </div>
+  </article>
+</section>

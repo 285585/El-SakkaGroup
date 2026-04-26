@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 60;
+}
+
+.notice-bar {
+  background: linear-gradient(90deg, #0f172a, #1d4ed8, #0ea5e9);
+  color: #fff;
+  text-align: center;
+  padding: 0.45rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.86rem;
+}
+
+.main-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 5vw;
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+}
+
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.brand-link i {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0f2fe;
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+
+.brand-link strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+
+.brand-link small {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.main-nav {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.main-nav a,
+.nav-btn {
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  color: #334155;
+  font: inherit;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.main-nav a:hover,
+.nav-btn:hover {
+  background: #eef2ff;
+  color: #1d4ed8;
+}
+
+.main-nav .is-active {
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.header-phone {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0f172a;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.header-phone i {
+  color: #1d4ed8;
+}
+
+@media (max-width: 1024px) {
+  :host {
+    position: static;
+  }
+
+  .main-header {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .header-phone {
+    justify-self: center;
+  }
+}

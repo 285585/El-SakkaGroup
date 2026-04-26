@@ -1,0 +1,170 @@
+[
+  {
+    "id": "lp-001",
+    "name": "Lenovo ThinkPad E14 Gen 5",
+    "brand": "Lenovo",
+    "category": "Business",
+    "price": 400000,
+    "oldPrice": 40000,
+    "rating": 4.7,
+    "stock": 12,
+    "isFeatured": true,
+    "shortDescription": "Reliable business laptop with strong performance and premium keyboard.",
+    "image": "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Intel Core i7-1355U",
+      "ram": "16GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "display": "14-inch FHD IPS",
+      "gpu": "Intel Iris Xe",
+      "warranty": "2 Years"
+    }
+  },
+  {
+    "id": "lp-002",
+    "name": "HP Victus 15",
+    "brand": "HP",
+    "category": "Gaming",
+    "price": 44999,
+    "oldPrice": 47999,
+    "rating": 4.6,
+    "stock": 9,
+    "isFeatured": true,
+    "shortDescription": "Powerful gaming laptop for smooth FPS gaming and content creation.",
+    "image": "https://images.unsplash.com/photo-1593642702744-d377ab507dc8?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Intel Core i5-13420H",
+      "ram": "16GB DDR5",
+      "storage": "1TB NVMe SSD",
+      "display": "15.6-inch FHD 144Hz",
+      "gpu": "NVIDIA GeForce RTX 4050",
+      "warranty": "2 Years"
+    }
+  },
+  {
+    "id": "lp-003",
+    "name": "Dell XPS 13 Plus",
+    "brand": "Dell",
+    "category": "Premium",
+    "price": 68999,
+    "oldPrice": 72999,
+    "rating": 4.9,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "Ultra-premium ultrabook with stunning display and elegant design.",
+    "image": "https://images.unsplash.com/photo-1517336714739-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Intel Core i7-1360P",
+      "ram": "16GB LPDDR5",
+      "storage": "1TB NVMe SSD",
+      "display": "13.4-inch 3.5K OLED",
+      "gpu": "Intel Iris Xe",
+      "warranty": "3 Years"
+    }
+  },
+  {
+    "id": "lp-004",
+    "name": "ASUS TUF A15",
+    "brand": "ASUS",
+    "category": "Gaming",
+    "price": 53999,
+    "oldPrice": 56999,
+    "rating": 4.5,
+    "stock": 7,
+    "isFeatured": false,
+    "shortDescription": "Durable gaming machine with high-refresh panel and RTX graphics.",
+    "image": "https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "AMD Ryzen 7 7735HS",
+      "ram": "16GB DDR5",
+      "storage": "512GB NVMe SSD",
+      "display": "15.6-inch FHD 144Hz",
+      "gpu": "NVIDIA GeForce RTX 4060",
+      "warranty": "2 Years"
+    }
+  },
+  {
+    "id": "lp-005",
+    "name": "Acer Aspire 7",
+    "brand": "Acer",
+    "category": "Everyday",
+    "price": 32999,
+    "oldPrice": 34999,
+    "rating": 4.3,
+    "stock": 16,
+    "isFeatured": false,
+    "shortDescription": "Balanced performance for office work, study and media consumption.",
+    "image": "https://images.unsplash.com/photo-1616627457352-9d7df2edbc1b?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Intel Core i5-12450H",
+      "ram": "8GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "display": "15.6-inch FHD IPS",
+      "gpu": "NVIDIA GeForce RTX 2050",
+      "warranty": "1 Year"
+    }
+  },
+  {
+    "id": "lp-006",
+    "name": "Apple MacBook Air M3",
+    "brand": "Apple",
+    "category": "Premium",
+    "price": 75999,
+    "oldPrice": 78999,
+    "rating": 4.9,
+    "stock": 8,
+    "isFeatured": true,
+    "shortDescription": "Lightweight, silent and extremely fast laptop for professionals.",
+    "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Apple M3 Chip",
+      "ram": "16GB Unified Memory",
+      "storage": "512GB SSD",
+      "display": "13.6-inch Liquid Retina",
+      "gpu": "Apple 10-core GPU",
+      "warranty": "1 Year"
+    }
+  },
+  {
+    "id": "lp-007",
+    "name": "MSI Modern 14",
+    "brand": "MSI",
+    "category": "Everyday",
+    "price": 29999,
+    "oldPrice": 31999,
+    "rating": 4.2,
+    "stock": 14,
+    "isFeatured": false,
+    "shortDescription": "Portable and affordable laptop perfect for students and small teams.",
+    "image": "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Intel Core i5-1235U",
+      "ram": "8GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "display": "14-inch FHD",
+      "gpu": "Intel Iris Xe",
+      "warranty": "1 Year"
+    }
+  },
+  {
+    "id": "lp-008",
+    "name": "Dell Latitude 5440",
+    "brand": "Dell",
+    "category": "Business",
+    "price": 46999,
+    "oldPrice": 49999,
+    "rating": 4.6,
+    "stock": 11,
+    "isFeatured": true,
+    "shortDescription": "Enterprise-ready laptop built for security, mobility and productivity.",
+    "image": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80",
+    "specs": {
+      "cpu": "Intel Core i7-1365U",
+      "ram": "16GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "display": "14-inch FHD",
+      "gpu": "Intel Iris Xe",
+      "warranty": "3 Years"
+    }
+  }
+]
