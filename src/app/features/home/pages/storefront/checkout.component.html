@@ -1,7 +1,7 @@
 <section class="checkout-page">
   <div class="checkout-header">
-    <h1>إتمام الدفع</h1>
-    <p>املأ بيانات العنوان وطريقة الدفع لإكمال الطلب.</p>
+    <h1>تأكيد الطلب</h1>
+    <p>املأ بيانات العنوان وسيتم إرسال الطلب للمالك للمراجعة والتواصل معك.</p>
   </div>
 
   <div class="checkout-layout">
@@ -66,79 +66,13 @@
         </label>
       </div>
 
-      <h2>طريقة الدفع</h2>
-      <div class="payment-methods">
-        <label>
-          <input
-            type="radio"
-            name="paymentMethod"
-            value="cash_on_delivery"
-            [(ngModel)]="paymentMethod"
-          />
-          الدفع عند الاستلام
-        </label>
-        <label>
-          <input type="radio" name="paymentMethod" value="card" [(ngModel)]="paymentMethod" />
-          بطاقة بنكية
-        </label>
-      </div>
-
-      <div class="saved-cards" *ngIf="paymentMethod === 'card'">
-        <h3>البطاقات المحفوظة</h3>
-        <p *ngIf="isLoadingCards">جارٍ تحميل البطاقات...</p>
-
-        <div class="saved-card-list" *ngIf="!isLoadingCards && hasSavedCards">
-          <label class="saved-card" *ngFor="let card of savedCards">
-            <input
-              type="radio"
-              name="savedCardId"
-              [value]="card.id"
-              [(ngModel)]="selectedSavedCardId"
-            />
-            <span>
-              {{ card.cardHolderName }} - {{ card.brand | uppercase }} - **** {{ card.last4 }}
-              ({{ card.expiryMonth }}/{{ card.expiryYear }})
-            </span>
-            <button type="button" (click)="deleteSavedCard(card)">حذف</button>
-          </label>
-        </div>
-
-        <label class="use-new-card">
-          <input type="radio" name="savedCardId" value="" [(ngModel)]="selectedSavedCardId" />
-          استخدام بطاقة جديدة
-        </label>
-
-        <div class="form-grid" *ngIf="!selectedSavedCardId">
-          <label>
-            اسم حامل البطاقة *
-            <input type="text" name="cardHolderName" [(ngModel)]="cardHolderName" />
-          </label>
-          <label>
-            رقم البطاقة *
-            <input type="text" name="cardNumber" [(ngModel)]="cardNumber" />
-          </label>
-          <label>
-            شهر الانتهاء *
-            <input type="number" name="cardExpiryMonth" [(ngModel)]="cardExpiryMonth" min="1" max="12" />
-          </label>
-          <label>
-            سنة الانتهاء *
-            <input type="number" name="cardExpiryYear" [(ngModel)]="cardExpiryYear" min="2025" />
-          </label>
-          <label>
-            CVV *
-            <input type="password" name="cardCvv" [(ngModel)]="cardCvv" maxlength="4" />
-          </label>
-        </div>
-
-        <label class="save-card" *ngIf="!selectedSavedCardId">
-          <input type="checkbox" name="saveCard" [(ngModel)]="saveCard" />
-          حفظ البطاقة (يتم حفظ آخر 4 أرقام فقط لأمان أعلى)
-        </label>
+      <div class="manual-review-note">
+        <strong>ملاحظة:</strong>
+        يتم استلام الطلب من المالك ومراجعته ثم التواصل معك على رقم الهاتف لإكمال التفاصيل.
       </div>
 
       <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-        {{ isSubmitting ? 'جارٍ تأكيد الطلب...' : 'تأكيد الطلب والدفع' }}
+        {{ isSubmitting ? 'جارٍ إرسال الطلب...' : 'تأكيد الطلب' }}
       </button>
 
       <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -146,7 +80,7 @@
     </form>
 
     <aside class="summary-box">
-      <h2>ملخص الدفع</h2>
+      <h2>ملخص الطلب</h2>
       <p>الإجمالي الفرعي: <strong>{{ cartSubtotal | number }} جنيه</strong></p>
       <p>الشحن: <strong>{{ shippingCost | number }} جنيه</strong></p>
       <p class="total">الإجمالي النهائي: <strong>{{ cartTotal | number }} جنيه</strong></p>

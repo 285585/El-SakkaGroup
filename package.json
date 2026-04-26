@@ -10,7 +10,9 @@
         "deploy:local": "npm run build:prod && npm run start:prod",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
-        "test": "ng test"
+        "test": "ng test",
+        "catalog:refresh-images": "python server/refresh_catalog.py",
+        "catalog:replace-db": "node server/replace-products-from-json.js"
     },
     "private": true,
     "dependencies": {

@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { CreateOrderRequest, SavedPaymentCard } from '../../models/store.models';
+import { CreateOrderRequest } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { StoreApiService } from '../../services/store-api.service';
@@ -28,17 +28,6 @@ export class CheckoutComponent implements OnInit {
   postalCode = '';
   notes = '';
 
-  paymentMethod: 'cash_on_delivery' | 'card' = 'cash_on_delivery';
-  selectedSavedCardId = '';
-  saveCard = false;
-  cardHolderName = '';
-  cardNumber = '';
-  cardExpiryMonth: number | null = null;
-  cardExpiryYear: number | null = null;
-  cardCvv = '';
-
-  savedCards: SavedPaymentCard[] = [];
-  isLoadingCards = false;
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
@@ -75,8 +64,6 @@ export class CheckoutComponent implements OnInit {
     if (user?.phone) {
       this.phone = user.phone;
     }
-
-    this.loadSavedCards();
   }
 
   get cartSubtotal(): number {
@@ -89,10 +76,6 @@ export class CheckoutComponent implements OnInit {
 
   get cartTotal(): number {
     return this.cartService.getTotal();
-  }
-
-  get hasSavedCards(): boolean {
-    return this.savedCards.length > 0;
   }
 
   submitOrder(): void {
@@ -116,22 +99,6 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    if (this.paymentMethod === 'card') {
-      const usingSavedCard = Boolean(this.selectedSavedCardId);
-      if (!usingSavedCard) {
-        if (
-          !this.cardHolderName ||
-          !this.cardNumber ||
-          !this.cardExpiryMonth ||
-          !this.cardExpiryYear ||
-          !this.cardCvv
-        ) {
-          this.errorMessage = 'من فضلك أكمل بيانات البطاقة.';
-          return;
-        }
-      }
-    }
-
     const payload: CreateOrderRequest = {
       customerName: this.customerName.trim(),
       email: this.email.trim(),
@@ -146,16 +113,6 @@ export class CheckoutComponent implements OnInit {
       landmark: this.landmark.trim(),
       postalCode: this.postalCode.trim(),
       notes: this.notes.trim(),
-      paymentMethod: this.paymentMethod,
-      savedCardId: this.paymentMethod === 'card' && this.selectedSavedCardId
-        ? this.selectedSavedCardId
-        : undefined,
-      saveCard: this.paymentMethod === 'card' ? this.saveCard : false,
-      cardHolderName: this.paymentMethod === 'card' ? this.cardHolderName.trim() : undefined,
-      cardNumber: this.paymentMethod === 'card' ? this.cardNumber.trim() : undefined,
-      cardExpiryMonth: this.paymentMethod === 'card' ? Number(this.cardExpiryMonth) : undefined,
-      cardExpiryYear: this.paymentMethod === 'card' ? Number(this.cardExpiryYear) : undefined,
-      cardCvv: this.paymentMethod === 'card' ? this.cardCvv.trim() : undefined,
       items: this.cartService.getItems().map((item) => ({
         productId: item.product.id,
         quantity: item.quantity,
@@ -184,45 +141,6 @@ export class CheckoutComponent implements OnInit {
             typeof error.error?.message === 'string' && error.error.message.trim()
               ? error.error.message
               : 'تعذر إتمام الطلب حالياً، حاول مرة أخرى.';
-        },
-      });
-  }
-
-  deleteSavedCard(card: SavedPaymentCard): void {
-    const token = this.ownerAuthService.getToken();
-    if (!token) {
-      return;
-    }
-
-    this.storeApiService.deletePaymentCard(card.id, token).subscribe({
-      next: () => {
-        this.savedCards = this.savedCards.filter((entry) => entry.id !== card.id);
-        if (this.selectedSavedCardId === card.id) {
-          this.selectedSavedCardId = '';
-        }
-      },
-    });
-  }
-
-  private loadSavedCards(): void {
-    const token = this.ownerAuthService.getToken();
-    if (!token) {
-      return;
-    }
-
-    this.isLoadingCards = true;
-    this.storeApiService
-      .getSavedCards(token)
-      .pipe(finalize(() => (this.isLoadingCards = false)))
-      .subscribe({
-        next: (cards) => {
-          this.savedCards = cards;
-          if (cards.length > 0) {
-            this.selectedSavedCardId = cards[0].id;
-          }
-        },
-        error: () => {
-          this.savedCards = [];
         },
       });
   }

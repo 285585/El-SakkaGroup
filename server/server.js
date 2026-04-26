@@ -15,7 +15,6 @@ const { OAuth2Client } = require('google-auth-library');
 const Product = require('./models/product.model');
 const Order = require('./models/order.model');
 const User = require('./models/user.model');
-const PaymentCard = require('./models/payment-card.model');
 const Cart = require('./models/cart.model');
 
 dotenv.config();
@@ -60,12 +59,6 @@ const FRONTEND_LOGIN_URL =
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 const GMAIL_REGEX = /^[^\s@]+@gmail\.com$/i;
 const USERNAME_REGEX = /^[a-z0-9._-]{3,30}$/i;
-const CARD_BRAND_PATTERNS = [
-  { brand: 'visa', regex: /^4\d{12}(\d{3})?(\d{3})?$/ },
-  { brand: 'mastercard', regex: /^(5[1-5]\d{14}|2(2[2-9]|[3-6]\d|7[01])\d{12}|2720\d{12})$/ },
-  { brand: 'amex', regex: /^3[47]\d{13}$/ },
-  { brand: 'meeza', regex: /^5078\d{12}$/ },
-];
 const corsOrigins = String(process.env.CORS_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
@@ -223,29 +216,6 @@ const requireOwnerAuth = (request, response, next) => {
 
     next();
   });
-};
-
-const normalizeCardNumber = (value) => String(value || '').replace(/\s+/g, '');
-const normalizePaymentMethod = (value) => normalizeText(value).replace(/\s+/g, '_');
-const resolvePaymentMethod = (value) =>
-  normalizePaymentMethod(value) === 'card' ? 'card' : 'cash_on_delivery';
-
-const detectCardBrand = (cardNumber) => {
-  for (const matcher of CARD_BRAND_PATTERNS) {
-    if (matcher.regex.test(cardNumber)) {
-      return matcher.brand;
-    }
-  }
-
-  return 'card';
-};
-
-const maskCard = (cardNumber) => {
-  const last4 = cardNumber.slice(-4);
-  return {
-    last4,
-    masked: `**** **** **** ${last4}`,
-  };
 };
 
 const buildProductImages = (product) => {
@@ -424,11 +394,7 @@ const seedCollectionFromLegacyJson = async () => {
           notes: String(order.shippingAddress?.notes || '').trim(),
         },
         payment: {
-          method: resolvePaymentMethod(order.payment?.method || 'cash_on_delivery'),
-          cardBrand: String(order.payment?.cardBrand || '').trim(),
-          cardLast4: String(order.payment?.cardLast4 || '').trim(),
-          cardHolderName: String(order.payment?.cardHolderName || '').trim(),
-          cardExpiry: String(order.payment?.cardExpiry || '').trim(),
+          method: 'cash_on_delivery',
         },
         status: ['pending', 'confirmed', 'shipped', 'delivered', 'returned'].includes(
           String(order.status || '').trim()
@@ -1031,197 +997,16 @@ app.put('/api/user/cart', requireAuth, async (request, response, next) => {
   }
 });
 
-app.get('/api/user/cards', requireAuth, async (request, response, next) => {
-  try {
-    if (request.authUser.role === 'owner') {
-      response.json([]);
-      return;
-    }
-
-    const cards = await PaymentCard.find({ userId: request.authUser.userId })
-      .sort({ createdAt: -1 })
-      .lean();
-
-    response.json(
-      cards.map((card) => ({
-        id: card.tokenId,
-        cardHolderName: card.cardHolderName,
-        brand: card.brand,
-        last4: card.last4,
-        expiryMonth: card.expiryMonth,
-        expiryYear: card.expiryYear,
-      }))
-    );
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post('/api/user/cards', requireAuth, async (request, response, next) => {
-  try {
-    if (request.authUser.role === 'owner') {
-      response.status(403).json({ message: 'Owner account cannot save cards.' });
-      return;
-    }
-
-    const { cardHolderName, cardNumber, expiryMonth, expiryYear } = request.body || {};
-    const normalizedCardNumber = normalizeCardNumber(cardNumber);
-    const normalizedHolderName = String(cardHolderName || '').trim();
-    const month = Number(expiryMonth);
-    const year = Number(expiryYear);
-
-    if (!normalizedHolderName || !normalizedCardNumber || !month || !year) {
-      response.status(400).json({ message: 'Missing card details.' });
-      return;
-    }
-
-    if (!/^\d{13,19}$/.test(normalizedCardNumber)) {
-      response.status(400).json({ message: 'Invalid card number.' });
-      return;
-    }
-
-    if (!Number.isInteger(month) || month < 1 || month > 12) {
-      response.status(400).json({ message: 'Invalid expiry month.' });
-      return;
-    }
-
-    if (!Number.isInteger(year) || year < new Date().getFullYear()) {
-      response.status(400).json({ message: 'Invalid expiry year.' });
-      return;
-    }
-
-    const { last4 } = maskCard(normalizedCardNumber);
-    const brand = detectCardBrand(normalizedCardNumber);
-    const tokenId = `card_${crypto.randomUUID()}`;
-
-    const createdCard = await PaymentCard.create({
-      userId: request.authUser.userId,
-      cardHolderName: normalizedHolderName,
-      brand,
-      last4,
-      expiryMonth: month,
-      expiryYear: year,
-      tokenId,
-    });
-
-    response.status(201).json({
-      message: 'Card saved successfully.',
-      card: {
-        id: createdCard.tokenId,
-        cardHolderName: createdCard.cardHolderName,
-        brand: createdCard.brand,
-        last4: createdCard.last4,
-        expiryMonth: createdCard.expiryMonth,
-        expiryYear: createdCard.expiryYear,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.delete('/api/user/cards/:id', requireAuth, async (request, response, next) => {
-  try {
-    if (request.authUser.role === 'owner') {
-      response.status(403).json({ message: 'Owner account cannot delete cards.' });
-      return;
-    }
-
-    const deletedCard = await PaymentCard.findOneAndDelete({
-      tokenId: request.params.id,
-      userId: request.authUser.userId,
-    }).lean();
-
-    if (!deletedCard) {
-      response.status(404).json({ message: 'Card not found.' });
-      return;
-    }
-
-    response.json({ message: 'Card deleted successfully.', cardId: deletedCard.tokenId });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.put('/api/user/cards/:id', requireAuth, async (request, response, next) => {
-  try {
-    if (request.authUser.role === 'owner') {
-      response.status(403).json({ message: 'Owner account cannot update cards.' });
-      return;
-    }
-
-    const { cardHolderName, cardNumber, expiryMonth, expiryYear } = request.body || {};
-    const normalizedCardNumber = normalizeCardNumber(cardNumber);
-    const normalizedHolderName = String(cardHolderName || '').trim();
-    const month = Number(expiryMonth);
-    const year = Number(expiryYear);
-
-    if (!normalizedHolderName || !normalizedCardNumber || !month || !year) {
-      response.status(400).json({ message: 'Missing card details.' });
-      return;
-    }
-
-    if (!/^\d{13,19}$/.test(normalizedCardNumber)) {
-      response.status(400).json({ message: 'Invalid card number.' });
-      return;
-    }
-
-    if (!Number.isInteger(month) || month < 1 || month > 12) {
-      response.status(400).json({ message: 'Invalid expiry month.' });
-      return;
-    }
-
-    if (!Number.isInteger(year) || year < new Date().getFullYear()) {
-      response.status(400).json({ message: 'Invalid expiry year.' });
-      return;
-    }
-
-    const { last4 } = maskCard(normalizedCardNumber);
-    const brand = detectCardBrand(normalizedCardNumber);
-
-    const updatedCard = await PaymentCard.findOneAndUpdate(
-      {
-        tokenId: request.params.id,
-        userId: request.authUser.userId,
-      },
-      {
-        cardHolderName: normalizedHolderName,
-        brand,
-        last4,
-        expiryMonth: month,
-        expiryYear: year,
-      },
-      { new: true, lean: true }
-    );
-
-    if (!updatedCard) {
-      response.status(404).json({ message: 'Card not found.' });
-      return;
-    }
-
-    response.json({
-      message: 'Card updated successfully.',
-      card: {
-        id: updatedCard.tokenId,
-        cardHolderName: updatedCard.cardHolderName,
-        brand: updatedCard.brand,
-        last4: updatedCard.last4,
-        expiryMonth: updatedCard.expiryMonth,
-        expiryYear: updatedCard.expiryYear,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
 app.get('/api/user/orders', requireAuth, async (request, response, next) => {
   try {
-    const query =
-      request.authUser.role === 'owner'
-        ? { orderedByRole: 'owner', orderedByUsername: request.authUser.username }
-        : { userId: request.authUser.userId };
-    const orders = await Order.find(query).sort({ createdAt: -1 }).lean();
+    if (request.authUser.role !== 'owner') {
+      response.status(403).json({
+        message: 'Orders are visible to owner only.',
+      });
+      return;
+    }
+
+    const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
     response.json(orders);
   } catch (error) {
     next(error);
@@ -1577,14 +1362,6 @@ app.post('/api/orders', requireAuth, async (request, response, next) => {
       landmark,
       postalCode,
       notes,
-      paymentMethod,
-      savedCardId,
-      saveCard,
-      cardHolderName,
-      cardNumber,
-      cardExpiryMonth,
-      cardExpiryYear,
-      cardCvv,
       items,
     } = request.body;
 
@@ -1638,107 +1415,9 @@ app.post('/api/orders', requireAuth, async (request, response, next) => {
     );
     const shippingCost = subtotal >= 50000 ? 0 : 350;
     const total = Number((subtotal + shippingCost).toFixed(2));
-    const method = resolvePaymentMethod(paymentMethod);
-
-    let paymentSnapshot = {
-      method,
-      cardBrand: '',
-      cardLast4: '',
-      cardHolderName: '',
-      cardExpiry: '',
+    const paymentSnapshot = {
+      method: 'cash_on_delivery',
     };
-
-    if (method === 'card') {
-      if (savedCardId) {
-        const savedCard = await PaymentCard.findOne({
-          tokenId: String(savedCardId),
-          userId: request.authUser.userId,
-        }).lean();
-
-        if (!savedCard) {
-          response.status(400).json({ message: 'Saved card not found.' });
-          return;
-        }
-
-        paymentSnapshot = {
-          method: 'card',
-          cardBrand: savedCard.brand,
-          cardLast4: savedCard.last4,
-          cardHolderName: savedCard.cardHolderName,
-          cardExpiry: `${String(savedCard.expiryMonth).padStart(2, '0')}/${savedCard.expiryYear}`,
-        };
-      } else {
-        const normalizedCardNumber = normalizeCardNumber(cardNumber);
-        const normalizedHolderName = String(cardHolderName || '').trim();
-        const expiryMonth = Number(cardExpiryMonth);
-        const expiryYear = Number(cardExpiryYear);
-        const normalizedCvv = String(cardCvv || '').trim();
-
-        if (
-          !normalizedHolderName ||
-          !normalizedCardNumber ||
-          !expiryMonth ||
-          !expiryYear ||
-          !normalizedCvv
-        ) {
-          response.status(400).json({ message: 'Missing card details.' });
-          return;
-        }
-
-        if (!/^\d{13,19}$/.test(normalizedCardNumber)) {
-          response.status(400).json({ message: 'Invalid card number.' });
-          return;
-        }
-
-        if (!/^\d{3,4}$/.test(normalizedCvv)) {
-          response.status(400).json({ message: 'Invalid CVV.' });
-          return;
-        }
-
-        if (!Number.isInteger(expiryMonth) || expiryMonth < 1 || expiryMonth > 12) {
-          response.status(400).json({ message: 'Invalid card expiry month.' });
-          return;
-        }
-
-        if (!Number.isInteger(expiryYear) || expiryYear < new Date().getFullYear()) {
-          response.status(400).json({ message: 'Invalid card expiry year.' });
-          return;
-        }
-
-        const { last4 } = maskCard(normalizedCardNumber);
-        const brand = detectCardBrand(normalizedCardNumber);
-        paymentSnapshot = {
-          method: 'card',
-          cardBrand: brand,
-          cardLast4: last4,
-          cardHolderName: normalizedHolderName,
-          cardExpiry: `${String(expiryMonth).padStart(2, '0')}/${expiryYear}`,
-        };
-
-        // Security: never store full card number or CVV in database.
-        if (Boolean(saveCard) && request.authUser.role !== 'owner') {
-          const existingCard = await PaymentCard.findOne({
-            userId: request.authUser.userId,
-            last4,
-            expiryMonth,
-            expiryYear,
-            cardHolderName: normalizedHolderName,
-          }).lean();
-
-          if (!existingCard) {
-            await PaymentCard.create({
-              userId: request.authUser.userId,
-              cardHolderName: normalizedHolderName,
-              brand,
-              last4,
-              expiryMonth,
-              expiryYear,
-              tokenId: `card_${crypto.randomUUID()}`,
-            });
-          }
-        }
-      }
-    }
 
     const order = await Order.create({
       id: `ESG-${Date.now()}`,

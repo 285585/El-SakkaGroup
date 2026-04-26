@@ -223,12 +223,8 @@
             <strong>ملاحظات:</strong> {{ order.shippingAddress.notes }}
           </p>
           <p>
-            <strong>الدفع:</strong>
-            {{
-              order.payment.method === 'card'
-                ? ('بطاقة ' + order.payment.cardBrand + ' - **** ' + order.payment.cardLast4)
-                : 'الدفع عند الاستلام'
-            }}
+            <strong>المتابعة:</strong>
+            راجع الطلب وتواصل مع العميل على رقم الهاتف لتأكيد التفاصيل.
           </p>
           <p><strong>الإجمالي:</strong> {{ order.total | number }} جنيه</p>
         </article>

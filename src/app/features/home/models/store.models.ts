@@ -66,40 +66,10 @@ export interface ShippingAddress {
   notes: string;
 }
 
-export interface SavedPaymentCard {
-  id: string;
-  cardHolderName: string;
-  brand: string;
-  last4: string;
-  expiryMonth: number;
-  expiryYear: number;
-}
-
-export interface SaveCardRequest {
-  cardHolderName: string;
-  cardNumber: string;
-  expiryMonth: number;
-  expiryYear: number;
-}
-
-export interface SaveCardResponse {
-  message: string;
-  card: SavedPaymentCard;
-}
-
-export interface UpdateCardResponse {
-  message: string;
-  card: SavedPaymentCard;
-}
-
 export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'returned';
 
 export interface PaymentSnapshot {
-  method: 'cash_on_delivery' | 'card';
-  cardBrand: string;
-  cardLast4: string;
-  cardHolderName: string;
-  cardExpiry: string;
+  method: 'cash_on_delivery';
 }
 
 export interface CreateOrderRequest {
@@ -116,14 +86,6 @@ export interface CreateOrderRequest {
   landmark: string;
   postalCode: string;
   notes: string;
-  paymentMethod: 'cash_on_delivery' | 'card';
-  savedCardId?: string;
-  saveCard?: boolean;
-  cardHolderName?: string;
-  cardNumber?: string;
-  cardExpiryMonth?: number;
-  cardExpiryYear?: number;
-  cardCvv?: string;
   items: Array<{
     productId: string;
     quantity: number;

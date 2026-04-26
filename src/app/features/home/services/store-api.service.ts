@@ -16,11 +16,7 @@ import {
   ProductListResponse,
   RegisterUserRequest,
   RegisterUserResponse,
-  SaveCardRequest,
-  SaveCardResponse,
-  SavedPaymentCard,
   UpdateUserCartRequest,
-  UpdateCardResponse,
   UserCartResponse,
   UserOrder,
 } from '../models/store.models';
@@ -143,34 +139,6 @@ export class StoreApiService {
 
   getUserOrders(token: string): Observable<UserOrder[]> {
     return this.http.get<UserOrder[]>(`${this.baseUrl}/user/orders`, {
-      headers: this.createAuthHeaders(token),
-    });
-  }
-
-  getSavedCards(token: string): Observable<SavedPaymentCard[]> {
-    return this.http.get<SavedPaymentCard[]>(`${this.baseUrl}/user/cards`, {
-      headers: this.createAuthHeaders(token),
-    });
-  }
-
-  savePaymentCard(payload: SaveCardRequest, token: string): Observable<SaveCardResponse> {
-    return this.http.post<SaveCardResponse>(`${this.baseUrl}/user/cards`, payload, {
-      headers: this.createAuthHeaders(token),
-    });
-  }
-
-  deletePaymentCard(cardId: string, token: string): Observable<{ message: string; cardId: string }> {
-    return this.http.delete<{ message: string; cardId: string }>(`${this.baseUrl}/user/cards/${cardId}`, {
-      headers: this.createAuthHeaders(token),
-    });
-  }
-
-  updatePaymentCard(
-    cardId: string,
-    payload: SaveCardRequest,
-    token: string
-  ): Observable<UpdateCardResponse> {
-    return this.http.put<UpdateCardResponse>(`${this.baseUrl}/user/cards/${cardId}`, payload, {
       headers: this.createAuthHeaders(token),
     });
   }

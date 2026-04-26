@@ -1,170 +1,1058 @@
 [
   {
-    "id": "lp-001",
-    "name": "Lenovo ThinkPad E14 Gen 5",
-    "brand": "Lenovo",
-    "category": "Business",
-    "price": 400000,
-    "oldPrice": 40000,
-    "rating": 4.7,
-    "stock": 12,
-    "isFeatured": true,
-    "shortDescription": "Reliable business laptop with strong performance and premium keyboard.",
-    "image": "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=900&q=80",
-    "specs": {
-      "cpu": "Intel Core i7-1355U",
-      "ram": "16GB DDR4",
-      "storage": "512GB NVMe SSD",
-      "display": "14-inch FHD IPS",
-      "gpu": "Intel Iris Xe",
-      "warranty": "2 Years"
-    }
-  },
-  {
-    "id": "lp-002",
-    "name": "HP Victus 15",
+    "id": "catalog-001",
+    "name": "HP ProBook 650 G3",
     "brand": "HP",
-    "category": "Gaming",
-    "price": 44999,
-    "oldPrice": 47999,
-    "rating": 4.6,
-    "stock": 9,
-    "isFeatured": true,
-    "shortDescription": "Powerful gaming laptop for smooth FPS gaming and content creation.",
-    "image": "https://images.unsplash.com/photo-1593642702744-d377ab507dc8?auto=format&fit=crop&w=900&q=80",
-    "specs": {
-      "cpu": "Intel Core i5-13420H",
-      "ram": "16GB DDR5",
-      "storage": "1TB NVMe SSD",
-      "display": "15.6-inch FHD 144Hz",
-      "gpu": "NVIDIA GeForce RTX 4050",
-      "warranty": "2 Years"
-    }
-  },
-  {
-    "id": "lp-003",
-    "name": "Dell XPS 13 Plus",
-    "brand": "Dell",
-    "category": "Premium",
-    "price": 68999,
-    "oldPrice": 72999,
-    "rating": 4.9,
+    "category": "Laptops",
+    "price": 9000,
+    "oldPrice": 9000,
+    "rating": 4.7,
     "stock": 5,
     "isFeatured": true,
-    "shortDescription": "Ultra-premium ultrabook with stunning display and elegant design.",
-    "image": "https://images.unsplash.com/photo-1517336714739-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
+    "shortDescription": "HP ProBook 650 G3 - Core i7 7th HQ - 8GB - 256GB SSD",
+    "image": "/api/uploads/hp-probook-650-g3-core-i7-7th-hq-1.png",
+    "images": [
+      "/api/uploads/hp-probook-650-g3-core-i7-7th-hq-1.png"
+    ],
     "specs": {
-      "cpu": "Intel Core i7-1360P",
-      "ram": "16GB LPDDR5",
-      "storage": "1TB NVMe SSD",
-      "display": "13.4-inch 3.5K OLED",
-      "gpu": "Intel Iris Xe",
-      "warranty": "3 Years"
+      "cpu": "Core i7 7th HQ",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
     }
   },
   {
-    "id": "lp-004",
-    "name": "ASUS TUF A15",
-    "brand": "ASUS",
-    "category": "Gaming",
-    "price": 53999,
-    "oldPrice": 56999,
-    "rating": 4.5,
-    "stock": 7,
-    "isFeatured": false,
-    "shortDescription": "Durable gaming machine with high-refresh panel and RTX graphics.",
-    "image": "https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=900&q=80",
-    "specs": {
-      "cpu": "AMD Ryzen 7 7735HS",
-      "ram": "16GB DDR5",
-      "storage": "512GB NVMe SSD",
-      "display": "15.6-inch FHD 144Hz",
-      "gpu": "NVIDIA GeForce RTX 4060",
-      "warranty": "2 Years"
-    }
-  },
-  {
-    "id": "lp-005",
-    "name": "Acer Aspire 7",
-    "brand": "Acer",
-    "category": "Everyday",
-    "price": 32999,
-    "oldPrice": 34999,
-    "rating": 4.3,
-    "stock": 16,
-    "isFeatured": false,
-    "shortDescription": "Balanced performance for office work, study and media consumption.",
-    "image": "https://images.unsplash.com/photo-1616627457352-9d7df2edbc1b?auto=format&fit=crop&w=900&q=80",
-    "specs": {
-      "cpu": "Intel Core i5-12450H",
-      "ram": "8GB DDR4",
-      "storage": "512GB NVMe SSD",
-      "display": "15.6-inch FHD IPS",
-      "gpu": "NVIDIA GeForce RTX 2050",
-      "warranty": "1 Year"
-    }
-  },
-  {
-    "id": "lp-006",
-    "name": "Apple MacBook Air M3",
-    "brand": "Apple",
-    "category": "Premium",
-    "price": 75999,
-    "oldPrice": 78999,
-    "rating": 4.9,
-    "stock": 8,
-    "isFeatured": true,
-    "shortDescription": "Lightweight, silent and extremely fast laptop for professionals.",
-    "image": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",
-    "specs": {
-      "cpu": "Apple M3 Chip",
-      "ram": "16GB Unified Memory",
-      "storage": "512GB SSD",
-      "display": "13.6-inch Liquid Retina",
-      "gpu": "Apple 10-core GPU",
-      "warranty": "1 Year"
-    }
-  },
-  {
-    "id": "lp-007",
-    "name": "MSI Modern 14",
-    "brand": "MSI",
-    "category": "Everyday",
-    "price": 29999,
-    "oldPrice": 31999,
-    "rating": 4.2,
-    "stock": 14,
-    "isFeatured": false,
-    "shortDescription": "Portable and affordable laptop perfect for students and small teams.",
-    "image": "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&w=900&q=80",
-    "specs": {
-      "cpu": "Intel Core i5-1235U",
-      "ram": "8GB DDR4",
-      "storage": "512GB NVMe SSD",
-      "display": "14-inch FHD",
-      "gpu": "Intel Iris Xe",
-      "warranty": "1 Year"
-    }
-  },
-  {
-    "id": "lp-008",
-    "name": "Dell Latitude 5440",
+    "id": "catalog-002",
+    "name": "Dell Latitude 5490",
     "brand": "Dell",
-    "category": "Business",
-    "price": 46999,
-    "oldPrice": 49999,
-    "rating": 4.6,
-    "stock": 11,
+    "category": "Laptops",
+    "price": 8500,
+    "oldPrice": 8500,
+    "rating": 4.7,
+    "stock": 5,
     "isFeatured": true,
-    "shortDescription": "Enterprise-ready laptop built for security, mobility and productivity.",
-    "image": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=900&q=80",
+    "shortDescription": "Dell Latitude 5490 - Core i5 8th U - 8GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5490-core-i5-8th-u-1.png",
+    "images": [
+      "/api/uploads/dell-latitude-5490-core-i5-8th-u-1.png"
+    ],
     "specs": {
-      "cpu": "Intel Core i7-1365U",
-      "ram": "16GB DDR4",
-      "storage": "512GB NVMe SSD",
-      "display": "14-inch FHD",
-      "gpu": "Intel Iris Xe",
-      "warranty": "3 Years"
+      "cpu": "Core i5 8th U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-003",
+    "name": "Dell Latitude 5590 Touch",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 10900,
+    "oldPrice": 10900,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "Dell Latitude 5590 Touch - Core i7 8th U - 8GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5590-touch-core-i7-8th-u-1.png",
+    "images": [
+      "/api/uploads/dell-latitude-5590-touch-core-i7-8th-u-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i7 8th U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-004",
+    "name": "Dell Precision 3550",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 14300,
+    "oldPrice": 14300,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "Dell Precision 3550 - Core i5 10th U - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-precision-3550-core-i5-10th-u-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-3550-core-i5-10th-u-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 10th U",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-005",
+    "name": "Dell Precision 3560",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 15300,
+    "oldPrice": 15300,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "Dell Precision 3560 - Core i5 11th G7 - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-precision-3560-core-i5-11th-g7-2.jpg",
+    "images": [
+      "/api/uploads/dell-precision-3560-core-i5-11th-g7-2.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 11th G7",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-006",
+    "name": "HP ProBook 650 G5",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 9800,
+    "oldPrice": 9800,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "HP ProBook 650 G5 - Core i5 8th - 8GB - 256GB SSD",
+    "image": "/api/uploads/hp-probook-650-g5-core-i5-8th-1.png",
+    "images": [
+      "/api/uploads/hp-probook-650-g5-core-i5-8th-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i5 8th",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-007",
+    "name": "Dell Latitude 5530",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 20000,
+    "oldPrice": 20000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "Dell Latitude 5530 - Core i7 12th - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5530-core-i7-12th-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5530-core-i7-12th-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 12th",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-008",
+    "name": "Dell Latitude 5430",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 15500,
+    "oldPrice": 15500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": true,
+    "shortDescription": "Dell Latitude 5430 - Core i5 12th - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5430-core-i5-12th-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5430-core-i5-12th-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 12th",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-009",
+    "name": "HP EliteBook X360 1040",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 27000,
+    "oldPrice": 27000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP EliteBook X360 1040 - Core i7 1185G7 - 32GB - 512GB SSD",
+    "image": "/api/uploads/hp-elitebook-x360-1040-core-i7-1185g7-3.jpg",
+    "images": [
+      "/api/uploads/hp-elitebook-x360-1040-core-i7-1185g7-3.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 1185G7",
+      "ram": "32GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-010",
+    "name": "Dell Latitude 7340",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 19500,
+    "oldPrice": 19500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 7340 - Core i5 1345U - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-latitude-7340-core-i5-1345u-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-7340-core-i5-1345u-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 1345U",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-011",
+    "name": "HP EliteBook 650 G9",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 18700,
+    "oldPrice": 18700,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP EliteBook 650 G9 - Core i5 1245U - 16GB - 256GB SSD",
+    "image": "/api/uploads/hp-elitebook-650-g9-core-i5-1245u-1.jpg",
+    "images": [
+      "/api/uploads/hp-elitebook-650-g9-core-i5-1245u-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 1245U",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-012",
+    "name": "Dell Latitude 5570",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 7700,
+    "oldPrice": 7700,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 5570 - Core i5 6th HQ - 8GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5570-core-i5-6th-hq-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5570-core-i5-6th-hq-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 6th HQ",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-013",
+    "name": "Dell Latitude 5580",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 8500,
+    "oldPrice": 8500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 5580 - Core i5 7th U - 8GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5580-core-i5-7th-u-1.jpeg",
+    "images": [
+      "/api/uploads/dell-latitude-5580-core-i5-7th-u-1.jpeg"
+    ],
+    "specs": {
+      "cpu": "Core i5 7th U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-014",
+    "name": "Dell Precision 3510",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 9000,
+    "oldPrice": 9000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 3510 - Core i5 6300HQ - 8GB - 256GB SSD",
+    "image": "/api/uploads/dell-precision-3510-core-i5-6300hq-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-3510-core-i5-6300hq-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 6300HQ",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-015",
+    "name": "Dell Precision 3520",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 8800,
+    "oldPrice": 8800,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 3520 - Core i5 7440HQ - 8GB - 256GB SSD",
+    "image": "/api/uploads/dell-precision-3520-core-i5-7440hq-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-3520-core-i5-7440hq-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 7440HQ",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-016",
+    "name": "HP EliteBook 840 G6",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 10500,
+    "oldPrice": 10500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP EliteBook 840 G6 - Core i5 8365U - 8GB - 256GB SSD",
+    "image": "/api/uploads/hp-elitebook-840-g6-core-i5-8365u-1.png",
+    "images": [
+      "/api/uploads/hp-elitebook-840-g6-core-i5-8365u-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i5 8365U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-017",
+    "name": "HP EliteBook 840 G6",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 11900,
+    "oldPrice": 11900,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP EliteBook 840 G6 - Core i7 8365U - 8GB - 256GB SSD",
+    "image": "/api/uploads/hp-elitebook-840-g6-core-i7-8365u-1.png",
+    "images": [
+      "/api/uploads/hp-elitebook-840-g6-core-i7-8365u-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i7 8365U",
+      "ram": "8GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-018",
+    "name": "HP EliteBook 845 G8",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 13900,
+    "oldPrice": 13900,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP EliteBook 845 G8 - Ryzen 5 Pro 5650U - 16GB - 256GB SSD",
+    "image": "/api/uploads/hp-elitebook-845-g8-ryzen-5-pro-5650u-1.png",
+    "images": [
+      "/api/uploads/hp-elitebook-845-g8-ryzen-5-pro-5650u-1.png"
+    ],
+    "specs": {
+      "cpu": "Ryzen 5 Pro 5650U",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-019",
+    "name": "Dell Latitude 5511",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 15800,
+    "oldPrice": 15800,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 5511 - Core i7 10th H - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5511-core-i7-10th-h-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5511-core-i7-10th-h-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 10th H",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Integrated Graphics",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-020",
+    "name": "Dell Precision 7510",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 16000,
+    "oldPrice": 16000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7510 - Core i7 6820HQ - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7510-core-i7-6820hq-nvidia-quadro-m2000m-1.png",
+    "images": [
+      "/api/uploads/dell-precision-7510-core-i7-6820hq-nvidia-quadro-m2000m-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i7 6820HQ",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro M2000M",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-021",
+    "name": "Dell Precision 7510 Touch",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 14000,
+    "oldPrice": 14000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7510 Touch - Core i7 6820HQ - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7510-touch-core-i7-6820hq-nvidia-quadro-m1000m-1.png",
+    "images": [
+      "/api/uploads/dell-precision-7510-touch-core-i7-6820hq-nvidia-quadro-m1000m-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i7 6820HQ",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro M1000M",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-022",
+    "name": "Dell Precision 7520",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 17000,
+    "oldPrice": 17000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7520 - Core i7 7820HQ - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7520-core-i7-7820hq-nvidia-quadro-m1200-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-7520-core-i7-7820hq-nvidia-quadro-m1200-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 7820HQ",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro M1200",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-023",
+    "name": "Dell Precision 7530",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 20000,
+    "oldPrice": 20000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7530 - Core i7 8850H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7530-core-i7-8850h-nvidia-quadro-4gb-1.png",
+    "images": [
+      "/api/uploads/dell-precision-7530-core-i7-8850h-nvidia-quadro-4gb-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i7 8850H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro 4GB",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-024",
+    "name": "Dell Precision 7530",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 22000,
+    "oldPrice": 22000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7530 - Xeon E-2186M - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7530-xeon-e-2186m-nvidia-quadro-6gb-1.png",
+    "images": [
+      "/api/uploads/dell-precision-7530-xeon-e-2186m-nvidia-quadro-6gb-1.png"
+    ],
+    "specs": {
+      "cpu": "Xeon E-2186M",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro 6GB",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-025",
+    "name": "Dell Precision 7540",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 19300,
+    "oldPrice": 19300,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7540 - Core i5 9th H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7540-core-i5-9th-h-nvidia-quadro-t2000-1.jpeg",
+    "images": [
+      "/api/uploads/dell-precision-7540-core-i5-9th-h-nvidia-quadro-t2000-1.jpeg"
+    ],
+    "specs": {
+      "cpu": "Core i5 9th H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro T2000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-026",
+    "name": "Dell Precision 7540",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 23500,
+    "oldPrice": 23500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7540 - Core i7 9th H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7540-core-i7-9th-h-nvidia-quadro-t2000-1.jpeg",
+    "images": [
+      "/api/uploads/dell-precision-7540-core-i7-9th-h-nvidia-quadro-t2000-1.jpeg"
+    ],
+    "specs": {
+      "cpu": "Core i7 9th H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro T2000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-027",
+    "name": "Dell Precision 7540",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 23500,
+    "oldPrice": 23500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7540 - Xeon E-2276M - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7540-xeon-e-2276m-nvidia-quadro-t2000-1.jpeg",
+    "images": [
+      "/api/uploads/dell-precision-7540-xeon-e-2276m-nvidia-quadro-t2000-1.jpeg"
+    ],
+    "specs": {
+      "cpu": "Xeon E-2276M",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro T2000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-028",
+    "name": "Dell Precision 7540",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 25000,
+    "oldPrice": 25000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7540 - Core i9 9th H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7540-core-i9-9th-h-nvidia-quadro-t1000-1.png",
+    "images": [
+      "/api/uploads/dell-precision-7540-core-i9-9th-h-nvidia-quadro-t1000-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i9 9th H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro T1000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-029",
+    "name": "Dell Precision 7680",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 41500,
+    "oldPrice": 41500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 7680 - Core i5 13600HX - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-7680-core-i5-13600hx-rtx-a1000-6gb-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-7680-core-i5-13600hx-rtx-a1000-6gb-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i5 13600HX",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "RTX A1000 6GB",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-030",
+    "name": "Dell Precision 5520 4K Touch",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 17300,
+    "oldPrice": 17300,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5520 4K Touch - Xeon E3 - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5520-4k-touch-xeon-e3-nvidia-quadro-m1200-1.png",
+    "images": [
+      "/api/uploads/dell-precision-5520-4k-touch-xeon-e3-nvidia-quadro-m1200-1.png"
+    ],
+    "specs": {
+      "cpu": "Xeon E3",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro M1200",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-031",
+    "name": "Dell Precision 5530",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 14800,
+    "oldPrice": 14800,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5530 - Core i7 6th H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5530-core-i7-6th-h-nvidia-gtx-960m-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5530-core-i7-6th-h-nvidia-gtx-960m-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 6th H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia GTX 960M",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-032",
+    "name": "Dell Precision 5530",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 19800,
+    "oldPrice": 19800,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5530 - Xeon E-2176M - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5530-xeon-e-2176m-nvidia-quadro-p1000-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5530-xeon-e-2176m-nvidia-quadro-p1000-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Xeon E-2176M",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro P1000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-033",
+    "name": "Dell Precision 5530 Touch",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 20800,
+    "oldPrice": 20800,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5530 Touch - Xeon E-2176M - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5530-touch-xeon-e-2176m-nvidia-quadro-p1000-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5530-touch-xeon-e-2176m-nvidia-quadro-p1000-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Xeon E-2176M",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro P1000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-034",
+    "name": "Dell Precision 5540",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 23000,
+    "oldPrice": 23000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5540 - Core i7 9th H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5540-core-i7-9th-h-nvidia-quadro-t1000-1.png",
+    "images": [
+      "/api/uploads/dell-precision-5540-core-i7-9th-h-nvidia-quadro-t1000-1.png"
+    ],
+    "specs": {
+      "cpu": "Core i7 9th H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro T1000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-035",
+    "name": "Dell Precision 5540 4K Touch",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 24000,
+    "oldPrice": 24000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5540 4K Touch - Core i7 9th H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5540-4k-touch-core-i7-9th-h-nvidia-quadro-t1000-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5540-4k-touch-core-i7-9th-h-nvidia-quadro-t1000-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 9th H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia Quadro T1000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-036",
+    "name": "Dell Latitude 5511 Touch",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 17500,
+    "oldPrice": 17500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 5511 Touch - Core i7 10th H - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5511-touch-core-i7-10th-h-nvidia-mx250-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5511-touch-core-i7-10th-h-nvidia-mx250-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 10th H",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia MX250",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-037",
+    "name": "Dell Latitude 5521",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 19000,
+    "oldPrice": 19000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 5521 - Core i7 11th H - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5521-core-i7-11th-h-nvidia-mx450-1.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5521-core-i7-11th-h-nvidia-mx450-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 11th H",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Nvidia MX450",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-038",
+    "name": "Dell Precision 5570",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 50000,
+    "oldPrice": 50000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5570 - Core i9 12900H - 32GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5570-core-i9-12900h-rtx-2000-8gb-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5570-core-i9-12900h-rtx-2000-8gb-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i9 12900H",
+      "ram": "32GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "RTX 2000 8GB",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-039",
+    "name": "Dell Precision 5560",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 29000,
+    "oldPrice": 29000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5560 - Core i7 11850H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5560-core-i7-11850h-rtx-a2000-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5560-core-i7-11850h-rtx-a2000-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 11850H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "RTX A2000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-040",
+    "name": "Dell Precision 5760",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 32500,
+    "oldPrice": 32500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 5760 - Core i7 11850H - 16GB - 512GB SSD",
+    "image": "/api/uploads/dell-precision-5760-core-i7-11850h-rtx-2000-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-5760-core-i7-11850h-rtx-2000-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 11850H",
+      "ram": "16GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "RTX 2000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-041",
+    "name": "Dell Precision 3530",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 16500,
+    "oldPrice": 16500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Precision 3530 - Core i7 8850H - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-precision-3530-core-i7-8850h-quadro-p600-1.jpg",
+    "images": [
+      "/api/uploads/dell-precision-3530-core-i7-8850h-quadro-p600-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 8850H",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Quadro P600",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-042",
+    "name": "Dell Latitude 5591",
+    "brand": "Dell",
+    "category": "Laptops",
+    "price": 15000,
+    "oldPrice": 15000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "Dell Latitude 5591 - Core i7 8850H - 16GB - 256GB SSD",
+    "image": "/api/uploads/dell-latitude-5591-core-i7-8850h-quadro-mx130-2.jpg",
+    "images": [
+      "/api/uploads/dell-latitude-5591-core-i7-8850h-quadro-mx130-2.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 8850H",
+      "ram": "16GB",
+      "storage": "256GB SSD",
+      "display": "FHD Display",
+      "gpu": "Quadro MX130",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-043",
+    "name": "HP ZBook Fury G8",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 32000,
+    "oldPrice": 32000,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP ZBook Fury G8 - Core i7 11850H - 32GB - 512GB SSD",
+    "image": "/api/uploads/hp-zbook-fury-g8-core-i7-11850h-rtx-a2000-1.jpg",
+    "images": [
+      "/api/uploads/hp-zbook-fury-g8-core-i7-11850h-rtx-a2000-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 11850H",
+      "ram": "32GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "RTX A2000",
+      "warranty": "ضمان محلي"
+    }
+  },
+  {
+    "id": "catalog-044",
+    "name": "HP ZBook Fury G8",
+    "brand": "HP",
+    "category": "Laptops",
+    "price": 30500,
+    "oldPrice": 30500,
+    "rating": 4.7,
+    "stock": 5,
+    "isFeatured": false,
+    "shortDescription": "HP ZBook Fury G8 - Core i7 11850H - 32GB - 512GB SSD",
+    "image": "/api/uploads/hp-zbook-fury-g8-core-i7-11850h-rtx-t1200-1.jpg",
+    "images": [
+      "/api/uploads/hp-zbook-fury-g8-core-i7-11850h-rtx-t1200-1.jpg"
+    ],
+    "specs": {
+      "cpu": "Core i7 11850H",
+      "ram": "32GB",
+      "storage": "512GB SSD",
+      "display": "FHD Display",
+      "gpu": "RTX T1200",
+      "warranty": "ضمان محلي"
     }
   }
 ]

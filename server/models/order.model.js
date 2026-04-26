@@ -29,11 +29,7 @@ const shippingAddressSchema = new mongoose.Schema(
 
 const paymentSnapshotSchema = new mongoose.Schema(
   {
-    method: { type: String, enum: ['cash_on_delivery', 'card'], required: true },
-    cardBrand: { type: String, default: '', trim: true },
-    cardLast4: { type: String, default: '', trim: true },
-    cardHolderName: { type: String, default: '', trim: true },
-    cardExpiry: { type: String, default: '', trim: true },
+    method: { type: String, enum: ['cash_on_delivery'], required: true },
   },
   { _id: false }
 );
