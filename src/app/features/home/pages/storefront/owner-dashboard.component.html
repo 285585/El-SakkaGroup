@@ -152,6 +152,40 @@
       </p>
     </aside>
 
+    <section class="users-panel">
+      <h2>بيانات المستخدمين (للمالك فقط)</h2>
+      <p *ngIf="isLoadingUsers" class="status">جارٍ تحميل بيانات المستخدمين...</p>
+
+      <div class="users-table-wrap" *ngIf="!isLoadingUsers && users.length > 0">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>الاسم الأول</th>
+              <th>الاسم الأخير</th>
+              <th>رقم الهاتف</th>
+              <th>الإيميل</th>
+              <th>اسم المستخدم</th>
+              <th>تاريخ التسجيل</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users; trackBy: trackByUser">
+              <td>{{ user.firstName }}</td>
+              <td>{{ user.lastName }}</td>
+              <td>{{ user.phone }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.createdAt | date: 'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p *ngIf="!isLoadingUsers && users.length === 0" class="status">
+        لا توجد حسابات مستخدمين حتى الآن.
+      </p>
+    </section>
+
     <section class="orders-panel">
       <h2>الطلبات الواردة (للمالك فقط)</h2>
       <p *ngIf="isLoadingOrders" class="status">جارٍ تحميل الطلبات...</p>

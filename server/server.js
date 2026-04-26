@@ -16,6 +16,7 @@ const Product = require('./models/product.model');
 const Order = require('./models/order.model');
 const User = require('./models/user.model');
 const PaymentCard = require('./models/payment-card.model');
+const Cart = require('./models/cart.model');
 
 dotenv.config();
 
@@ -183,6 +184,9 @@ const formatSessionUser = (user) => ({
   username: user.username,
   role: user.role,
   ...(user.email ? { email: user.email } : {}),
+  ...(user.firstName ? { firstName: user.firstName } : {}),
+  ...(user.lastName ? { lastName: user.lastName } : {}),
+  ...(user.phone ? { phone: user.phone } : {}),
 });
 
 const requireAuth = (request, response, next) => {
@@ -200,6 +204,9 @@ const requireAuth = (request, response, next) => {
       username: payload.username,
       role: payload.role,
       email: payload.email,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      phone: payload.phone,
     };
     next();
   } catch {
@@ -740,17 +747,29 @@ app.post('/api/auth/google/complete-signup', async (request, response, next) => 
 
 app.post('/api/auth/register', async (request, response, next) => {
   try {
-    const { email, username, password } = request.body || {};
+    const { firstName, lastName, phone, email, username, password } = request.body || {};
+    const normalizedFirstName = String(firstName || '').trim();
+    const normalizedLastName = String(lastName || '').trim();
+    const normalizedPhone = String(phone || '').trim();
     const normalizedEmail = normalizeEmail(email);
     const normalizedUsername = normalizeUsername(username);
 
-    if (!normalizedEmail || !normalizedUsername || !password) {
-      response.status(400).json({ message: 'Email, username and password are required.' });
+    if (
+      !normalizedFirstName ||
+      !normalizedLastName ||
+      !normalizedPhone ||
+      !normalizedEmail ||
+      !normalizedUsername ||
+      !password
+    ) {
+      response.status(400).json({
+        message: 'First name, last name, phone, email, username and password are required.',
+      });
       return;
     }
 
-    if (!GMAIL_REGEX.test(normalizedEmail)) {
-      response.status(400).json({ message: 'Only Gmail addresses are allowed.' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      response.status(400).json({ message: 'Invalid email format.' });
       return;
     }
 
@@ -782,6 +801,9 @@ app.post('/api/auth/register', async (request, response, next) => {
 
     const passwordHash = await bcrypt.hash(String(password), 10);
     const createdUser = await User.create({
+      firstName: normalizedFirstName,
+      lastName: normalizedLastName,
+      phone: normalizedPhone,
       email: normalizedEmail,
       username: normalizedUsername,
       passwordHash,
@@ -792,6 +814,9 @@ app.post('/api/auth/register', async (request, response, next) => {
       userId: createdUser._id.toString(),
       username: createdUser.username,
       email: createdUser.email,
+      firstName: createdUser.firstName,
+      lastName: createdUser.lastName,
+      phone: createdUser.phone,
       role: 'customer',
     });
 
@@ -799,6 +824,9 @@ app.post('/api/auth/register', async (request, response, next) => {
       message: 'Registration successful.',
       token,
       user: formatSessionUser({
+        firstName: createdUser.firstName,
+        lastName: createdUser.lastName,
+        phone: createdUser.phone,
         username: createdUser.username,
         email: createdUser.email,
         role: 'customer',
@@ -854,12 +882,18 @@ app.post('/api/auth/login', async (request, response, next) => {
       userId: user._id.toString(),
       username: user.username,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
       role: 'customer',
     });
 
     response.json({
       token,
       user: formatSessionUser({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
         username: user.username,
         email: user.email,
         role: 'customer',
@@ -884,11 +918,116 @@ app.get('/api/auth/session', (request, response) => {
       user: formatSessionUser({
         username: payload.username,
         email: payload.email,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        phone: payload.phone,
         role: payload.role,
       }),
     });
   } catch {
     response.status(401).json({ message: 'Unauthorized.' });
+  }
+});
+
+app.get('/api/user/cart', requireAuth, async (request, response, next) => {
+  try {
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      response.json({ items: [] });
+      return;
+    }
+
+    const cart = await Cart.findOne({ userId: request.authUser.userId }).lean();
+    if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) {
+      response.json({ items: [] });
+      return;
+    }
+
+    const productIds = cart.items.map((item) => item.productId);
+    const products = (await Product.find({ id: { $in: productIds } }).lean()).map(
+      normalizeProductImages
+    );
+    const productsMap = new Map(products.map((product) => [product.id, product]));
+
+    const items = cart.items
+      .map((item) => {
+        const product = productsMap.get(item.productId);
+        if (!product) {
+          return null;
+        }
+
+        return {
+          product,
+          quantity: Number(item.quantity),
+        };
+      })
+      .filter(Boolean);
+
+    response.json({
+      items,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put('/api/user/cart', requireAuth, async (request, response, next) => {
+  try {
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      response.status(403).json({ message: 'Owner account cannot use user cart API.' });
+      return;
+    }
+
+    const rawItems = Array.isArray(request.body?.items) ? request.body.items : [];
+    if (rawItems.length === 0) {
+      await Cart.findOneAndUpdate(
+        { userId: request.authUser.userId },
+        { items: [] },
+        { upsert: true, new: true }
+      );
+      response.json({ message: 'Cart updated successfully.', items: [] });
+      return;
+    }
+
+    const normalizedItems = rawItems
+      .map((item) => ({
+        productId: String(item?.productId || '').trim(),
+        quantity: Number(item?.quantity),
+      }))
+      .filter((item) => item.productId && Number.isInteger(item.quantity) && item.quantity > 0);
+
+    if (normalizedItems.length !== rawItems.length) {
+      response.status(400).json({ message: 'Invalid cart items.' });
+      return;
+    }
+
+    const products = await Product.find({
+      id: { $in: normalizedItems.map((item) => item.productId) },
+    })
+      .select({ id: 1 })
+      .lean();
+    const validProductIds = new Set(products.map((product) => product.id));
+    const hasInvalidProduct = normalizedItems.some((item) => !validProductIds.has(item.productId));
+    if (hasInvalidProduct) {
+      response.status(400).json({ message: 'Cart contains invalid products.' });
+      return;
+    }
+
+    await Cart.findOneAndUpdate(
+      { userId: request.authUser.userId },
+      {
+        items: normalizedItems,
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    response.json({
+      message: 'Cart updated successfully.',
+      items: normalizedItems,
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -1345,6 +1484,36 @@ app.get('/api/admin/products', requireOwnerAuth, async (_request, response, next
       normalizeProductImages
     );
     response.json(products);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/api/admin/users', requireOwnerAuth, async (_request, response, next) => {
+  try {
+    const users = await User.find({})
+      .sort({ createdAt: -1 })
+      .select({
+        firstName: 1,
+        lastName: 1,
+        phone: 1,
+        email: 1,
+        username: 1,
+        createdAt: 1,
+      })
+      .lean();
+
+    response.json(
+      users.map((user) => ({
+        id: user._id.toString(),
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        username: user.username || '',
+        createdAt: user.createdAt,
+      }))
+    );
   } catch (error) {
     next(error);
   }

@@ -59,31 +59,21 @@
   cursor: not-allowed;
 }
 
-.gmail-activation {
-  margin-top: 0.4rem;
-  border: 1px dashed #cbd5e1;
-  border-radius: 10px;
-  padding: 0.75rem;
+.mode-switch {
   display: grid;
-  gap: 0.45rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
 }
 
-.gmail-activation h3 {
-  margin: 0;
-  font-size: 1rem;
+.mode-switch button {
+  margin-top: 0;
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
-.gmail-btn {
-  background: #0f172a !important;
-}
-
-.gmail-approved {
-  background: #ecfeff;
-  border: 1px solid #a5f3fc;
-  border-radius: 9px;
-  padding: 0.6rem 0.75rem;
-  display: grid;
-  gap: 0.2rem;
+.mode-switch button.active {
+  background: #1d4ed8;
+  color: #fff;
 }
 
 .status--error {

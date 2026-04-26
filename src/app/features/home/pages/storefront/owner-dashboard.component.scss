@@ -52,8 +52,42 @@
   padding: 1rem;
 }
 
+.users-panel {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
 .orders-panel h2 {
   margin-top: 0;
+}
+
+.users-panel h2 {
+  margin-top: 0;
+}
+
+.users-table-wrap {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.55rem 0.6rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.users-table th {
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .order-list {

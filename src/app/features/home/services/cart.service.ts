@@ -1,14 +1,27 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { CartItem, Product } from '../models/store.models';
+import { OwnerAuthService } from './owner-auth.service';
+import { StoreApiService } from './store-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  private readonly storageKey = 'el_sakka_cart_items';
-  private readonly cartSubject = new BehaviorSubject<CartItem[]>(this.readCartFromStorage());
+  private readonly guestStorageKey = 'el_sakka_cart_guest';
+  private readonly cartSubject = new BehaviorSubject<CartItem[]>([]);
+  private currentStorageKey = this.guestStorageKey;
   readonly cart$ = this.cartSubject.asObservable();
+
+  constructor(
+    private readonly ownerAuthService: OwnerAuthService,
+    private readonly storeApiService: StoreApiService
+  ) {
+    this.loadCartForActiveSession();
+    this.ownerAuthService.currentUser$.subscribe(() => {
+      this.loadCartForActiveSession();
+    });
+  }
 
   getItems(): CartItem[] {
     return this.cartSubject.value;
@@ -83,13 +96,70 @@ export class CartService {
     return this.getSubtotal() + this.getShippingCost();
   }
 
-  private updateCart(items: CartItem[]): void {
+  private updateCart(items: CartItem[], syncRemote = true): void {
     this.cartSubject.next(items);
-    localStorage.setItem(this.storageKey, JSON.stringify(items));
+    localStorage.setItem(this.currentStorageKey, JSON.stringify(items));
+    if (syncRemote) {
+      this.syncCartToServer();
+    }
   }
 
-  private readCartFromStorage(): CartItem[] {
-    const raw = localStorage.getItem(this.storageKey);
+  private loadCartForActiveSession(): void {
+    const currentUser = this.ownerAuthService.getCurrentUser();
+    this.currentStorageKey = this.resolveStorageKey(currentUser?.username);
+    const localItems = this.readCartFromStorage(this.currentStorageKey);
+    this.updateCart(localItems, false);
+
+    const token = this.ownerAuthService.getToken();
+    if (!token || currentUser?.role !== 'customer') {
+      return;
+    }
+
+    this.storeApiService.getUserCart(token).subscribe({
+      next: (response) => {
+        const serverItems = this.sanitizeCartItems(response.items);
+        if (serverItems.length === 0 && localItems.length > 0) {
+          this.syncCartToServer();
+          return;
+        }
+
+        this.updateCart(serverItems, false);
+      },
+    });
+  }
+
+  private syncCartToServer(): void {
+    const currentUser = this.ownerAuthService.getCurrentUser();
+    const token = this.ownerAuthService.getToken();
+    if (!token || currentUser?.role !== 'customer') {
+      return;
+    }
+
+    this.storeApiService
+      .updateUserCart(
+        {
+          items: this.cartSubject.value.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+          })),
+        },
+        token
+      )
+      .subscribe({
+        error: () => undefined,
+      });
+  }
+
+  private resolveStorageKey(username?: string): string {
+    const normalizedUsername = String(username || '').trim().toLowerCase();
+    if (!normalizedUsername) {
+      return this.guestStorageKey;
+    }
+    return `el_sakka_cart_${normalizedUsername}`;
+  }
+
+  private readCartFromStorage(storageKey: string): CartItem[] {
+    const raw = localStorage.getItem(storageKey);
     if (!raw) {
       return [];
     }
@@ -99,9 +169,27 @@ export class CartService {
       if (!Array.isArray(parsed)) {
         return [];
       }
-      return parsed.filter((item) => item?.product?.id && item?.quantity > 0);
+      return this.sanitizeCartItems(parsed);
     } catch {
       return [];
     }
+  }
+
+  private sanitizeCartItems(items: CartItem[]): CartItem[] {
+    if (!Array.isArray(items)) {
+      return [];
+    }
+
+    return items
+      .filter(
+        (item) =>
+          Boolean(item?.product?.id) &&
+          Number.isInteger(Number(item?.quantity)) &&
+          Number(item.quantity) > 0
+      )
+      .map((item) => ({
+        product: item.product,
+        quantity: Number(item.quantity),
+      }));
   }
 }

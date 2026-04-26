@@ -66,8 +66,14 @@ export class CheckoutComponent implements OnInit {
     if (user?.email) {
       this.email = user.email;
     }
-    if (user?.username) {
+    const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+    if (fullName) {
+      this.customerName = fullName;
+    } else if (user?.username) {
       this.customerName = user.username;
+    }
+    if (user?.phone) {
+      this.phone = user.phone;
     }
 
     this.loadSavedCards();

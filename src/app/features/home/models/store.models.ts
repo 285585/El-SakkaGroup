@@ -42,6 +42,17 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface UserCartResponse {
+  items: CartItem[];
+}
+
+export interface UpdateUserCartRequest {
+  items: Array<{
+    productId: string;
+    quantity: number;
+  }>;
+}
+
 export interface ShippingAddress {
   city: string;
   area: string;
@@ -161,6 +172,9 @@ export interface AuthLoginRequest {
 export interface AuthUser {
   username: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
   role: 'owner' | 'customer';
 }
 
@@ -169,19 +183,10 @@ export interface AuthLoginResponse {
   user: AuthUser;
 }
 
-export interface CompleteGoogleSignupRequest {
-  setupToken: string;
-  username: string;
-  password: string;
-}
-
-export interface CompleteGoogleSignupResponse {
-  message: string;
-  token: string;
-  user: AuthUser;
-}
-
 export interface RegisterUserRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
   email: string;
   username: string;
   password: string;
@@ -195,6 +200,16 @@ export interface RegisterUserResponse {
 
 export interface AuthSessionResponse {
   user: AuthUser;
+}
+
+export interface AdminUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  username: string;
+  createdAt: string;
 }
 
 export interface CreateProductRequest {

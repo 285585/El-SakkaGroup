@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { AdminOrder, OrderStatus, Product } from '../../models/store.models';
+import { AdminOrder, AdminUser, OrderStatus, Product } from '../../models/store.models';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { StoreApiService } from '../../services/store-api.service';
 
@@ -39,6 +39,7 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   isDeletingProductId = '';
   isLoadingProducts = false;
   isLoadingOrders = false;
+  isLoadingUsers = false;
   isUpdatingOrderId = '';
   errorMessage = '';
   successMessage = '';
@@ -46,6 +47,7 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
 
   products: Product[] = [];
   orders: AdminOrder[] = [];
+  users: AdminUser[] = [];
   readonly orderStatusOptions: Array<{ value: OrderStatus; label: string }> = [
     { value: 'pending', label: 'قيد المراجعة' },
     { value: 'confirmed', label: 'تم التأكيد' },
@@ -72,6 +74,7 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     this.pendingEditId = this.route.snapshot.queryParamMap.get('editId') || '';
     this.loadAdminProducts();
     this.loadAdminOrders();
+    this.loadAdminUsers();
   }
 
   ngOnDestroy(): void {
@@ -245,6 +248,10 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     return product.id;
   }
 
+  trackByUser(_index: number, user: AdminUser): string {
+    return user.id;
+  }
+
   updateOrderStatus(order: AdminOrder, nextStatus: OrderStatus): void {
     const token = this.ownerAuthService.getToken();
     if (!token || order.status === nextStatus) {
@@ -335,6 +342,27 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.orders = [];
+        },
+      });
+  }
+
+  private loadAdminUsers(): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    this.isLoadingUsers = true;
+    this.storeApiService
+      .getAdminUsers(token)
+      .pipe(finalize(() => (this.isLoadingUsers = false)))
+      .subscribe({
+        next: (users) => {
+          this.users = users;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.users = [];
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر تحميل بيانات المستخدمين.');
         },
       });
   }

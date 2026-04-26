@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
   {
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    phone: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true, unique: true, index: true },
     username: {
       type: String,
@@ -12,8 +15,7 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     passwordHash: { type: String, required: true },
-    googleSub: { type: String, trim: true, unique: true, sparse: true, index: true },
-    isEmailVerified: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: true },
     role: { type: String, enum: ['customer'], default: 'customer' },
   },
   { timestamps: true }

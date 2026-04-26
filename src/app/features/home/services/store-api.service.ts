@@ -2,12 +2,11 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  AdminUser,
   AdminOrder,
   AuthLoginRequest,
   AuthLoginResponse,
   AuthSessionResponse,
-  CompleteGoogleSignupRequest,
-  CompleteGoogleSignupResponse,
   CreateProductResponse,
   DeleteProductResponse,
   CreateOrderRequest,
@@ -20,7 +19,9 @@ import {
   SaveCardRequest,
   SaveCardResponse,
   SavedPaymentCard,
+  UpdateUserCartRequest,
   UpdateCardResponse,
+  UserCartResponse,
   UserOrder,
 } from '../models/store.models';
 
@@ -84,13 +85,16 @@ export class StoreApiService {
     return this.http.post<RegisterUserResponse>(`${this.baseUrl}/auth/register`, payload);
   }
 
-  completeGoogleSignup(
-    payload: CompleteGoogleSignupRequest
-  ): Observable<CompleteGoogleSignupResponse> {
-    return this.http.post<CompleteGoogleSignupResponse>(
-      `${this.baseUrl}/auth/google/complete-signup`,
-      payload
-    );
+  getUserCart(token: string): Observable<UserCartResponse> {
+    return this.http.get<UserCartResponse>(`${this.baseUrl}/user/cart`, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
+  updateUserCart(payload: UpdateUserCartRequest, token: string): Observable<UserCartResponse> {
+    return this.http.put<UserCartResponse>(`${this.baseUrl}/user/cart`, payload, {
+      headers: this.createAuthHeaders(token),
+    });
   }
 
   createProduct(formData: FormData, token: string): Observable<CreateProductResponse> {
@@ -127,6 +131,12 @@ export class StoreApiService {
 
   getAdminOrders(token: string): Observable<AdminOrder[]> {
     return this.http.get<AdminOrder[]>(`${this.baseUrl}/admin/orders`, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
+  getAdminUsers(token: string): Observable<AdminUser[]> {
+    return this.http.get<AdminUser[]>(`${this.baseUrl}/admin/users`, {
       headers: this.createAuthHeaders(token),
     });
   }
