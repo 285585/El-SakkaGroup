@@ -28,7 +28,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   storage = '';
   display = '';
   gpu = '';
-  warranty = '1 Year';
   isFeatured = false;
 
   imageFiles: File[] = [];
@@ -138,7 +137,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     formData.append('storage', this.storage.trim());
     formData.append('display', this.display.trim());
     formData.append('gpu', this.gpu.trim());
-    formData.append('warranty', this.warranty.trim());
     this.imageFiles.forEach((imageFile) => {
       formData.append('images', imageFile);
     });
@@ -191,7 +189,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     this.storage = product.specs.storage;
     this.display = product.specs.display;
     this.gpu = product.specs.gpu;
-    this.warranty = product.specs.warranty;
     this.isFeatured = product.isFeatured;
     this.imageFiles = [];
     this.clearImagePreviews();
@@ -382,7 +379,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     this.storage = '';
     this.display = '';
     this.gpu = '';
-    this.warranty = '1 Year';
     this.isFeatured = false;
     this.imageFiles = [];
     this.clearImagePreviews();

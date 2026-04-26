@@ -298,10 +298,12 @@ export class StorefrontComponent implements OnInit, OnDestroy {
       return this.products;
     }
 
+    if (this.selectedSection === 'accessories') {
+      return [];
+    }
+
     return this.products.filter((product) =>
-      this.selectedSection === 'laptops'
-        ? this.isLaptopCategory(product.category)
-        : !this.isLaptopCategory(product.category)
+      this.selectedSection === 'laptops' ? this.isLaptopCategory(product.category) : false
     );
   }
 

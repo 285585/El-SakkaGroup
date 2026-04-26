@@ -347,7 +347,7 @@ def build_product_object(item: dict, index: int, image_path: str) -> dict:
             "storage": item["storage"],
             "display": "FHD Display",
             "gpu": gpu_value,
-            "warranty": "ضمان محلي",
+            "warranty": "",
         },
     }
 
