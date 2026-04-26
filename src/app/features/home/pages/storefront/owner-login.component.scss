@@ -21,31 +21,6 @@
   gap: 0.75rem;
 }
 
-.mode-switch {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
-  background: #f1f5f9;
-  border-radius: 10px;
-  padding: 0.25rem;
-}
-
-.mode-switch button {
-  margin: 0;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #334155;
-  padding: 0.5rem 0.7rem;
-  border-radius: 8px;
-  font-weight: 600;
-}
-
-.mode-switch button.active {
-  background: #fff;
-  border-color: #cbd5e1;
-  color: #1d4ed8;
-}
-
 .owner-login-card h1 {
   margin: 0;
   font-size: 1.4rem;
@@ -82,6 +57,33 @@
 .owner-login-card button:disabled {
   opacity: 0.75;
   cursor: not-allowed;
+}
+
+.gmail-activation {
+  margin-top: 0.4rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.gmail-activation h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.gmail-btn {
+  background: #0f172a !important;
+}
+
+.gmail-approved {
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  border-radius: 9px;
+  padding: 0.6rem 0.75rem;
+  display: grid;
+  gap: 0.2rem;
 }
 
 .status--error {

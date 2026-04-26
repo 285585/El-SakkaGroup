@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     passwordHash: { type: String, required: true },
+    googleSub: { type: String, trim: true, unique: true, sparse: true, index: true },
+    isEmailVerified: { type: Boolean, default: false },
     role: { type: String, enum: ['customer'], default: 'customer' },
   },
   { timestamps: true }

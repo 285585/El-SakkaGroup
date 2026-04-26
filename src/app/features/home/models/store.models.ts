@@ -169,6 +169,18 @@ export interface AuthLoginResponse {
   user: AuthUser;
 }
 
+export interface CompleteGoogleSignupRequest {
+  setupToken: string;
+  username: string;
+  password: string;
+}
+
+export interface CompleteGoogleSignupResponse {
+  message: string;
+  token: string;
+  user: AuthUser;
+}
+
 export interface RegisterUserRequest {
   email: string;
   username: string;

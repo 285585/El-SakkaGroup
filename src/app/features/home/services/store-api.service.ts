@@ -6,6 +6,8 @@ import {
   AuthLoginRequest,
   AuthLoginResponse,
   AuthSessionResponse,
+  CompleteGoogleSignupRequest,
+  CompleteGoogleSignupResponse,
   CreateProductResponse,
   DeleteProductResponse,
   CreateOrderRequest,
@@ -80,6 +82,15 @@ export class StoreApiService {
 
   register(payload: RegisterUserRequest): Observable<RegisterUserResponse> {
     return this.http.post<RegisterUserResponse>(`${this.baseUrl}/auth/register`, payload);
+  }
+
+  completeGoogleSignup(
+    payload: CompleteGoogleSignupRequest
+  ): Observable<CompleteGoogleSignupResponse> {
+    return this.http.post<CompleteGoogleSignupResponse>(
+      `${this.baseUrl}/auth/google/complete-signup`,
+      payload
+    );
   }
 
   createProduct(formData: FormData, token: string): Observable<CreateProductResponse> {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 
@@ -10,21 +10,25 @@ import { OwnerAuthService } from '../../services/owner-auth.service';
   styleUrls: ['./owner-login.component.scss'],
 })
 export class OwnerLoginComponent implements OnInit {
-  authMode: 'login' | 'register' = 'login';
-
   username = '';
   password = '';
-  registerEmail = '';
-  registerUsername = '';
-  registerPassword = '';
-  registerPasswordConfirm = '';
+
+  setupToken = '';
+  googleEmail = '';
+  suggestedUsername = '';
+  setupUsername = '';
+  setupPassword = '';
+  setupPasswordConfirm = '';
+  showSetupForm = false;
 
   isSubmitting = false;
+  isSettingUp = false;
   errorMessage = '';
   successMessage = '';
 
   constructor(
     private readonly ownerAuthService: OwnerAuthService,
+    private readonly route: ActivatedRoute,
     private readonly router: Router
   ) {}
 
@@ -34,17 +38,38 @@ export class OwnerLoginComponent implements OnInit {
         this.redirectByRole();
       }
     });
-  }
 
-  setAuthMode(mode: 'login' | 'register'): void {
-    this.authMode = mode;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.route.queryParamMap.subscribe((params) => {
+      const googleStatus = params.get('google') || '';
+      const setupToken = params.get('setupToken') || '';
+      const email = params.get('email') || '';
+      const suggestedUsername = params.get('suggestedUsername') || '';
+
+      if (googleStatus === 'setup-required' && setupToken && email) {
+        this.showSetupForm = true;
+        this.setupToken = setupToken;
+        this.googleEmail = email;
+        this.suggestedUsername = suggestedUsername;
+        this.setupUsername = suggestedUsername;
+        this.successMessage = 'تم تأكيد Gmail بنجاح. الآن اختر اسم مستخدم وكلمة مرور.';
+        this.errorMessage = '';
+        return;
+      }
+
+      this.showSetupForm = false;
+      if (googleStatus === 'existing-account') {
+        this.successMessage = 'هذا البريد مفعّل بالفعل. استخدم اسم المستخدم وكلمة المرور لتسجيل الدخول.';
+      } else if (googleStatus === 'config-missing') {
+        this.errorMessage = 'تفعيل Gmail غير مُعد على السيرفر حالياً.';
+      } else if (googleStatus && googleStatus !== 'setup-required') {
+        this.errorMessage = 'تعذر إكمال تفعيل Gmail. حاول مرة أخرى.';
+      }
+    });
   }
 
   submit(): void {
-    if (this.authMode === 'register') {
-      this.submitRegistration();
+    if (this.showSetupForm) {
+      this.submitGoogleSetup();
       return;
     }
 
@@ -75,46 +100,49 @@ export class OwnerLoginComponent implements OnInit {
       });
   }
 
-  private submitRegistration(): void {
+  startGoogleActivation(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+    window.location.href = '/api/auth/google/start';
+  }
+
+  private submitGoogleSetup(): void {
     this.errorMessage = '';
     this.successMessage = '';
 
-    if (!this.registerEmail || !this.registerUsername || !this.registerPassword) {
-      this.errorMessage = 'من فضلك أكمل البريد الإلكتروني واسم المستخدم وكلمة المرور.';
+    if (!this.setupToken || !this.googleEmail) {
+      this.errorMessage = 'جلسة تفعيل Gmail غير صالحة. أعد التفعيل مرة أخرى.';
       return;
     }
 
-    if (!this.isGmailAddress(this.registerEmail)) {
-      this.errorMessage = 'لازم التسجيل يكون بإيميل Gmail صحيح.';
+    if (!this.setupUsername || !this.setupPassword) {
+      this.errorMessage = 'من فضلك أدخل اسم المستخدم وكلمة المرور لإكمال التفعيل.';
       return;
     }
 
-    if (this.registerUsername.trim().length < 3) {
+    if (this.setupUsername.trim().length < 3) {
       this.errorMessage = 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل.';
       return;
     }
 
-    if (this.registerPassword.length < 6) {
+    if (this.setupPassword.length < 6) {
       this.errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.';
       return;
     }
 
-    if (this.registerPassword !== this.registerPasswordConfirm) {
+    if (this.setupPassword !== this.setupPasswordConfirm) {
       this.errorMessage = 'تأكيد كلمة المرور غير مطابق.';
       return;
     }
 
-    this.isSubmitting = true;
+    this.isSettingUp = true;
     this.ownerAuthService
-      .register(
-        this.registerEmail.trim(),
-        this.registerUsername.trim(),
-        this.registerPassword
-      )
-      .pipe(finalize(() => (this.isSubmitting = false)))
+      .completeGoogleSignup(this.setupToken, this.setupUsername.trim(), this.setupPassword)
+      .pipe(finalize(() => (this.isSettingUp = false)))
       .subscribe({
         next: () => {
-          this.successMessage = 'تم إنشاء الحساب وتسجيل الدخول بنجاح.';
+          this.successMessage = 'تم تفعيل الحساب عبر Gmail وإنشاء بيانات الدخول بنجاح.';
+          this.showSetupForm = false;
           this.redirectByRole();
         },
         error: (error: HttpErrorResponse) => {
@@ -131,10 +159,6 @@ export class OwnerLoginComponent implements OnInit {
     }
 
     this.router.navigate(['/']);
-  }
-
-  private isGmailAddress(value: string): boolean {
-    return /^[^\s@]+@gmail\.com$/i.test(value.trim());
   }
 
   private resolveAuthError(error: HttpErrorResponse): string {

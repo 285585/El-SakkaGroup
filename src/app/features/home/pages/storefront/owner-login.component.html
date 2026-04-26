@@ -1,31 +1,9 @@
 <section class="owner-login-page">
   <form class="owner-login-card" (ngSubmit)="submit()">
-    <div class="mode-switch">
-      <button
-        type="button"
-        [class.active]="authMode === 'login'"
-        (click)="setAuthMode('login')"
-      >
-        تسجيل الدخول
-      </button>
-      <button
-        type="button"
-        [class.active]="authMode === 'register'"
-        (click)="setAuthMode('register')"
-      >
-        إنشاء حساب
-      </button>
-    </div>
+    <h1>تسجيل الدخول</h1>
+    <p>ادخل اسم المستخدم وكلمة المرور. حساب المالك يعمل من نفس الشاشة.</p>
 
-    <h1>{{ authMode === 'login' ? 'دخول المستخدم' : 'تسجيل مستخدم جديد' }}</h1>
-    <p *ngIf="authMode === 'login'">
-      سجل الدخول باليوزر والباسورد. لو دخلت بيانات المالك هيفتح وضع الإدارة تلقائياً.
-    </p>
-    <p *ngIf="authMode === 'register'">
-      التسجيل يكون بإيميل Gmail + اسم مستخدم فريد + كلمة مرور من اختيارك.
-    </p>
-
-    <ng-container *ngIf="authMode === 'login'">
+    <ng-container *ngIf="!showSetupForm">
       <label>
         اسم المستخدم
         <input type="text" name="username" [(ngModel)]="username" required />
@@ -35,54 +13,49 @@
         كلمة المرور
         <input type="password" name="password" [(ngModel)]="password" required />
       </label>
+      <button type="submit" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'جارٍ التنفيذ...' : 'دخول' }}
+      </button>
+
+      <div class="gmail-activation">
+        <h3>أول مرة؟ فعّل الحساب عبر Gmail</h3>
+        <p>اضغط الزر وسيتم تحويلك إلى Gmail/Google للموافقة، ثم تختار اسم المستخدم وكلمة المرور.</p>
+        <button type="button" class="gmail-btn" (click)="startGoogleActivation()">
+          تفعيل عبر Gmail
+        </button>
+      </div>
     </ng-container>
 
-    <ng-container *ngIf="authMode === 'register'">
+    <ng-container *ngIf="showSetupForm">
+      <div class="gmail-approved">
+        <strong>تمت الموافقة من Gmail:</strong>
+        <span>{{ googleEmail }}</span>
+      </div>
+
       <label>
-        Gmail
-        <input type="email" name="registerEmail" [(ngModel)]="registerEmail" required />
+        اسم المستخدم الجديد
+        <input type="text" name="setupUsername" [(ngModel)]="setupUsername" required />
       </label>
 
       <label>
-        اسم المستخدم
-        <input
-          type="text"
-          name="registerUsername"
-          [(ngModel)]="registerUsername"
-          required
-        />
-      </label>
-
-      <label>
-        كلمة المرور
-        <input
-          type="password"
-          name="registerPassword"
-          [(ngModel)]="registerPassword"
-          required
-        />
+        كلمة المرور الجديدة
+        <input type="password" name="setupPassword" [(ngModel)]="setupPassword" required />
       </label>
 
       <label>
         تأكيد كلمة المرور
         <input
           type="password"
-          name="registerPasswordConfirm"
-          [(ngModel)]="registerPasswordConfirm"
+          name="setupPasswordConfirm"
+          [(ngModel)]="setupPasswordConfirm"
           required
         />
       </label>
-    </ng-container>
 
-    <button type="submit" [disabled]="isSubmitting">
-      {{
-        isSubmitting
-          ? 'جارٍ التنفيذ...'
-          : authMode === 'login'
-            ? 'دخول'
-            : 'إنشاء الحساب'
-      }}
-    </button>
+      <button type="submit" [disabled]="isSettingUp">
+        {{ isSettingUp ? 'جارٍ الحفظ...' : 'حفظ بيانات الدخول' }}
+      </button>
+    </ng-container>
 
     <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
     <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>

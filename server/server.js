@@ -11,6 +11,7 @@ const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { OAuth2Client } = require('google-auth-library');
 const Product = require('./models/product.model');
 const Order = require('./models/order.model');
 const User = require('./models/user.model');
@@ -47,6 +48,13 @@ const OWNER_JWT_SECRET =
 const OWNER_TOKEN_TTL = process.env.OWNER_TOKEN_TTL || '7d';
 const SERVE_FRONTEND = String(process.env.SERVE_FRONTEND || 'true').toLowerCase() !== 'false';
 const DEFAULT_PRODUCT_IMAGE = '/assets/images/laptop-placeholder.svg';
+const GOOGLE_CLIENT_ID = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+const GOOGLE_CLIENT_SECRET = String(process.env.GOOGLE_CLIENT_SECRET || '').trim();
+const GOOGLE_REDIRECT_URI =
+  String(process.env.GOOGLE_REDIRECT_URI || '').trim() ||
+  `http://localhost:${PORT}/api/auth/google/callback`;
+const FRONTEND_LOGIN_URL =
+  String(process.env.FRONTEND_LOGIN_URL || '').trim() || 'http://localhost:4200/login';
 
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 const GMAIL_REGEX = /^[^\s@]+@gmail\.com$/i;
@@ -63,6 +71,10 @@ const corsOrigins = String(process.env.CORS_ORIGINS || '')
   .filter(Boolean);
 
 let frontendBuildExists = false;
+const hasGoogleAuthConfig = Boolean(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET);
+const googleOAuthClient = hasGoogleAuthConfig
+  ? new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI)
+  : null;
 
 const normalizeText = (value) => String(value || '').trim().toLowerCase();
 const toNumber = (value, fallback = 0) => {
@@ -91,6 +103,18 @@ const createAuthToken = (payload) =>
   jwt.sign(payload, OWNER_JWT_SECRET, {
     expiresIn: OWNER_TOKEN_TTL,
   });
+
+const createGoogleSetupToken = (payload) =>
+  jwt.sign(
+    {
+      purpose: 'google-setup',
+      ...payload,
+    },
+    OWNER_JWT_SECRET,
+    {
+      expiresIn: '20m',
+    }
+  );
 
 const readJson = async (filePath, fallbackValue) => {
   try {
@@ -137,6 +161,23 @@ const getTokenFromRequest = (request) => {
 
 const normalizeUsername = (value) => String(value || '').trim().toLowerCase();
 const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
+const getSuggestedUsernameFromEmail = (email) => {
+  const localPart = String(email || '')
+    .split('@')[0]
+    .replace(/[^a-z0-9._-]/gi, '')
+    .toLowerCase();
+  return localPart || `user${Date.now().toString(36)}`;
+};
+
+const buildFrontendLoginRedirect = (params = {}) => {
+  const url = new URL(FRONTEND_LOGIN_URL);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      url.searchParams.set(key, String(value));
+    }
+  });
+  return url.toString();
+};
 
 const formatSessionUser = (user) => ({
   username: user.username,
@@ -492,6 +533,209 @@ app.get('/api/health', (_request, response) => {
   });
 });
 
+app.get('/api/auth/google/start', (request, response) => {
+  if (!hasGoogleAuthConfig || !googleOAuthClient) {
+    response.status(503).json({
+      message: 'Google auth is not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.',
+    });
+    return;
+  }
+
+  const stateToken = jwt.sign(
+    {
+      purpose: 'google-oauth-state',
+      nonce: crypto.randomUUID(),
+      ip: request.ip,
+    },
+    OWNER_JWT_SECRET,
+    { expiresIn: '15m' }
+  );
+
+  const authUrl = googleOAuthClient.generateAuthUrl({
+    access_type: 'online',
+    scope: ['openid', 'email', 'profile'],
+    prompt: 'select_account',
+    state: stateToken,
+  });
+
+  response.redirect(authUrl);
+});
+
+app.get('/api/auth/google/callback', async (request, response) => {
+  const redirectWithParams = (params) => response.redirect(buildFrontendLoginRedirect(params));
+
+  if (!hasGoogleAuthConfig || !googleOAuthClient) {
+    redirectWithParams({
+      google: 'config-missing',
+    });
+    return;
+  }
+
+  const { code, state } = request.query || {};
+  if (!code || !state) {
+    redirectWithParams({ google: 'invalid-callback' });
+    return;
+  }
+
+  try {
+    const decodedState = jwt.verify(String(state), OWNER_JWT_SECRET);
+    if (decodedState?.purpose !== 'google-oauth-state') {
+      redirectWithParams({ google: 'invalid-state' });
+      return;
+    }
+
+    const { tokens } = await googleOAuthClient.getToken(String(code));
+    if (!tokens?.id_token) {
+      redirectWithParams({ google: 'missing-id-token' });
+      return;
+    }
+
+    const ticket = await googleOAuthClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const normalizedEmail = normalizeEmail(payload?.email);
+    const googleSub = String(payload?.sub || '').trim();
+
+    if (!payload?.email_verified || !normalizedEmail || !GMAIL_REGEX.test(normalizedEmail) || !googleSub) {
+      redirectWithParams({ google: 'unverified-email' });
+      return;
+    }
+
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser && existingUser.username && existingUser.passwordHash) {
+      redirectWithParams({
+        google: 'existing-account',
+        email: normalizedEmail,
+      });
+      return;
+    }
+
+    const setupToken = createGoogleSetupToken({
+      email: normalizedEmail,
+      googleSub,
+      userId: existingUser?._id?.toString() || '',
+    });
+
+    redirectWithParams({
+      google: 'setup-required',
+      setupToken,
+      email: normalizedEmail,
+      suggestedUsername: getSuggestedUsernameFromEmail(normalizedEmail),
+    });
+  } catch (error) {
+    console.error('Google callback error:', error);
+    redirectWithParams({
+      google: 'callback-error',
+    });
+  }
+});
+
+app.post('/api/auth/google/complete-signup', async (request, response, next) => {
+  try {
+    const { setupToken, username, password } = request.body || {};
+    const normalizedUsername = normalizeUsername(username);
+
+    if (!setupToken || !normalizedUsername || !password) {
+      response
+        .status(400)
+        .json({ message: 'Setup token, username and password are required.' });
+      return;
+    }
+
+    if (!USERNAME_REGEX.test(normalizedUsername)) {
+      response.status(400).json({
+        message: 'Username must be 3-30 chars and contain letters, numbers, dot, underscore or dash.',
+      });
+      return;
+    }
+
+    if (String(password).length < 6) {
+      response.status(400).json({ message: 'Password must be at least 6 characters.' });
+      return;
+    }
+
+    if (normalizedUsername === normalizeUsername(OWNER_USERNAME)) {
+      response.status(400).json({ message: 'This username is reserved.' });
+      return;
+    }
+
+    let decodedSetupToken;
+    try {
+      decodedSetupToken = jwt.verify(String(setupToken), OWNER_JWT_SECRET);
+    } catch {
+      response.status(401).json({ message: 'Google activation session expired. Please try again.' });
+      return;
+    }
+
+    if (decodedSetupToken?.purpose !== 'google-setup') {
+      response.status(401).json({ message: 'Invalid Google activation session.' });
+      return;
+    }
+
+    const normalizedEmail = normalizeEmail(decodedSetupToken.email);
+    const googleSub = String(decodedSetupToken.googleSub || '').trim();
+    const setupUserId = String(decodedSetupToken.userId || '').trim();
+
+    if (!normalizedEmail || !googleSub) {
+      response.status(401).json({ message: 'Invalid Google activation data.' });
+      return;
+    }
+
+    const userByUsername = await User.findOne({ username: normalizedUsername });
+    if (userByUsername && (!setupUserId || userByUsername._id.toString() !== setupUserId)) {
+      response.status(409).json({ message: 'Username already exists.' });
+      return;
+    }
+
+    let existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser && existingUser.username && existingUser.passwordHash) {
+      response.status(409).json({
+        message: 'This Gmail is already activated. Use username and password to login.',
+      });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(String(password), 10);
+
+    if (existingUser) {
+      existingUser.username = normalizedUsername;
+      existingUser.passwordHash = passwordHash;
+      existingUser.googleSub = googleSub;
+      existingUser.isEmailVerified = true;
+      await existingUser.save();
+    } else {
+      existingUser = await User.create({
+        email: normalizedEmail,
+        username: normalizedUsername,
+        passwordHash,
+        googleSub,
+        isEmailVerified: true,
+      });
+    }
+
+    const token = createAuthToken({
+      userId: existingUser._id.toString(),
+      username: existingUser.username,
+      email: existingUser.email,
+      role: 'customer',
+    });
+
+    response.status(201).json({
+      message: 'Google activation completed successfully.',
+      token,
+      user: formatSessionUser({
+        username: existingUser.username,
+        email: existingUser.email,
+        role: 'customer',
+      }),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post('/api/auth/register', async (request, response, next) => {
   try {
     const { email, username, password } = request.body || {};
@@ -539,6 +783,7 @@ app.post('/api/auth/register', async (request, response, next) => {
       email: normalizedEmail,
       username: normalizedUsername,
       passwordHash,
+      isEmailVerified: true,
     });
 
     const token = createAuthToken({

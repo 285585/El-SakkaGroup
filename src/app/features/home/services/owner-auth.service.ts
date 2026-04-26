@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import {
   AuthLoginResponse,
+  CompleteGoogleSignupResponse,
   AuthUser,
   RegisterUserResponse,
 } from '../models/store.models';
@@ -37,6 +38,16 @@ export class OwnerAuthService {
     return this.storeApiService.register({ email, username, password }).pipe(
       tap((response) => this.setSession(response))
     );
+  }
+
+  completeGoogleSignup(
+    setupToken: string,
+    username: string,
+    password: string
+  ): Observable<CompleteGoogleSignupResponse> {
+    return this.storeApiService
+      .completeGoogleSignup({ setupToken, username, password })
+      .pipe(tap((response) => this.setSession(response)));
   }
 
   logout(redirectUrl = '/login'): void {
