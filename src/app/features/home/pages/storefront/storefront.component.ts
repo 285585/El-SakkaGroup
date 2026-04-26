@@ -35,7 +35,7 @@ export class StorefrontComponent implements OnInit, OnDestroy {
     inStock: false,
   };
 
-  selectedSection: 'all' | 'laptops' | 'accessories' = 'all';
+  selectedSection: 'all' | 'laptops' | 'accessories' = 'laptops';
 
   isLoadingProducts = false;
   isDeletingProductId = '';
@@ -302,9 +302,7 @@ export class StorefrontComponent implements OnInit, OnDestroy {
       return [];
     }
 
-    return this.products.filter((product) =>
-      this.selectedSection === 'laptops' ? this.isLaptopCategory(product.category) : false
-    );
+    return this.products;
   }
 
   get recentlyViewedProducts(): Product[] {
@@ -333,15 +331,6 @@ export class StorefrontComponent implements OnInit, OnDestroy {
 
   isOutOfStock(product: Product): boolean {
     return Number(product.stock) <= 0;
-  }
-
-  private isLaptopCategory(category: string): boolean {
-    const normalizedCategory = String(category || '').trim().toLowerCase();
-    return (
-      normalizedCategory.includes('laptop') ||
-      normalizedCategory.includes('لاب') ||
-      normalizedCategory.includes('notebook')
-    );
   }
 
   private updateSearchSuggestions(term: string): void {

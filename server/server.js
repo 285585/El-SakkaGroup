@@ -335,39 +335,37 @@ const seedCollectionFromLegacyJson = async () => {
     return;
   }
 
-  const productCount = await Product.estimatedDocumentCount();
-  if (productCount === 0) {
-    const legacyProducts = await readJson(LEGACY_PRODUCTS_FILE, []);
-    if (Array.isArray(legacyProducts) && legacyProducts.length > 0) {
-      const normalizedProducts = legacyProducts.map((product) => {
-        const images = buildProductImages(product);
-        return {
-          id: String(product.id || generateProductId(product.name || 'product')),
-          name: String(product.name || '').trim(),
-          brand: String(product.brand || '').trim(),
-          category: String(product.category || '').trim(),
-          price: toNumber(product.price, 0),
-          oldPrice: toNumber(product.oldPrice, toNumber(product.price, 0)),
-          rating: toNumber(product.rating, 4.5),
-          stock: toNumber(product.stock, 0),
-          isFeatured: Boolean(product.isFeatured),
-          shortDescription: String(product.shortDescription || '').trim(),
-          image: images[0] || '',
-          images,
-          specs: {
-            cpu: String(product.specs?.cpu || 'N/A').trim(),
-            ram: String(product.specs?.ram || 'N/A').trim(),
-            storage: String(product.specs?.storage || 'N/A').trim(),
-            display: String(product.specs?.display || 'N/A').trim(),
-            gpu: String(product.specs?.gpu || 'N/A').trim(),
-            warranty: String(product.specs?.warranty || '1 Year').trim(),
-          },
-        };
-      });
+  const legacyProducts = await readJson(LEGACY_PRODUCTS_FILE, []);
+  if (Array.isArray(legacyProducts) && legacyProducts.length > 0) {
+    const normalizedProducts = legacyProducts.map((product) => {
+      const images = buildProductImages(product);
+      return {
+        id: String(product.id || generateProductId(product.name || 'product')),
+        name: String(product.name || '').trim(),
+        brand: String(product.brand || '').trim(),
+        category: String(product.category || '').trim(),
+        price: toNumber(product.price, 0),
+        oldPrice: toNumber(product.oldPrice, toNumber(product.price, 0)),
+        rating: toNumber(product.rating, 4.5),
+        stock: toNumber(product.stock, 0),
+        isFeatured: Boolean(product.isFeatured),
+        shortDescription: String(product.shortDescription || '').trim(),
+        image: images[0] || '',
+        images,
+        specs: {
+          cpu: String(product.specs?.cpu || 'N/A').trim(),
+          ram: String(product.specs?.ram || 'N/A').trim(),
+          storage: String(product.specs?.storage || 'N/A').trim(),
+          display: String(product.specs?.display || 'N/A').trim(),
+          gpu: String(product.specs?.gpu || 'N/A').trim(),
+          warranty: String(product.specs?.warranty || '').trim(),
+        },
+      };
+    });
 
-      await Product.insertMany(normalizedProducts, { ordered: false });
-      console.log(`[SEED] Seeded ${normalizedProducts.length} products from legacy JSON`);
-    }
+    await Product.deleteMany({});
+    await Product.insertMany(normalizedProducts, { ordered: false });
+    console.log(`[SEED] Replaced products with ${normalizedProducts.length} entries from legacy JSON`);
   }
 
   const orderCount = await Order.estimatedDocumentCount();
