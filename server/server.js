@@ -233,6 +233,7 @@ const applyProductFilters = (products, query) => {
   const sort = normalizeText(query.sort || 'featured');
   const minPrice = query.minPrice ? Number(query.minPrice) : null;
   const maxPrice = query.maxPrice ? Number(query.maxPrice) : null;
+  const inStockOnly = toBoolean(query.inStock);
 
   let filtered = [...products];
 
@@ -265,6 +266,10 @@ const applyProductFilters = (products, query) => {
 
   if (maxPrice !== null && !Number.isNaN(maxPrice)) {
     filtered = filtered.filter((product) => product.price <= maxPrice);
+  }
+
+  if (inStockOnly) {
+    filtered = filtered.filter((product) => Number(product.stock) > 0);
   }
 
   switch (sort) {

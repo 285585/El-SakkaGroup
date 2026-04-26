@@ -12,6 +12,7 @@ import { ContactComponent } from './contact.component';
 import { CartComponent } from './cart.component';
 import { CheckoutComponent } from './checkout.component';
 import { ProfileComponent } from './profile.component';
+import { WishlistComponent } from './wishlist.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { ProfileComponent } from './profile.component';
     CartComponent,
     CheckoutComponent,
     ProfileComponent,
+    WishlistComponent,
   ],
   imports: [
     CommonModule,

@@ -21,6 +21,11 @@
       <span>السلة</span>
       <b *ngIf="(cartItemsCount$ | async) as count">{{ count }}</b>
     </a>
+    <a routerLink="/wishlist" routerLinkActive="is-active" class="wishlist-link">
+      <i class="pi pi-heart"></i>
+      <span>المفضلة</span>
+      <b *ngIf="(wishlistCount$ | async) as count">{{ count }}</b>
+    </a>
     <a routerLink="/contact" routerLinkActive="is-active">تواصل معنا</a>
     <a *ngIf="isAuthenticated$ | async" routerLink="/profile" routerLinkActive="is-active">
       بروفايلي
@@ -50,3 +55,8 @@
     <span dir="ltr">01066449644</span>
   </div>
 </header>
+
+<a class="whatsapp-float" href="https://wa.me/201066449644" target="_blank" rel="noopener noreferrer">
+  <i class="pi pi-whatsapp"></i>
+  <span>واتساب</span>
+</a>

@@ -3,6 +3,7 @@
 
   <p class="status" *ngIf="isLoading">جارٍ تحميل تفاصيل المنتج...</p>
   <p class="status status--error" *ngIf="errorMessage && !isLoading">{{ errorMessage }}</p>
+  <p class="status status--success" *ngIf="successMessage && !isLoading">{{ successMessage }}</p>
 
   <article class="details-card" *ngIf="product && !isLoading">
     <div class="details-image">
@@ -56,6 +57,12 @@
       </ul>
 
       <div class="cta-row">
+        <button type="button" class="primary-btn" [disabled]="product.stock <= 0" (click)="addToCart()">
+          {{ product.stock <= 0 ? 'غير متوفر' : 'أضف للسلة' }}
+        </button>
+        <button type="button" class="secondary-btn" (click)="toggleWishlist()">
+          {{ isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة' }}
+        </button>
         <a routerLink="/contact" class="contact-link">تواصل لطلب المنتج</a>
       </div>
     </div>

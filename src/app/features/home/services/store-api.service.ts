@@ -45,6 +45,18 @@ export class StoreApiService {
       params = params.set('sort', filters.sort);
     }
 
+    if (filters.minPrice !== undefined && filters.minPrice !== null) {
+      params = params.set('minPrice', String(filters.minPrice));
+    }
+
+    if (filters.maxPrice !== undefined && filters.maxPrice !== null) {
+      params = params.set('maxPrice', String(filters.maxPrice));
+    }
+
+    if (filters.inStock) {
+      params = params.set('inStock', 'true');
+    }
+
     return this.http.get<ProductListResponse>(`${this.baseUrl}/products`, { params });
   }
 

@@ -79,9 +79,27 @@
       </select>
     </div>
 
-    <button type="button" class="filters__btn" (click)="loadProducts()">
-      تحديث النتائج
-    </button>
+    <div class="filters__field">
+      <label for="minPrice">أقل سعر</label>
+      <input id="minPrice" type="number" min="0" [(ngModel)]="filters.minPrice" />
+    </div>
+
+    <div class="filters__field">
+      <label for="maxPrice">أعلى سعر</label>
+      <input id="maxPrice" type="number" min="0" [(ngModel)]="filters.maxPrice" />
+    </div>
+
+    <label class="filters__check">
+      <input type="checkbox" [(ngModel)]="filters.inStock" />
+      متوفر فقط
+    </label>
+
+    <div class="filters__actions">
+      <button type="button" class="filters__btn" (click)="loadProducts()">تحديث النتائج</button>
+      <button type="button" class="filters__btn filters__btn--ghost" (click)="clearFilters()">
+        مسح الفلاتر
+      </button>
+    </div>
   </div>
 
   <div class="section-tabs">
@@ -112,8 +130,28 @@
   <p class="status status--success" *ngIf="ownerActionMessage">{{ ownerActionMessage }}</p>
   <p class="status" *ngIf="isLoadingProducts">جارٍ تحميل المنتجات...</p>
 
+  <div class="products-grid skeleton-grid" *ngIf="isLoadingProducts">
+    <article class="product-card skeleton-card" *ngFor="let _ of [1, 2, 3, 4, 5, 6]"></article>
+  </div>
+
   <div class="products-grid" *ngIf="!isLoadingProducts">
-    <article class="product-card" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+    <article
+      class="product-card"
+      *ngFor="let product of paginatedProducts; trackBy: trackByProduct"
+      [class.product-card--out]="isOutOfStock(product)"
+    >
+      <button
+        type="button"
+        class="wishlist-btn"
+        [class.wishlist-btn--active]="isWishlisted(product.id)"
+        (click)="toggleWishlist(product)"
+      >
+        ❤
+      </button>
+      <span class="discount-badge" *ngIf="getDiscountPercent(product) > 0">
+        -{{ getDiscountPercent(product) }}%
+      </span>
+      <span class="stock-badge stock-badge--out" *ngIf="isOutOfStock(product)">نفد المخزون</span>
       <img [src]="resolveProductImage(product)" [alt]="product.name" loading="lazy" />
       <div class="product-card__content">
         <div class="product-card__topline">
@@ -134,7 +172,9 @@
           </div>
           <div class="product-actions">
             <a [routerLink]="['/products', product.id]">التفاصيل</a>
-            <button type="button" (click)="addToCart(product)">أضف للسلة</button>
+            <button type="button" [disabled]="isOutOfStock(product)" (click)="addToCart(product)">
+              {{ isOutOfStock(product) ? 'غير متوفر' : 'أضف للسلة' }}
+            </button>
           </div>
         </div>
         <div class="owner-actions" *ngIf="ownerMode">
@@ -178,4 +218,22 @@
   <p class="status" *ngIf="!isLoadingProducts && sectionProducts.length === 0">
     لا توجد نتائج مطابقة للفلترة الحالية.
   </p>
+</section>
+
+<section class="recently-viewed" *ngIf="recentlyViewedProducts.length > 0">
+  <div class="recently-viewed__head">
+    <h2>شوهدت مؤخراً</h2>
+    <a routerLink="/wishlist">فتح المفضلة</a>
+  </div>
+  <div class="recently-viewed__grid">
+    <a
+      class="recently-viewed__card"
+      *ngFor="let product of recentlyViewedProducts; trackBy: trackByProduct"
+      [routerLink]="['/products', product.id]"
+    >
+      <img [src]="resolveProductImage(product)" [alt]="product.name" />
+      <strong>{{ product.name }}</strong>
+      <small>{{ product.price | number }} جنيه</small>
+    </a>
+  </div>
 </section>

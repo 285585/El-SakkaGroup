@@ -132,16 +132,45 @@ h1 {
 
 .cta-row {
   margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
+.primary-btn,
+.secondary-btn,
 .contact-link {
   display: inline-flex;
+  border: none;
+  cursor: pointer;
+  font: inherit;
   text-decoration: none;
-  color: #fff;
-  background: #1d4ed8;
   border-radius: 8px;
   padding: 0.6rem 1rem;
   font-weight: 600;
+}
+
+.primary-btn {
+  color: #fff;
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+}
+
+.primary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #64748b;
+}
+
+.secondary-btn {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.contact-link {
+  color: #fff;
+  background: #0f766e;
 }
 
 .status {
@@ -150,6 +179,10 @@ h1 {
 
 .status--error {
   color: #b91c1c;
+}
+
+.status--success {
+  color: #157347;
 }
 
 @media (max-width: 900px) {

@@ -19,10 +19,23 @@ body {
   background: radial-gradient(circle at top, #eef2ff 0%, #f8faff 55%, #f3f6ff 100%);
   font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-main);
+  direction: rtl;
+  text-align: right;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+app-root {
+  display: block;
+  direction: rtl;
+}
+
+input,
+textarea,
+select {
+  text-align: right;
 }

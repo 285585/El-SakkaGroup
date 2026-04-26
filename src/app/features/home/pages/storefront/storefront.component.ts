@@ -1,28 +1,38 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product, ProductFilters } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
 import { OwnerAuthService } from '../../services/owner-auth.service';
+import { RecentlyViewedService } from '../../services/recently-viewed.service';
 import { StoreApiService } from '../../services/store-api.service';
+import { WishlistService } from '../../services/wishlist.service';
 
 @Component({
   selector: 'app-storefront',
   templateUrl: './storefront.component.html',
   styleUrls: ['./storefront.component.scss']
 })
-export class StorefrontComponent implements OnInit {
+export class StorefrontComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   allProducts: Product[] = [];
+  recentlyViewed: Product[] = [];
+  wishlistIds = new Set<string>();
   brands: string[] = [];
   searchSuggestions: Product[] = [];
   showSearchSuggestions = false;
+  private searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly subscriptions: Subscription[] = [];
 
   filters: ProductFilters = {
     search: '',
     brand: 'all',
     sort: 'featured',
+    minPrice: null,
+    maxPrice: null,
+    inStock: false,
   };
 
   selectedSection: 'all' | 'laptops' | 'accessories' = 'all';
@@ -46,17 +56,36 @@ export class StorefrontComponent implements OnInit {
     private readonly storeApiService: StoreApiService,
     private readonly cartService: CartService,
     private readonly ownerAuthService: OwnerAuthService,
+    private readonly wishlistService: WishlistService,
+    private readonly recentlyViewedService: RecentlyViewedService,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
-    this.ownerAuthService.ownerMode$.subscribe((isOwnerMode) => {
-      this.ownerMode = isOwnerMode;
-    });
-    this.ownerAuthService.isSessionValid().subscribe();
+    this.subscriptions.push(
+      this.ownerAuthService.ownerMode$.subscribe((isOwnerMode) => {
+        this.ownerMode = isOwnerMode;
+      })
+    );
+    this.subscriptions.push(this.ownerAuthService.isSessionValid().subscribe());
+    this.subscriptions.push(
+      this.wishlistService.wishlist$.subscribe((items) => {
+        this.wishlistIds = new Set(items.map((item) => item.id));
+      })
+    );
+    this.subscriptions.push(
+      this.recentlyViewedService.viewed$.subscribe((items) => {
+        this.recentlyViewed = items.slice(0, 8);
+      })
+    );
     this.loadBrands();
     this.loadAllProducts();
     this.loadProducts();
+  }
+
+  ngOnDestroy(): void {
+    this.clearSearchDebounce();
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   loadProducts(): void {
@@ -82,7 +111,14 @@ export class StorefrontComponent implements OnInit {
 
   loadAllProducts(): void {
     this.storeApiService
-      .getProducts({ brand: 'all', sort: 'featured', search: '' })
+      .getProducts({
+        brand: 'all',
+        sort: 'featured',
+        search: '',
+        minPrice: null,
+        maxPrice: null,
+        inStock: false,
+      })
       .subscribe({
         next: (response) => {
           this.allProducts = response.products;
@@ -105,6 +141,11 @@ export class StorefrontComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
+    if (this.isOutOfStock(product)) {
+      this.errorMessage = 'هذا المنتج غير متوفر حالياً.';
+      return;
+    }
+
     this.cartService.addProduct(product);
     this.ownerActionMessage = `تمت إضافة "${product.name}" إلى السلة.`;
   }
@@ -162,6 +203,10 @@ export class StorefrontComponent implements OnInit {
     this.filters.search = value;
     this.updateSearchSuggestions(value);
     this.showSearchSuggestions = Boolean(value.trim());
+    this.clearSearchDebounce();
+    this.searchDebounceTimer = window.setTimeout(() => {
+      this.loadProducts();
+    }, 350);
   }
 
   onSearchFocus(): void {
@@ -177,6 +222,7 @@ export class StorefrontComponent implements OnInit {
   }
 
   onSearchEnter(): void {
+    this.clearSearchDebounce();
     this.showSearchSuggestions = false;
     this.loadProducts();
   }
@@ -186,6 +232,33 @@ export class StorefrontComponent implements OnInit {
     this.showSearchSuggestions = false;
     this.searchSuggestions = [];
     this.loadProducts();
+  }
+
+  clearFilters(): void {
+    this.filters = {
+      search: '',
+      brand: 'all',
+      sort: 'featured',
+      minPrice: null,
+      maxPrice: null,
+      inStock: false,
+    };
+    this.searchSuggestions = [];
+    this.showSearchSuggestions = false;
+    this.currentPage = 1;
+    this.loadProducts();
+  }
+
+  toggleWishlist(product: Product): void {
+    const wasWishlisted = this.isWishlisted(product.id);
+    this.wishlistService.toggle(product);
+    this.ownerActionMessage = wasWishlisted
+      ? 'تمت إزالة المنتج من المفضلة.'
+      : 'تمت إضافة المنتج إلى المفضلة.';
+  }
+
+  isWishlisted(productId: string): boolean {
+    return this.wishlistIds.has(productId);
   }
 
   trackByProduct(_index: number, item: Product): string {
@@ -232,6 +305,10 @@ export class StorefrontComponent implements OnInit {
     );
   }
 
+  get recentlyViewedProducts(): Product[] {
+    return this.recentlyViewed;
+  }
+
   resolveProductImage(product: Product): string {
     if (Array.isArray(product.images) && product.images.length > 0) {
       return product.images[0];
@@ -242,6 +319,18 @@ export class StorefrontComponent implements OnInit {
     }
 
     return 'assets/images/laptop-placeholder.svg';
+  }
+
+  getDiscountPercent(product: Product): number {
+    if (!product.oldPrice || product.oldPrice <= product.price) {
+      return 0;
+    }
+
+    return Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+  }
+
+  isOutOfStock(product: Product): boolean {
+    return Number(product.stock) <= 0;
   }
 
   private isLaptopCategory(category: string): boolean {
@@ -292,5 +381,14 @@ export class StorefrontComponent implements OnInit {
       merged.set(product.id, product);
     });
     this.allProducts = Array.from(merged.values());
+  }
+
+  private clearSearchDebounce(): void {
+    if (!this.searchDebounceTimer) {
+      return;
+    }
+
+    window.clearTimeout(this.searchDebounceTimer);
+    this.searchDebounceTimer = null;
   }
 }

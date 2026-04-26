@@ -27,6 +27,9 @@ export interface ProductFilters {
   search?: string;
   brand?: string;
   sort?: 'featured' | 'priceAsc' | 'priceDesc' | 'rating';
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  inStock?: boolean;
 }
 
 export interface ProductListResponse {

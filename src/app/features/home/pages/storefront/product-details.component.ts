@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../../models/store.models';
+import { CartService } from '../../services/cart.service';
+import { RecentlyViewedService } from '../../services/recently-viewed.service';
 import { StoreApiService } from '../../services/store-api.service';
+import { WishlistService } from '../../services/wishlist.service';
 
 @Component({
   selector: 'app-product-details',
@@ -20,10 +23,14 @@ export class ProductDetailsComponent implements OnInit {
 
   isLoading = true;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly storeApiService: StoreApiService
+    private readonly storeApiService: StoreApiService,
+    private readonly cartService: CartService,
+    private readonly wishlistService: WishlistService,
+    private readonly recentlyViewedService: RecentlyViewedService
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +49,7 @@ export class ProductDetailsComponent implements OnInit {
         next: (product) => {
           this.product = product;
           this.activeImage = this.productImages[0];
+          this.recentlyViewedService.add(product);
         },
         error: () => {
           this.errorMessage = 'لم يتم العثور على المنتج المطلوب.';
@@ -64,6 +72,37 @@ export class ProductDetailsComponent implements OnInit {
   selectImage(imageUrl: string): void {
     this.activeImage = imageUrl;
     this.zoomVisible = false;
+  }
+
+  addToCart(): void {
+    if (!this.product) {
+      return;
+    }
+
+    if (Number(this.product.stock) <= 0) {
+      this.errorMessage = 'هذا المنتج غير متوفر حالياً.';
+      return;
+    }
+
+    this.cartService.addProduct(this.product);
+    this.successMessage = 'تمت إضافة المنتج إلى السلة.';
+  }
+
+  toggleWishlist(): void {
+    if (!this.product) {
+      return;
+    }
+
+    this.wishlistService.toggle(this.product);
+    this.successMessage = this.isWishlisted ? 'تمت إضافة المنتج إلى المفضلة.' : 'تمت إزالة المنتج من المفضلة.';
+  }
+
+  get isWishlisted(): boolean {
+    if (!this.product) {
+      return false;
+    }
+
+    return this.wishlistService.has(this.product.id);
   }
 
   onMainImageMove(event: MouseEvent): void {

@@ -1,0 +1,29 @@
+<section class="wishlist-page">
+  <header>
+    <h1>المفضلة</h1>
+    <p>المنتجات التي أعجبتك في مكان واحد.</p>
+  </header>
+
+  <div class="wishlist-grid" *ngIf="wishlistItems.length > 0; else emptyWishlist">
+    <article class="wishlist-card" *ngFor="let product of wishlistItems; trackBy: trackByProduct">
+      <img [src]="resolveProductImage(product)" [alt]="product.name" />
+      <div class="content">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.brand }} - {{ product.category }}</p>
+        <strong>{{ product.price | number }} جنيه</strong>
+      </div>
+      <div class="actions">
+        <a [routerLink]="['/products', product.id]">التفاصيل</a>
+        <button type="button" (click)="addToCart(product)">أضف للسلة</button>
+        <button type="button" class="danger" (click)="removeFromWishlist(product.id)">إزالة</button>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #emptyWishlist>
+    <div class="empty-box">
+      <p>لا توجد عناصر في المفضلة حالياً.</p>
+      <a routerLink="/">العودة للمتجر</a>
+    </div>
+  </ng-template>
+</section>
