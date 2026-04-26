@@ -1,53 +1,56 @@
 {
-  "name": "e-commerce",
-  "version": "0.0.0",
-  "private": true,
-  
-  "scripts": {
-  "start": "node server/server.js",
-  "build": "echo build done"
-  },
-  
-  "dependencies": {
-  "@angular/animations": "^16.0.0",
-  "@angular/common": "^16.0.0",
-  "@angular/compiler": "^16.0.0",
-  "@angular/core": "^16.0.0",
-  "@angular/forms": "^16.0.0",
-  "@angular/platform-browser": "^16.0.0",
-  "@angular/platform-browser-dynamic": "^16.0.0",
-  "@angular/router": "^16.0.0",
-  "bcryptjs": "^3.0.3",
-  "compression": "^1.8.1",
-  "cors": "^2.8.6",
-  "dotenv": "^17.4.2",
-  "express": "^5.2.1",
-  "helmet": "^8.1.0",
-  "jsonwebtoken": "^9.0.3",
-  "mongoose": "^9.5.0",
-  "morgan": "^1.10.1",
-  "multer": "^2.1.1",
-  "primeflex": "^3.3.1",
-  "primeicons": "^6.0.1",
-  "primeng": "^16.0.0-rc.2",
-  "rxjs": "~7.8.0",
-  "tslib": "^2.3.0",
-  "zone.js": "~0.13.0"
-  },
-  
-  "devDependencies": {
-  "@angular-devkit/build-angular": "^16.0.1",
-  "@angular/cli": "~16.0.1",
-  "@angular/compiler-cli": "^16.0.0",
-  "@types/jasmine": "~4.3.0",
-  "concurrently": "^9.2.1",
-  "jasmine-core": "~4.6.0",
-  "karma": "~6.4.0",
-  "karma-chrome-launcher": "~3.2.0",
-  "karma-coverage": "~2.2.0",
-  "karma-jasmine": "~5.1.0",
-  "karma-jasmine-html-reporter": "~2.0.0",
-  "typescript": "~5.0.2"
-  }
-  }
-  
+    "name": "e-commerce",
+    "version": "0.0.0",
+    "scripts": {
+        "start": "node server/server.js",
+        "api": "node server/server.js",
+        "dev": "concurrently \"npm:api\" \"npm:start\"",
+        "build:prod": "ng build --configuration production",
+        "start:prod": "node server/server.js",
+        "deploy:local": "npm run build:prod && npm run start:prod",
+        "build": "ng build",
+        "watch": "ng build --watch --configuration development",
+        "test": "ng test"
+    },
+    "private": true,
+    "dependencies": {
+        "@angular/animations": "^16.0.0",
+        "@angular/common": "^16.0.0",
+        "@angular/compiler": "^16.0.0",
+        "@angular/core": "^16.0.0",
+        "@angular/forms": "^16.0.0",
+        "@angular/platform-browser": "^16.0.0",
+        "@angular/platform-browser-dynamic": "^16.0.0",
+        "@angular/router": "^16.0.0",
+        "bcryptjs": "^3.0.3",
+        "compression": "^1.8.1",
+        "cors": "^2.8.6",
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "helmet": "^8.1.0",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.5.0",
+        "morgan": "^1.10.1",
+        "multer": "^2.1.1",
+        "primeflex": "^3.3.1",
+        "primeicons": "^6.0.1",
+        "primeng": "^16.0.0-rc.2",
+        "rxjs": "~7.8.0",
+        "tslib": "^2.3.0",
+        "zone.js": "~0.13.0"
+    },
+    "devDependencies": {
+        "@angular-devkit/build-angular": "^16.0.1",
+        "@angular/cli": "~16.0.1",
+        "@angular/compiler-cli": "^16.0.0",
+        "@types/jasmine": "~4.3.0",
+        "concurrently": "^9.2.1",
+        "jasmine-core": "~4.6.0",
+        "karma": "~6.4.0",
+        "karma-chrome-launcher": "~3.2.0",
+        "karma-coverage": "~2.2.0",
+        "karma-jasmine": "~5.1.0",
+        "karma-jasmine-html-reporter": "~2.0.0",
+        "typescript": "~5.0.2"
+    }
+}
