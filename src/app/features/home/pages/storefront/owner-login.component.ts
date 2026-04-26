@@ -64,6 +64,14 @@ export class OwnerLoginComponent implements OnInit {
       } else if (googleStatus && googleStatus !== 'setup-required') {
         this.errorMessage = 'تعذر إكمال تفعيل Gmail. حاول مرة أخرى.';
       }
+
+      if (googleStatus) {
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true,
+        });
+      }
     });
   }
 

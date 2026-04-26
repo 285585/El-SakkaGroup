@@ -535,9 +535,11 @@ app.get('/api/health', (_request, response) => {
 
 app.get('/api/auth/google/start', (request, response) => {
   if (!hasGoogleAuthConfig || !googleOAuthClient) {
-    response.status(503).json({
-      message: 'Google auth is not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.',
-    });
+    response.redirect(
+      buildFrontendLoginRedirect({
+        google: 'config-missing',
+      })
+    );
     return;
   }
 
