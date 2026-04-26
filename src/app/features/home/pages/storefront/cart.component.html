@@ -1,0 +1,47 @@
+<section class="cart-page">
+  <div class="cart-header">
+    <h1>سلة المشتريات</h1>
+    <p>راجع المنتجات قبل الانتقال لصفحة الدفع.</p>
+  </div>
+
+  <div class="cart-layout" *ngIf="cartItems.length > 0; else emptyCart">
+    <div class="cart-items">
+      <article class="cart-item" *ngFor="let item of cartItems; trackBy: trackByCartItem">
+        <img [src]="resolveProductImage(item)" [alt]="item.product.name" />
+        <div class="item-main">
+          <h3>{{ item.product.name }}</h3>
+          <p>{{ item.product.brand }} - {{ item.product.category }}</p>
+          <strong>{{ item.product.price | number }} جنيه</strong>
+        </div>
+        <div class="item-actions">
+          <button type="button" (click)="decreaseQuantity(item)">-</button>
+          <span>{{ item.quantity }}</span>
+          <button type="button" (click)="increaseQuantity(item)">+</button>
+          <button type="button" class="danger-btn" (click)="removeFromCart(item.product.id)">
+            حذف
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <aside class="cart-summary">
+      <h2>ملخص الطلب</h2>
+      <p>عدد القطع: <strong>{{ cartItemsCount }}</strong></p>
+      <p>الإجمالي الفرعي: <strong>{{ cartSubtotal | number }} جنيه</strong></p>
+      <p>الشحن: <strong>{{ shippingCost | number }} جنيه</strong></p>
+      <p class="total">الإجمالي النهائي: <strong>{{ cartTotal | number }} جنيه</strong></p>
+
+      <div class="summary-actions">
+        <a routerLink="/checkout">متابعة إلى الدفع</a>
+        <button type="button" (click)="clearCart()">تفريغ السلة</button>
+      </div>
+    </aside>
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="empty-box">
+      <p>السلة فارغة حالياً.</p>
+      <a routerLink="/">اذهب للمتجر</a>
+    </div>
+  </ng-template>
+</section>

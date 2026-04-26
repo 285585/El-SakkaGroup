@@ -39,12 +39,77 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface ShippingAddress {
+  city: string;
+  area: string;
+  addressLine1: string;
+  addressLine2: string;
+  buildingNo: string;
+  floorNo: string;
+  apartmentNo: string;
+  landmark: string;
+  postalCode: string;
+  notes: string;
+}
+
+export interface SavedPaymentCard {
+  id: string;
+  cardHolderName: string;
+  brand: string;
+  last4: string;
+  expiryMonth: number;
+  expiryYear: number;
+}
+
+export interface SaveCardRequest {
+  cardHolderName: string;
+  cardNumber: string;
+  expiryMonth: number;
+  expiryYear: number;
+}
+
+export interface SaveCardResponse {
+  message: string;
+  card: SavedPaymentCard;
+}
+
+export interface UpdateCardResponse {
+  message: string;
+  card: SavedPaymentCard;
+}
+
+export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'returned';
+
+export interface PaymentSnapshot {
+  method: 'cash_on_delivery' | 'card';
+  cardBrand: string;
+  cardLast4: string;
+  cardHolderName: string;
+  cardExpiry: string;
+}
+
 export interface CreateOrderRequest {
   customerName: string;
   email: string;
   phone: string;
   city: string;
-  address: string;
+  area: string;
+  addressLine1: string;
+  addressLine2: string;
+  buildingNo: string;
+  floorNo: string;
+  apartmentNo: string;
+  landmark: string;
+  postalCode: string;
+  notes: string;
+  paymentMethod: 'cash_on_delivery' | 'card';
+  savedCardId?: string;
+  saveCard?: boolean;
+  cardHolderName?: string;
+  cardNumber?: string;
+  cardExpiryMonth?: number;
+  cardExpiryYear?: number;
+  cardCvv?: string;
   items: Array<{
     productId: string;
     quantity: number;
@@ -54,24 +119,67 @@ export interface CreateOrderRequest {
 export interface CreatedOrder {
   id: string;
   total: number;
-  createdAt: string;
+  createdAt?: string;
 }
+
+export interface AdminOrder extends CreatedOrder {
+  orderedByUsername: string;
+  orderedByRole: 'owner' | 'customer';
+  customerName: string;
+  email: string;
+  phone: string;
+  shippingAddress: ShippingAddress;
+  payment: PaymentSnapshot;
+  status: OrderStatus;
+  statusUpdatedAt?: string;
+  items: Array<{
+    productId: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+  }>;
+  subtotal: number;
+  shippingCost: number;
+}
+
+export type UserOrder = AdminOrder;
 
 export interface CreateOrderResponse {
   message: string;
   order: CreatedOrder;
 }
 
-export interface OwnerLoginRequest {
+export interface AuthLoginRequest {
   username: string;
   password: string;
 }
 
-export interface OwnerLoginResponse {
+export interface AuthUser {
+  username: string;
+  email?: string;
+  role: 'owner' | 'customer';
+}
+
+export interface AuthLoginResponse {
   token: string;
-  owner: {
-    username: string;
-  };
+  user: AuthUser;
+}
+
+export interface RegisterUserRequest {
+  email: string;
+  username: string;
+  password: string;
+}
+
+export interface RegisterUserResponse {
+  message: string;
+  token: string;
+  user: AuthUser;
+}
+
+export interface AuthSessionResponse {
+  user: AuthUser;
 }
 
 export interface CreateProductRequest {

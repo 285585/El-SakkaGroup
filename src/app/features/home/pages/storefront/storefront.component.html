@@ -51,7 +51,7 @@
           </li>
           <li *ngFor="let suggestion of searchSuggestions; trackBy: trackByProduct">
             <button type="button" (mousedown)="selectSuggestion(suggestion)">
-              <img [src]="suggestion.image" [alt]="suggestion.name" loading="lazy" />
+              <img [src]="resolveProductImage(suggestion)" [alt]="suggestion.name" loading="lazy" />
               <span>
                 <strong>{{ suggestion.name }}</strong>
                 <small>{{ suggestion.brand }} - {{ suggestion.price | number }} جنيه</small>
@@ -84,13 +84,37 @@
     </button>
   </div>
 
+  <div class="section-tabs">
+    <button
+      type="button"
+      [class.active]="selectedSection === 'all'"
+      (click)="setSection('all')"
+    >
+      كل المنتجات
+    </button>
+    <button
+      type="button"
+      [class.active]="selectedSection === 'laptops'"
+      (click)="setSection('laptops')"
+    >
+      قسم اللابات
+    </button>
+    <button
+      type="button"
+      [class.active]="selectedSection === 'accessories'"
+      (click)="setSection('accessories')"
+    >
+      قسم الاكسسوارات
+    </button>
+  </div>
+
   <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
   <p class="status status--success" *ngIf="ownerActionMessage">{{ ownerActionMessage }}</p>
   <p class="status" *ngIf="isLoadingProducts">جارٍ تحميل المنتجات...</p>
 
   <div class="products-grid" *ngIf="!isLoadingProducts">
-    <article class="product-card" *ngFor="let product of products; trackBy: trackByProduct">
-      <img [src]="product.image" [alt]="product.name" loading="lazy" />
+    <article class="product-card" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+      <img [src]="resolveProductImage(product)" [alt]="product.name" loading="lazy" />
       <div class="product-card__content">
         <div class="product-card__topline">
           <span>{{ product.brand }} - {{ product.category }}</span>
@@ -128,71 +152,30 @@
     </article>
   </div>
 
-  <p class="status" *ngIf="!isLoadingProducts && products.length === 0">
-    لا توجد نتائج مطابقة للفلترة الحالية.
-  </p>
-</section>
+  <div class="pagination" *ngIf="!isLoadingProducts && sectionProducts.length > pageSize">
+    <button type="button" [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">
+      السابق
+    </button>
 
-<section class="checkout-section">
-  <div class="cart-box">
-    <h2>سلة المشتريات</h2>
-    <p class="cart-box__count">عدد القطع: {{ cartItemsCount }}</p>
+    <button
+      type="button"
+      *ngFor="let page of pageNumbers"
+      [class.active]="page === currentPage"
+      (click)="setPage(page)"
+    >
+      {{ page }}
+    </button>
 
-    <div class="cart-items" *ngIf="cart.length > 0; else emptyCart">
-      <div class="cart-item" *ngFor="let item of cart; trackBy: trackByCartItem">
-        <div>
-          <strong>{{ item.product.name }}</strong>
-          <span>{{ item.product.price | number }} جنيه</span>
-        </div>
-        <div class="cart-actions">
-          <button type="button" (click)="decreaseQuantity(item)">-</button>
-          <span>{{ item.quantity }}</span>
-          <button type="button" (click)="increaseQuantity(item)">+</button>
-          <button type="button" class="delete-btn" (click)="removeFromCart(item.product.id)">
-            حذف
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <ng-template #emptyCart>
-      <p class="status">السلة فارغة حالياً.</p>
-    </ng-template>
-
-    <div class="cart-summary">
-      <p>الإجمالي الفرعي: <strong>{{ cartSubtotal | number }} جنيه</strong></p>
-      <p>الشحن: <strong>{{ shippingCost | number }} جنيه</strong></p>
-      <p class="total">الإجمالي النهائي: <strong>{{ cartTotal | number }} جنيه</strong></p>
-    </div>
+    <button
+      type="button"
+      [disabled]="currentPage === totalPages"
+      (click)="setPage(currentPage + 1)"
+    >
+      التالي
+    </button>
   </div>
 
-  <form class="checkout-form" (ngSubmit)="placeOrder()">
-    <h2>إتمام الطلب</h2>
-    <label>
-      الاسم بالكامل
-      <input type="text" name="customerName" [(ngModel)]="customerName" required />
-    </label>
-    <label>
-      البريد الإلكتروني
-      <input type="email" name="email" [(ngModel)]="email" required />
-    </label>
-    <label>
-      رقم الموبايل
-      <input type="text" name="phone" [(ngModel)]="phone" required />
-    </label>
-    <label>
-      المحافظة
-      <input type="text" name="city" [(ngModel)]="city" required />
-    </label>
-    <label>
-      العنوان بالتفصيل
-      <textarea name="address" [(ngModel)]="address" rows="4" required></textarea>
-    </label>
-
-    <button type="submit" [disabled]="isSubmittingOrder">
-      {{ isSubmittingOrder ? 'جارٍ إرسال الطلب...' : 'تأكيد الطلب' }}
-    </button>
-    <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
-    <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>
-  </form>
+  <p class="status" *ngIf="!isLoadingProducts && sectionProducts.length === 0">
+    لا توجد نتائج مطابقة للفلترة الحالية.
+  </p>
 </section>

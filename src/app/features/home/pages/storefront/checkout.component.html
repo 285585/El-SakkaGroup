@@ -1,0 +1,156 @@
+<section class="checkout-page">
+  <div class="checkout-header">
+    <h1>إتمام الدفع</h1>
+    <p>املأ بيانات العنوان وطريقة الدفع لإكمال الطلب.</p>
+  </div>
+
+  <div class="checkout-layout">
+    <form class="checkout-form" (ngSubmit)="submitOrder()">
+      <h2>بيانات العميل</h2>
+      <div class="form-grid">
+        <label>
+          الاسم بالكامل *
+          <input type="text" name="customerName" [(ngModel)]="customerName" required />
+        </label>
+        <label>
+          البريد الإلكتروني *
+          <input type="email" name="email" [(ngModel)]="email" required />
+        </label>
+        <label>
+          رقم الهاتف *
+          <input type="text" name="phone" [(ngModel)]="phone" required />
+        </label>
+      </div>
+
+      <h2>عنوان الشحن</h2>
+      <div class="form-grid">
+        <label>
+          المدينة / المحافظة *
+          <input type="text" name="city" [(ngModel)]="city" required />
+        </label>
+        <label>
+          المنطقة
+          <input type="text" name="area" [(ngModel)]="area" />
+        </label>
+        <label class="full-width">
+          العنوان الرئيسي *
+          <input type="text" name="addressLine1" [(ngModel)]="addressLine1" required />
+        </label>
+        <label class="full-width">
+          عنوان إضافي
+          <input type="text" name="addressLine2" [(ngModel)]="addressLine2" />
+        </label>
+        <label>
+          رقم المبنى
+          <input type="text" name="buildingNo" [(ngModel)]="buildingNo" />
+        </label>
+        <label>
+          الدور
+          <input type="text" name="floorNo" [(ngModel)]="floorNo" />
+        </label>
+        <label>
+          رقم الشقة
+          <input type="text" name="apartmentNo" [(ngModel)]="apartmentNo" />
+        </label>
+        <label>
+          أقرب علامة مميزة
+          <input type="text" name="landmark" [(ngModel)]="landmark" />
+        </label>
+        <label>
+          الرمز البريدي
+          <input type="text" name="postalCode" [(ngModel)]="postalCode" />
+        </label>
+        <label class="full-width">
+          ملاحظات إضافية
+          <textarea name="notes" [(ngModel)]="notes" rows="3"></textarea>
+        </label>
+      </div>
+
+      <h2>طريقة الدفع</h2>
+      <div class="payment-methods">
+        <label>
+          <input
+            type="radio"
+            name="paymentMethod"
+            value="cash_on_delivery"
+            [(ngModel)]="paymentMethod"
+          />
+          الدفع عند الاستلام
+        </label>
+        <label>
+          <input type="radio" name="paymentMethod" value="card" [(ngModel)]="paymentMethod" />
+          بطاقة بنكية
+        </label>
+      </div>
+
+      <div class="saved-cards" *ngIf="paymentMethod === 'card'">
+        <h3>البطاقات المحفوظة</h3>
+        <p *ngIf="isLoadingCards">جارٍ تحميل البطاقات...</p>
+
+        <div class="saved-card-list" *ngIf="!isLoadingCards && hasSavedCards">
+          <label class="saved-card" *ngFor="let card of savedCards">
+            <input
+              type="radio"
+              name="savedCardId"
+              [value]="card.id"
+              [(ngModel)]="selectedSavedCardId"
+            />
+            <span>
+              {{ card.cardHolderName }} - {{ card.brand | uppercase }} - **** {{ card.last4 }}
+              ({{ card.expiryMonth }}/{{ card.expiryYear }})
+            </span>
+            <button type="button" (click)="deleteSavedCard(card)">حذف</button>
+          </label>
+        </div>
+
+        <label class="use-new-card">
+          <input type="radio" name="savedCardId" value="" [(ngModel)]="selectedSavedCardId" />
+          استخدام بطاقة جديدة
+        </label>
+
+        <div class="form-grid" *ngIf="!selectedSavedCardId">
+          <label>
+            اسم حامل البطاقة *
+            <input type="text" name="cardHolderName" [(ngModel)]="cardHolderName" />
+          </label>
+          <label>
+            رقم البطاقة *
+            <input type="text" name="cardNumber" [(ngModel)]="cardNumber" />
+          </label>
+          <label>
+            شهر الانتهاء *
+            <input type="number" name="cardExpiryMonth" [(ngModel)]="cardExpiryMonth" min="1" max="12" />
+          </label>
+          <label>
+            سنة الانتهاء *
+            <input type="number" name="cardExpiryYear" [(ngModel)]="cardExpiryYear" min="2025" />
+          </label>
+          <label>
+            CVV *
+            <input type="password" name="cardCvv" [(ngModel)]="cardCvv" maxlength="4" />
+          </label>
+        </div>
+
+        <label class="save-card" *ngIf="!selectedSavedCardId">
+          <input type="checkbox" name="saveCard" [(ngModel)]="saveCard" />
+          حفظ البطاقة (يتم حفظ آخر 4 أرقام فقط لأمان أعلى)
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'جارٍ تأكيد الطلب...' : 'تأكيد الطلب والدفع' }}
+      </button>
+
+      <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>
+    </form>
+
+    <aside class="summary-box">
+      <h2>ملخص الدفع</h2>
+      <p>الإجمالي الفرعي: <strong>{{ cartSubtotal | number }} جنيه</strong></p>
+      <p>الشحن: <strong>{{ shippingCost | number }} جنيه</strong></p>
+      <p class="total">الإجمالي النهائي: <strong>{{ cartTotal | number }} جنيه</strong></p>
+      <a routerLink="/cart">الرجوع إلى السلة</a>
+    </aside>
+  </div>
+</section>

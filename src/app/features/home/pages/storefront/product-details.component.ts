@@ -10,6 +10,7 @@ import { StoreApiService } from '../../services/store-api.service';
   styleUrls: ['./product-details.component.scss'],
 })
 export class ProductDetailsComponent implements OnInit {
+  private readonly fallbackImage = 'assets/images/laptop-placeholder.svg';
   product: Product | null = null;
   activeImage = '';
   zoomBackgroundPosition = '50% 50%';
@@ -40,7 +41,7 @@ export class ProductDetailsComponent implements OnInit {
       .subscribe({
         next: (product) => {
           this.product = product;
-          this.activeImage = this.productImages[0] || '';
+          this.activeImage = this.productImages[0];
         },
         error: () => {
           this.errorMessage = 'لم يتم العثور على المنتج المطلوب.';
@@ -50,14 +51,14 @@ export class ProductDetailsComponent implements OnInit {
 
   get productImages(): string[] {
     if (!this.product) {
-      return [];
+      return [this.fallbackImage];
     }
 
     if (Array.isArray(this.product.images) && this.product.images.length > 0) {
       return this.product.images;
     }
 
-    return this.product.image ? [this.product.image] : [];
+    return this.product.image ? [this.product.image] : [this.fallbackImage];
   }
 
   selectImage(imageUrl: string): void {

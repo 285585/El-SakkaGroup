@@ -2,12 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import {
-  CartItem,
-  CreateOrderRequest,
-  Product,
-  ProductFilters,
-} from '../../models/store.models';
+import { Product, ProductFilters } from '../../models/store.models';
+import { CartService } from '../../services/cart.service';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { StoreApiService } from '../../services/store-api.service';
 
@@ -20,7 +16,6 @@ export class StorefrontComponent implements OnInit {
   products: Product[] = [];
   allProducts: Product[] = [];
   brands: string[] = [];
-  cart: CartItem[] = [];
   searchSuggestions: Product[] = [];
   showSearchSuggestions = false;
 
@@ -30,19 +25,15 @@ export class StorefrontComponent implements OnInit {
     sort: 'featured',
   };
 
-  customerName = '';
-  email = '';
-  phone = '';
-  city = '';
-  address = '';
+  selectedSection: 'all' | 'laptops' | 'accessories' = 'all';
 
   isLoadingProducts = false;
-  isSubmittingOrder = false;
   isDeletingProductId = '';
   ownerMode = false;
   errorMessage = '';
-  successMessage = '';
   ownerActionMessage = '';
+  currentPage = 1;
+  readonly pageSize = 10;
 
   readonly sortOptions = [
     { value: 'featured', label: 'المميزة' },
@@ -53,14 +44,16 @@ export class StorefrontComponent implements OnInit {
 
   constructor(
     private readonly storeApiService: StoreApiService,
+    private readonly cartService: CartService,
     private readonly ownerAuthService: OwnerAuthService,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
-    this.ownerAuthService.isSessionValid().subscribe((isValid) => {
-      this.ownerMode = isValid;
+    this.ownerAuthService.ownerMode$.subscribe((isOwnerMode) => {
+      this.ownerMode = isOwnerMode;
     });
+    this.ownerAuthService.isSessionValid().subscribe();
     this.loadBrands();
     this.loadAllProducts();
     this.loadProducts();
@@ -76,6 +69,7 @@ export class StorefrontComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.products = response.products;
+          this.currentPage = 1;
           this.mergeProductsForSuggestions(response.products);
           this.updateSearchSuggestions(this.filters.search || '');
         },
@@ -111,31 +105,8 @@ export class StorefrontComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    const existingItem = this.cart.find((entry) => entry.product.id === product.id);
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-      return;
-    }
-
-    this.cart.push({ product, quantity: 1 });
-  }
-
-  increaseQuantity(item: CartItem): void {
-    item.quantity += 1;
-  }
-
-  decreaseQuantity(item: CartItem): void {
-    if (item.quantity <= 1) {
-      this.removeFromCart(item.product.id);
-      return;
-    }
-
-    item.quantity -= 1;
-  }
-
-  removeFromCart(productId: string): void {
-    this.cart = this.cart.filter((item) => item.product.id !== productId);
+    this.cartService.addProduct(product);
+    this.ownerActionMessage = `تمت إضافة "${product.name}" إلى السلة.`;
   }
 
   editProduct(productId: string): void {
@@ -217,75 +188,69 @@ export class StorefrontComponent implements OnInit {
     this.loadProducts();
   }
 
-  placeOrder(): void {
-    this.successMessage = '';
-    this.errorMessage = '';
-
-    if (!this.customerName || !this.email || !this.phone || !this.city || !this.address) {
-      this.errorMessage = 'من فضلك اكمل بيانات الطلب قبل الإرسال.';
-      return;
-    }
-
-    if (this.cart.length === 0) {
-      this.errorMessage = 'السلة فارغة. أضف منتج واحد على الأقل.';
-      return;
-    }
-
-    const payload: CreateOrderRequest = {
-      customerName: this.customerName.trim(),
-      email: this.email.trim(),
-      phone: this.phone.trim(),
-      city: this.city.trim(),
-      address: this.address.trim(),
-      items: this.cart.map((item) => ({
-        productId: item.product.id,
-        quantity: item.quantity,
-      })),
-    };
-
-    this.isSubmittingOrder = true;
-
-    this.storeApiService
-      .createOrder(payload)
-      .pipe(finalize(() => (this.isSubmittingOrder = false)))
-      .subscribe({
-        next: (response) => {
-          this.successMessage = `تم إرسال طلبك بنجاح. رقم الطلب: ${response.order.id}`;
-          this.cart = [];
-          this.customerName = '';
-          this.email = '';
-          this.phone = '';
-          this.city = '';
-          this.address = '';
-        },
-        error: () => {
-          this.errorMessage = 'تعذر إرسال الطلب حالياً. حاول مرة أخرى بعد قليل.';
-        },
-      });
-  }
-
-  get cartItemsCount(): number {
-    return this.cart.reduce((sum, item) => sum + item.quantity, 0);
-  }
-
-  get cartSubtotal(): number {
-    return this.cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  }
-
-  get shippingCost(): number {
-    return this.cartSubtotal >= 50000 || this.cart.length === 0 ? 0 : 350;
-  }
-
-  get cartTotal(): number {
-    return this.cartSubtotal + this.shippingCost;
-  }
-
   trackByProduct(_index: number, item: Product): string {
     return item.id;
   }
 
-  trackByCartItem(_index: number, item: CartItem): string {
-    return item.product.id;
+  setSection(section: 'all' | 'laptops' | 'accessories'): void {
+    this.selectedSection = section;
+    this.currentPage = 1;
+  }
+
+  setPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    const productsSection = document.getElementById('products');
+    productsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  get paginatedProducts(): Product[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.sectionProducts.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.sectionProducts.length / this.pageSize));
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
+  }
+
+  get sectionProducts(): Product[] {
+    if (this.selectedSection === 'all') {
+      return this.products;
+    }
+
+    return this.products.filter((product) =>
+      this.selectedSection === 'laptops'
+        ? this.isLaptopCategory(product.category)
+        : !this.isLaptopCategory(product.category)
+    );
+  }
+
+  resolveProductImage(product: Product): string {
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      return product.images[0];
+    }
+
+    if (product.image) {
+      return product.image;
+    }
+
+    return 'assets/images/laptop-placeholder.svg';
+  }
+
+  private isLaptopCategory(category: string): boolean {
+    const normalizedCategory = String(category || '').trim().toLowerCase();
+    return (
+      normalizedCategory.includes('laptop') ||
+      normalizedCategory.includes('لاب') ||
+      normalizedCategory.includes('notebook')
+    );
   }
 
   private updateSearchSuggestions(term: string): void {

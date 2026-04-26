@@ -9,6 +9,9 @@ import { ProductDetailsComponent } from './product-details.component';
 import { OwnerLoginComponent } from './owner-login.component';
 import { OwnerDashboardComponent } from './owner-dashboard.component';
 import { ContactComponent } from './contact.component';
+import { CartComponent } from './cart.component';
+import { CheckoutComponent } from './checkout.component';
+import { ProfileComponent } from './profile.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +20,9 @@ import { ContactComponent } from './contact.component';
     OwnerLoginComponent,
     OwnerDashboardComponent,
     ContactComponent,
+    CartComponent,
+    CheckoutComponent,
+    ProfileComponent,
   ],
   imports: [
     CommonModule,

@@ -1,11 +1,24 @@
 /* Global styles */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary-700: #4f46e5;
+  --primary-600: #6366f1;
+  --accent-500: #06b6d4;
+  --surface-bg: #f3f6ff;
+  --surface-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #5b6480;
+}
 
 html,
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: #f8fafc;
+  background: radial-gradient(circle at top, #eef2ff 0%, #f8faff 55%, #f3f6ff 100%);
+  font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-main);
 }
 
 *,

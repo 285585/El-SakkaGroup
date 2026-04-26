@@ -25,7 +25,11 @@
         </label>
         <label>
           الفئة *
-          <input type="text" name="category" [(ngModel)]="category" required />
+          <select name="category" [(ngModel)]="category" required>
+            <option value="" disabled>اختر الفئة</option>
+            <option value="Laptops">لابات</option>
+            <option value="Accessories">اكسسوارات</option>
+          </select>
         </label>
         <label>
           السعر الحالي *
@@ -147,5 +151,56 @@
         لا توجد منتجات حالياً.
       </p>
     </aside>
+
+    <section class="orders-panel">
+      <h2>الطلبات الواردة (للمالك فقط)</h2>
+      <p *ngIf="isLoadingOrders" class="status">جارٍ تحميل الطلبات...</p>
+
+      <div class="order-list" *ngIf="!isLoadingOrders && orders.length > 0">
+        <article class="order-card" *ngFor="let order of orders">
+          <div class="order-head">
+            <strong>{{ order.id }}</strong>
+            <span>{{ order.createdAt | date: 'short' }}</span>
+          </div>
+          <div class="order-status-row">
+            <label>
+              حالة الطلب
+              <select
+                [ngModel]="order.status"
+                (ngModelChange)="updateOrderStatus(order, $event)"
+                [disabled]="isUpdatingOrderId === order.id"
+              >
+                <option *ngFor="let statusOption of orderStatusOptions" [value]="statusOption.value">
+                  {{ statusOption.label }}
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <p>
+            <strong>العميل:</strong> {{ order.customerName }} ({{ order.phone }}) - {{ order.email }}
+          </p>
+          <p>
+            <strong>عنوان الشحن:</strong>
+            {{ order.shippingAddress.city }} - {{ order.shippingAddress.area }} -
+            {{ order.shippingAddress.addressLine1 }}
+          </p>
+          <p *ngIf="order.shippingAddress.notes">
+            <strong>ملاحظات:</strong> {{ order.shippingAddress.notes }}
+          </p>
+          <p>
+            <strong>الدفع:</strong>
+            {{
+              order.payment.method === 'card'
+                ? ('بطاقة ' + order.payment.cardBrand + ' - **** ' + order.payment.cardLast4)
+                : 'الدفع عند الاستلام'
+            }}
+          </p>
+          <p><strong>الإجمالي:</strong> {{ order.total | number }} جنيه</p>
+        </article>
+      </div>
+
+      <p *ngIf="!isLoadingOrders && orders.length === 0" class="status">لا توجد طلبات حتى الآن.</p>
+    </section>
   </div>
 </section>

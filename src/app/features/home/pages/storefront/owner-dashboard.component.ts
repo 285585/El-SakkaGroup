@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { Product } from '../../models/store.models';
+import { AdminOrder, OrderStatus, Product } from '../../models/store.models';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { StoreApiService } from '../../services/store-api.service';
 
@@ -38,11 +38,21 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isDeletingProductId = '';
   isLoadingProducts = false;
+  isLoadingOrders = false;
+  isUpdatingOrderId = '';
   errorMessage = '';
   successMessage = '';
   createdProductId = '';
 
   products: Product[] = [];
+  orders: AdminOrder[] = [];
+  readonly orderStatusOptions: Array<{ value: OrderStatus; label: string }> = [
+    { value: 'pending', label: 'قيد المراجعة' },
+    { value: 'confirmed', label: 'تم التأكيد' },
+    { value: 'shipped', label: 'جاري الشحن' },
+    { value: 'delivered', label: 'تم التوصيل' },
+    { value: 'returned', label: 'مرتجع' },
+  ];
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -52,15 +62,16 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.ownerAuthService.isSessionValid().subscribe((isValid) => {
+    this.ownerAuthService.isOwnerSessionValid().subscribe((isValid) => {
       if (!isValid) {
-        this.errorMessage = 'جلسة المالك انتهت. سجل الدخول مرة أخرى.';
-        this.ownerAuthService.logout();
+        this.errorMessage = 'هذه الصفحة خاصة بالمالك فقط. سجل الدخول بحساب المالك.';
+        this.ownerAuthService.logout('/login');
       }
     });
 
     this.pendingEditId = this.route.snapshot.queryParamMap.get('editId') || '';
     this.loadAdminProducts();
+    this.loadAdminOrders();
   }
 
   ngOnDestroy(): void {
@@ -234,6 +245,29 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     return product.id;
   }
 
+  updateOrderStatus(order: AdminOrder, nextStatus: OrderStatus): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token || order.status === nextStatus) {
+      return;
+    }
+
+    this.isUpdatingOrderId = order.id;
+    this.storeApiService
+      .updateOrderStatus(order.id, nextStatus, token)
+      .pipe(finalize(() => (this.isUpdatingOrderId = '')))
+      .subscribe({
+        next: ({ order: updatedOrder }) => {
+          this.orders = this.orders.map((entry) =>
+            entry.id === updatedOrder.id ? updatedOrder : entry
+          );
+          this.successMessage = `تم تحديث حالة الطلب ${order.id}.`;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر تحديث حالة الطلب.');
+        },
+      });
+  }
+
   get isEditing(): boolean {
     return Boolean(this.editingProductId);
   }
@@ -278,6 +312,29 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
           if (error.status === 401) {
             this.ownerAuthService.logout();
           }
+        },
+      });
+  }
+
+  private loadAdminOrders(): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    this.isLoadingOrders = true;
+    this.storeApiService
+      .getAdminOrders(token)
+      .pipe(finalize(() => (this.isLoadingOrders = false)))
+      .subscribe({
+        next: (orders) => {
+          this.orders = orders.map((order) => ({
+            ...order,
+            status: (order.status || 'pending') as OrderStatus,
+          }));
+        },
+        error: () => {
+          this.orders = [];
         },
       });
   }

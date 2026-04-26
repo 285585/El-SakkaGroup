@@ -1,22 +1,90 @@
 <section class="owner-login-page">
   <form class="owner-login-card" (ngSubmit)="submit()">
-    <h1>تسجيل دخول المالك</h1>
-    <p>ادخل بيانات المالك للوصول إلى لوحة إضافة المنتجات.</p>
+    <div class="mode-switch">
+      <button
+        type="button"
+        [class.active]="authMode === 'login'"
+        (click)="setAuthMode('login')"
+      >
+        تسجيل الدخول
+      </button>
+      <button
+        type="button"
+        [class.active]="authMode === 'register'"
+        (click)="setAuthMode('register')"
+      >
+        إنشاء حساب
+      </button>
+    </div>
 
-    <label>
-      اسم المستخدم
-      <input type="text" name="username" [(ngModel)]="username" required />
-    </label>
+    <h1>{{ authMode === 'login' ? 'دخول المستخدم' : 'تسجيل مستخدم جديد' }}</h1>
+    <p *ngIf="authMode === 'login'">
+      سجل الدخول باليوزر والباسورد. لو دخلت بيانات المالك هيفتح وضع الإدارة تلقائياً.
+    </p>
+    <p *ngIf="authMode === 'register'">
+      التسجيل يكون بإيميل Gmail + اسم مستخدم فريد + كلمة مرور من اختيارك.
+    </p>
 
-    <label>
-      كلمة المرور
-      <input type="password" name="password" [(ngModel)]="password" required />
-    </label>
+    <ng-container *ngIf="authMode === 'login'">
+      <label>
+        اسم المستخدم
+        <input type="text" name="username" [(ngModel)]="username" required />
+      </label>
+
+      <label>
+        كلمة المرور
+        <input type="password" name="password" [(ngModel)]="password" required />
+      </label>
+    </ng-container>
+
+    <ng-container *ngIf="authMode === 'register'">
+      <label>
+        Gmail
+        <input type="email" name="registerEmail" [(ngModel)]="registerEmail" required />
+      </label>
+
+      <label>
+        اسم المستخدم
+        <input
+          type="text"
+          name="registerUsername"
+          [(ngModel)]="registerUsername"
+          required
+        />
+      </label>
+
+      <label>
+        كلمة المرور
+        <input
+          type="password"
+          name="registerPassword"
+          [(ngModel)]="registerPassword"
+          required
+        />
+      </label>
+
+      <label>
+        تأكيد كلمة المرور
+        <input
+          type="password"
+          name="registerPasswordConfirm"
+          [(ngModel)]="registerPasswordConfirm"
+          required
+        />
+      </label>
+    </ng-container>
 
     <button type="submit" [disabled]="isSubmitting">
-      {{ isSubmitting ? 'جارٍ تسجيل الدخول...' : 'دخول' }}
+      {{
+        isSubmitting
+          ? 'جارٍ التنفيذ...'
+          : authMode === 'login'
+            ? 'دخول'
+            : 'إنشاء الحساب'
+      }}
     </button>
 
     <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>
   </form>
 </section>

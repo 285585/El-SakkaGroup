@@ -11,7 +11,7 @@
         (mousemove)="onMainImageMove($event)"
         (mouseleave)="onMainImageLeave()"
       >
-        <img [src]="activeImage || product.image" [alt]="product.name" />
+        <img [src]="activeImage" [alt]="product.name" />
         <div class="image-lens" *ngIf="zoomVisible" [style.left.px]="lensLeft" [style.top.px]="lensTop"></div>
       </div>
 

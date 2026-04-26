@@ -1,0 +1,129 @@
+<section class="profile-page">
+  <header class="profile-header">
+    <h1>حسابي</h1>
+    <p>مرحبًا {{ userName }} - {{ userEmail }}</p>
+  </header>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'orders'" (click)="setTab('orders')">طلباتي</button>
+    <button [class.active]="activeTab === 'delivered'" (click)="setTab('delivered')">تم توصيله</button>
+    <button [class.active]="activeTab === 'returned'" (click)="setTab('returned')">المسترجع</button>
+    <button [class.active]="activeTab === 'cards'" (click)="setTab('cards')">بطاقاتي</button>
+  </div>
+
+  <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <div class="orders-box" *ngIf="activeTab !== 'cards'">
+    <p class="status" *ngIf="isLoadingOrders">جارٍ تحميل الطلبات...</p>
+
+    <div class="order-list" *ngIf="!isLoadingOrders && activeTab === 'orders' && allOrders.length > 0">
+      <article class="order-card" *ngFor="let order of allOrders">
+        <div class="head">
+          <strong>{{ order.id }}</strong>
+          <span class="badge">{{ resolveStatusLabel(order.status) }}</span>
+        </div>
+        <p><strong>الإجمالي:</strong> {{ order.total | number }} جنيه</p>
+        <p><strong>العنوان:</strong> {{ order.shippingAddress.city }} - {{ order.shippingAddress.addressLine1 }}</p>
+        <p><strong>الدفع:</strong> {{ order.payment.method === 'card' ? 'بطاقة' : 'عند الاستلام' }}</p>
+      </article>
+    </div>
+
+    <div
+      class="order-list"
+      *ngIf="!isLoadingOrders && activeTab === 'delivered' && deliveredOrders.length > 0"
+    >
+      <article class="order-card" *ngFor="let order of deliveredOrders">
+        <div class="head">
+          <strong>{{ order.id }}</strong>
+          <span class="badge badge--delivered">{{ resolveStatusLabel(order.status) }}</span>
+        </div>
+        <p><strong>الإجمالي:</strong> {{ order.total | number }} جنيه</p>
+      </article>
+    </div>
+
+    <div
+      class="order-list"
+      *ngIf="!isLoadingOrders && activeTab === 'returned' && returnedOrders.length > 0"
+    >
+      <article class="order-card" *ngFor="let order of returnedOrders">
+        <div class="head">
+          <strong>{{ order.id }}</strong>
+          <span class="badge badge--returned">{{ resolveStatusLabel(order.status) }}</span>
+        </div>
+        <p><strong>الإجمالي:</strong> {{ order.total | number }} جنيه</p>
+      </article>
+    </div>
+
+    <p
+      class="status"
+      *ngIf="
+        !isLoadingOrders &&
+        ((activeTab === 'orders' && allOrders.length === 0) ||
+          (activeTab === 'delivered' && deliveredOrders.length === 0) ||
+          (activeTab === 'returned' && returnedOrders.length === 0))
+      "
+    >
+      لا توجد طلبات في هذا القسم حالياً.
+    </p>
+  </div>
+
+  <div class="cards-box" *ngIf="activeTab === 'cards'">
+    <div class="cards-grid">
+      <div>
+        <h2>البطاقات المحفوظة</h2>
+        <p class="status" *ngIf="isLoadingCards">جارٍ تحميل البطاقات...</p>
+        <div class="saved-cards" *ngIf="!isLoadingCards && cards.length > 0">
+          <article class="saved-card" *ngFor="let card of cards">
+            <div>
+              <strong>{{ card.cardHolderName }}</strong>
+              <p>{{ card.brand | uppercase }} - **** {{ card.last4 }}</p>
+              <small>{{ card.expiryMonth }}/{{ card.expiryYear }}</small>
+            </div>
+            <div class="card-actions">
+              <button type="button" (click)="editCard(card)">تعديل</button>
+              <button type="button" class="danger" (click)="deleteCard(card.id)">حذف</button>
+            </div>
+          </article>
+        </div>
+        <p class="status" *ngIf="!isLoadingCards && cards.length === 0">لا توجد بطاقات محفوظة.</p>
+      </div>
+
+      <form class="card-form" (ngSubmit)="submitCard()">
+        <h2>{{ editingCardId ? 'تعديل البطاقة' : 'إضافة بطاقة جديدة' }}</h2>
+        <label>
+          اسم حامل البطاقة *
+          <input type="text" name="cardHolderName" [(ngModel)]="cardHolderName" required />
+        </label>
+        <label>
+          رقم البطاقة *
+          <input
+            type="text"
+            name="cardNumber"
+            [(ngModel)]="cardNumber"
+            [required]="!editingCardId"
+            placeholder="اكتب الرقم كامل للتحديث"
+          />
+        </label>
+        <div class="mini-grid">
+          <label>
+            شهر الانتهاء *
+            <input type="number" name="expiryMonth" [(ngModel)]="expiryMonth" min="1" max="12" required />
+          </label>
+          <label>
+            سنة الانتهاء *
+            <input type="number" name="expiryYear" [(ngModel)]="expiryYear" min="2025" required />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="isSavingCard">
+            {{ isSavingCard ? 'جارٍ الحفظ...' : (editingCardId ? 'تحديث البطاقة' : 'إضافة البطاقة') }}
+          </button>
+          <button type="button" class="secondary" *ngIf="editingCardId" (click)="cancelCardEdit()">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
