@@ -169,17 +169,12 @@
           <li>{{ product.specs.ram }} | {{ product.specs.storage }}</li>
           <li>{{ product.specs.gpu }}</li>
         </ul>
-        <div class="price-row">
-          <div>
+        <div class="product-card__meta-row">
+          <div class="product-card__prices">
             <strong>{{ product.price | number }} جنيه</strong>
             <small>{{ product.oldPrice | number }} جنيه</small>
           </div>
-          <div class="product-actions">
-            <a [routerLink]="['/products', product.id]">التفاصيل</a>
-            <button type="button" [disabled]="isOutOfStock(product)" (click)="addToCart(product)">
-              {{ isOutOfStock(product) ? 'غير متوفر' : 'أضف للسلة' }}
-            </button>
-          </div>
+          <a class="product-card__details" [routerLink]="['/products', product.id]">التفاصيل</a>
         </div>
         <div class="owner-actions" *ngIf="ownerMode">
           <button type="button" class="edit-btn" (click)="editProduct(product.id)">تعديل</button>
@@ -190,6 +185,16 @@
             (click)="deleteProduct(product.id)"
           >
             {{ isDeletingProductId === product.id ? 'جارٍ الحذف...' : 'حذف' }}
+          </button>
+        </div>
+        <div class="product-card__cart-wrap">
+          <button
+            type="button"
+            class="product-card__cart"
+            [disabled]="isOutOfStock(product)"
+            (click)="addToCart(product)"
+          >
+            {{ isOutOfStock(product) ? 'غير متوفر' : 'أضف للسلة' }}
           </button>
         </div>
       </div>
