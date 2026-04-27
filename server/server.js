@@ -16,6 +16,10 @@ const Product = require('./models/product.model');
 const Order = require('./models/order.model');
 const User = require('./models/user.model');
 const Cart = require('./models/cart.model');
+const SellRequest = require('./models/sell-request.model');
+const InboxMessage = require('./models/inbox-message.model');
+const ProductRating = require('./models/product-rating.model');
+const OwnerCommunication = require('./models/owner-communication.model');
 
 dotenv.config();
 
@@ -153,6 +157,27 @@ const getTokenFromRequest = (request) => {
   return authorization.slice('Bearer '.length).trim();
 };
 
+const getOptionalAuthUser = (request) => {
+  const token = getTokenFromRequest(request);
+  if (!token) {
+    return null;
+  }
+  try {
+    const payload = jwt.verify(token, OWNER_JWT_SECRET);
+    return {
+      userId: payload.userId,
+      username: payload.username,
+      role: payload.role,
+      email: payload.email,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      phone: payload.phone,
+    };
+  } catch {
+    return null;
+  }
+};
+
 const normalizeUsername = (value) => String(value || '').trim().toLowerCase();
 const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
 const getSuggestedUsernameFromEmail = (email) => {
@@ -245,6 +270,138 @@ const normalizeProductDocument = (product) => {
   return normalizeProductImages(plainProduct);
 };
 
+const formatInboxMessage = (message) => ({
+  id: message.id,
+  kind: message.kind || 'system',
+  subject: message.subject || '',
+  body: message.body || '',
+  relatedId: message.relatedId || '',
+  isRead: Boolean(message.isRead),
+  readAt: message.readAt || null,
+  createdAt: message.createdAt,
+});
+
+const createInboxMessage = async ({ userId, kind = 'system', subject, body, relatedId = '' }) => {
+  if (!userId || !subject || !body) {
+    return null;
+  }
+
+  return InboxMessage.create({
+    id: `MSG-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+    userId,
+    kind,
+    subject: String(subject).trim(),
+    body: String(body).trim(),
+    relatedId: String(relatedId || '').trim(),
+  });
+};
+
+const createInboxWithOwnerLog = async ({ userId, kind = 'system', subject, body, relatedId = '' }) => {
+  const message = await createInboxMessage({ userId, kind, subject, body, relatedId });
+  if (!message) {
+    return null;
+  }
+
+  if (userId) {
+    const targetUser = await User.findById(userId).select({ username: 1 }).lean();
+    try {
+      await OwnerCommunication.create({
+        id: `OWN-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+        userId,
+        targetUsername: targetUser?.username || '',
+        kind,
+        subject: message.subject,
+        body: message.body,
+        relatedId: message.relatedId,
+        userInboxMessageId: message.id,
+      });
+    } catch (error) {
+      console.error('Owner communication log error:', error);
+    }
+  }
+
+  return message;
+};
+
+const RATING_STATUSES = ['delivered'];
+
+const getRatingStatsByProductIds = async (productIds) => {
+  if (!Array.isArray(productIds) || productIds.length === 0) {
+    return new Map();
+  }
+
+  const uniqueIds = [...new Set(productIds.map((id) => String(id || '').trim()).filter(Boolean))];
+  if (uniqueIds.length === 0) {
+    return new Map();
+  }
+
+  const rows = await ProductRating.aggregate([
+    { $match: { productId: { $in: uniqueIds } } },
+    {
+      $group: {
+        _id: '$productId',
+        averageRating: { $avg: '$value' },
+        ratingsCount: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const map = new Map();
+  rows.forEach((row) => {
+    const avg = row.averageRating != null ? row.averageRating : 0;
+    map.set(row._id, {
+      averageRating: Number(avg.toFixed(2)),
+      ratingsCount: row.ratingsCount || 0,
+    });
+  });
+  return map;
+};
+
+const hasDeliveredPurchase = async (userId, productId) => {
+  if (!userId || !productId) {
+    return null;
+  }
+
+  return Order.findOne({
+    userId,
+    status: { $in: RATING_STATUSES },
+    'items.productId': productId,
+  })
+    .select({ id: 1 })
+    .lean();
+};
+
+const projectProductForClient = (rawProduct, statsMap, extra = {}) => {
+  const plain = typeof rawProduct.toObject === 'function' ? rawProduct.toObject() : { ...rawProduct };
+  const normalized = normalizeProductImages(plain);
+  const { rating: _legacyRating, ...base } = normalized;
+  const s = statsMap.get(base.id) || { averageRating: 0, ratingsCount: 0 };
+  return { ...base, ...extra, averageRating: s.averageRating, ratingsCount: s.ratingsCount };
+};
+
+const formatSellRequest = (request) => ({
+  id: request.id,
+  userId: request.userId?.toString?.() || request.userId,
+  username: request.username || '',
+  email: request.email || '',
+  phone: request.phone || '',
+  name: request.name || '',
+  brand: request.brand || '',
+  cpu: request.cpu || '',
+  ram: request.ram || '',
+  storage: request.storage || '',
+  gpu: request.gpu || '',
+  condition: request.condition || '',
+  expectedPrice: Number(request.expectedPrice || 0),
+  description: request.description || '',
+  images: Array.isArray(request.images) ? request.images : [],
+  decision: request.decision || 'pending',
+  ownerReply: request.ownerReply || '',
+  ownerDecisionUpdatedAt: request.ownerDecisionUpdatedAt || null,
+  createdAt: request.createdAt,
+  updatedAt: request.updatedAt,
+});
+
 const applyProductFilters = (products, query) => {
   const search = normalizeText(query.search);
   const brand = normalizeText(query.brand || 'all');
@@ -298,7 +455,9 @@ const applyProductFilters = (products, query) => {
       filtered.sort((a, b) => b.price - a.price);
       break;
     case 'rating':
-      filtered.sort((a, b) => b.rating - a.rating);
+      filtered.sort(
+        (a, b) => (Number(b.averageRating) || 0) - (Number(a.averageRating) || 0)
+      );
       break;
     default:
       filtered.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured));
@@ -447,6 +606,8 @@ const productUploadMiddleware = upload.fields([
   { name: 'images', maxCount: 200 },
   { name: 'image', maxCount: 1 },
 ]);
+
+const sellRequestUploadMiddleware = upload.array('images', 10);
 
 const extractUploadedImageFiles = (request) => {
   const files = request.files;
@@ -907,9 +1068,11 @@ app.get('/api/user/cart', requireAuth, async (request, response, next) => {
     }
 
     const productIds = cart.items.map((item) => item.productId);
-    const products = (await Product.find({ id: { $in: productIds } }).lean()).map(
+    const rawProducts = (await Product.find({ id: { $in: productIds } }).lean()).map(
       normalizeProductImages
     );
+    const statsMap = await getRatingStatsByProductIds(productIds);
+    const products = rawProducts.map((p) => projectProductForClient(p, statsMap));
     const productsMap = new Map(products.map((product) => [product.id, product]));
 
     const items = cart.items
@@ -995,6 +1158,227 @@ app.put('/api/user/cart', requireAuth, async (request, response, next) => {
   }
 });
 
+app.get('/api/user/inbox', requireAuth, async (request, response, next) => {
+  try {
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      response.json([]);
+      return;
+    }
+
+    const messages = await InboxMessage.find({ userId: request.authUser.userId })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    response.json(messages.map(formatInboxMessage));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put('/api/user/inbox/:id/read', requireAuth, async (request, response, next) => {
+  try {
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      response.status(403).json({ message: 'Owner cannot update inbox.' });
+      return;
+    }
+
+    const updatedMessage = await InboxMessage.findOneAndUpdate(
+      {
+        id: request.params.id,
+        userId: request.authUser.userId,
+      },
+      {
+        isRead: true,
+        readAt: new Date(),
+      },
+      { new: true, lean: true }
+    );
+
+    if (!updatedMessage) {
+      response.status(404).json({ message: 'Message not found.' });
+      return;
+    }
+
+    response.json({
+      message: 'Inbox message marked as read.',
+      inboxMessage: formatInboxMessage(updatedMessage),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/user/sell-requests', requireAuth, sellRequestUploadMiddleware, async (request, response, next) => {
+  try {
+    const uploadedFiles = Array.isArray(request.files) ? request.files : [];
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      await removeUploadedFiles(uploadedFiles);
+      response.status(403).json({ message: 'Owner account cannot submit sell requests.' });
+      return;
+    }
+
+    const { name, brand, cpu, ram, storage, gpu, condition, expectedPrice, description } =
+      request.body || {};
+
+    const normalizedName = String(name || '').trim();
+    const normalizedBrand = String(brand || '').trim();
+    const normalizedCpu = String(cpu || '').trim();
+    const normalizedRam = String(ram || '').trim();
+    const normalizedStorage = String(storage || '').trim();
+    const normalizedGpu = String(gpu || '').trim();
+    const normalizedCondition = String(condition || '').trim();
+    const normalizedDescription = String(description || '').trim();
+    const normalizedExpectedPrice = Number(expectedPrice);
+
+    if (
+      !normalizedName ||
+      !normalizedBrand ||
+      !normalizedCpu ||
+      !normalizedRam ||
+      !normalizedStorage ||
+      !normalizedCondition ||
+      !Number.isFinite(normalizedExpectedPrice) ||
+      normalizedExpectedPrice <= 0
+    ) {
+      await removeUploadedFiles(uploadedFiles);
+      response.status(400).json({ message: 'Missing required sell request details.' });
+      return;
+    }
+
+    if (uploadedFiles.length === 0) {
+      response.status(400).json({ message: 'Please upload at least one image for your laptop.' });
+      return;
+    }
+
+    const imagePaths = uploadedFiles.map((file) => `/api/uploads/${file.filename}`);
+    const createdRequest = await SellRequest.create({
+      id: `SELL-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`,
+      userId: request.authUser.userId,
+      username: request.authUser.username,
+      email: request.authUser.email || '',
+      phone: request.authUser.phone || '',
+      name: normalizedName,
+      brand: normalizedBrand,
+      cpu: normalizedCpu,
+      ram: normalizedRam,
+      storage: normalizedStorage,
+      gpu: normalizedGpu,
+      condition: normalizedCondition,
+      expectedPrice: normalizedExpectedPrice,
+      description: normalizedDescription,
+      images: imagePaths,
+      decision: 'pending',
+      ownerReply: '',
+      ownerDecisionUpdatedAt: new Date(),
+    });
+
+    response.status(201).json({
+      message: 'Sell request submitted successfully.',
+      sellRequest: formatSellRequest(createdRequest),
+    });
+  } catch (error) {
+    await removeUploadedFiles(Array.isArray(request.files) ? request.files : []);
+    next(error);
+  }
+});
+
+app.get('/api/user/sell-requests', requireAuth, async (request, response, next) => {
+  try {
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      response.json([]);
+      return;
+    }
+
+    const sellRequests = await SellRequest.find({ userId: request.authUser.userId })
+      .sort({ createdAt: -1 })
+      .lean();
+    response.json(sellRequests.map(formatSellRequest));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/api/admin/sell-requests', requireOwnerAuth, async (_request, response, next) => {
+  try {
+    const sellRequests = await SellRequest.find({}).sort({ createdAt: -1 }).lean();
+    response.json(sellRequests.map(formatSellRequest));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put('/api/admin/sell-requests/:id/decision', requireOwnerAuth, async (request, response, next) => {
+  try {
+    const decision = String(request.body?.decision || '').trim().toLowerCase();
+    const ownerReply = String(request.body?.reply || '').trim();
+    if (!['approved', 'rejected'].includes(decision)) {
+      response.status(400).json({ message: 'Invalid decision.' });
+      return;
+    }
+
+    const updatedRequest = await SellRequest.findOneAndUpdate(
+      { id: request.params.id },
+      {
+        decision,
+        ownerReply,
+        ownerDecisionUpdatedAt: new Date(),
+      },
+      { new: true, lean: true }
+    );
+
+    if (!updatedRequest) {
+      response.status(404).json({ message: 'Sell request not found.' });
+      return;
+    }
+
+    await createInboxWithOwnerLog({
+      userId: updatedRequest.userId,
+      kind: 'sell_request',
+      subject: `تم ${decision === 'approved' ? 'قبول' : 'رفض'} طلب بيع اللاب`,
+      body:
+        ownerReply ||
+        (decision === 'approved'
+          ? `تمت الموافقة على طلب بيع جهازك (${updatedRequest.name}).`
+          : `تم رفض طلب بيع جهازك (${updatedRequest.name}).`),
+      relatedId: updatedRequest.id,
+    });
+
+    response.json({
+      message: 'Sell request decision updated successfully.',
+      sellRequest: formatSellRequest(updatedRequest),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete('/api/admin/sell-requests/:id', requireOwnerAuth, async (request, response, next) => {
+  try {
+    const ownerReply = String(request.body?.reply || '').trim();
+    const deletedRequest = await SellRequest.findOneAndDelete({ id: request.params.id }).lean();
+    if (!deletedRequest) {
+      response.status(404).json({ message: 'Sell request not found.' });
+      return;
+    }
+
+    await Promise.all((deletedRequest.images || []).map((imagePath) => removeUploadedImageByPath(imagePath)));
+    await createInboxWithOwnerLog({
+      userId: deletedRequest.userId,
+      kind: 'sell_request',
+      subject: 'تم حذف طلب بيع اللاب',
+      body: ownerReply || `تم حذف طلب بيع جهازك (${deletedRequest.name}) من قبل المالك.`,
+      relatedId: deletedRequest.id,
+    });
+
+    response.json({
+      message: 'Sell request deleted successfully.',
+      sellRequestId: deletedRequest.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/api/user/orders', requireAuth, async (request, response, next) => {
   try {
     if (request.authUser.role !== 'owner') {
@@ -1023,7 +1407,10 @@ app.get('/api/brands', async (_request, response, next) => {
 app.get('/api/products', async (request, response, next) => {
   try {
     const products = (await Product.find({}).lean()).map(normalizeProductImages);
-    const filteredProducts = applyProductFilters(products, request.query);
+    const productIds = products.map((p) => p.id);
+    const statsMap = await getRatingStatsByProductIds(productIds);
+    const mapped = products.map((p) => projectProductForClient(p, statsMap));
+    const filteredProducts = applyProductFilters(mapped, request.query);
 
     response.json({
       total: filteredProducts.length,
@@ -1042,7 +1429,83 @@ app.get('/api/products/:id', async (request, response, next) => {
       return;
     }
 
-    response.json(normalizeProductImages(product));
+    const statsMap = await getRatingStatsByProductIds([request.params.id]);
+    const user = getOptionalAuthUser(request);
+    const extras = {};
+    if (user && user.role === 'customer' && user.userId) {
+      const [eligibleOrder, existingRating] = await Promise.all([
+        hasDeliveredPurchase(user.userId, request.params.id),
+        ProductRating.findOne({
+          productId: request.params.id,
+          userId: user.userId,
+        })
+          .select({ value: 1 })
+          .lean(),
+      ]);
+      extras.canRate = Boolean(eligibleOrder);
+      extras.myRating = existingRating ? existingRating.value : null;
+    } else {
+      extras.canRate = false;
+      extras.myRating = null;
+    }
+
+    response.json(projectProductForClient(product, statsMap, extras));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/products/:id/rate', requireAuth, async (request, response, next) => {
+  try {
+    if (request.authUser.role === 'owner' || !request.authUser.userId) {
+      response.status(403).json({ message: 'Only customers can rate products.' });
+      return;
+    }
+
+    const productId = String(request.params.id || '').trim();
+    const value = Math.round(toNumber(request.body?.value, 0));
+
+    if (value < 1 || value > 5) {
+      response.status(400).json({ message: 'Rating must be a whole number from 1 to 5.' });
+      return;
+    }
+
+    const productExists = await Product.exists({ id: productId });
+    if (!productExists) {
+      response.status(404).json({ message: 'Product not found.' });
+      return;
+    }
+
+    const order = await hasDeliveredPurchase(request.authUser.userId, productId);
+    if (!order) {
+      response.status(403).json({
+        message: 'تقييم المنتج متاح فقط بعد استلامه ضمن طلب مكتمل (حالة: تم التوصيل).',
+      });
+      return;
+    }
+
+    await ProductRating.findOneAndUpdate(
+      { productId, userId: request.authUser.userId },
+      {
+        $set: {
+          value,
+          orderId: order.id,
+          productId,
+          userId: request.authUser.userId,
+        },
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    const statsMap = await getRatingStatsByProductIds([productId]);
+    const s = statsMap.get(productId) || { averageRating: 0, ratingsCount: 0 };
+
+    response.json({
+      message: 'شكراً لتقييمك.',
+      myRating: value,
+      averageRating: s.averageRating,
+      ratingsCount: s.ratingsCount,
+    });
   } catch (error) {
     next(error);
   }
@@ -1116,9 +1579,10 @@ app.post(
         },
       });
 
+      const createStats = await getRatingStatsByProductIds([newProduct.id]);
       response.status(201).json({
         message: 'Product created successfully.',
-        product: normalizeProductDocument(newProduct),
+        product: projectProductForClient(newProduct, createStats),
       });
     } catch (error) {
       await removeUploadedFiles(extractUploadedImageFiles(request));
@@ -1228,9 +1692,10 @@ app.put(
         );
       }
 
+      const updateStats = await getRatingStatsByProductIds([updatedProduct.id]);
       response.json({
         message: 'Product updated successfully.',
-        product: normalizeProductImages(updatedProduct),
+        product: projectProductForClient(updatedProduct, updateStats),
       });
     } catch (error) {
       await removeUploadedFiles(extractUploadedImageFiles(request));
@@ -1266,7 +1731,30 @@ app.get('/api/admin/products', requireOwnerAuth, async (_request, response, next
     const products = (await Product.find({}).sort({ createdAt: -1 }).lean()).map(
       normalizeProductImages
     );
-    response.json(products);
+    const productIds = products.map((p) => p.id);
+    const statsMap = await getRatingStatsByProductIds(productIds);
+    response.json(products.map((p) => projectProductForClient(p, statsMap)));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/api/admin/communications', requireOwnerAuth, async (_request, response, next) => {
+  try {
+    const rows = await OwnerCommunication.find({}).sort({ createdAt: -1 }).lean();
+    response.json(
+      rows.map((row) => ({
+        id: row.id,
+        userId: row.userId ? row.userId.toString() : '',
+        targetUsername: row.targetUsername || '',
+        kind: row.kind,
+        subject: row.subject,
+        body: row.body,
+        relatedId: row.relatedId,
+        userInboxMessageId: row.userInboxMessageId,
+        createdAt: row.createdAt,
+      }))
+    );
   } catch (error) {
     next(error);
   }
@@ -1306,6 +1794,77 @@ app.get('/api/admin/orders', requireOwnerAuth, async (_request, response, next) 
   try {
     const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
     response.json(orders);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put('/api/admin/orders/:id/decision', requireOwnerAuth, async (request, response, next) => {
+  try {
+    const decision = String(request.body?.decision || '').trim().toLowerCase();
+    const ownerReply = String(request.body?.reply || '').trim();
+    if (!['approved', 'rejected'].includes(decision)) {
+      response.status(400).json({ message: 'Invalid decision.' });
+      return;
+    }
+
+    const updatedOrder = await Order.findOneAndUpdate(
+      { id: request.params.id },
+      {
+        ownerDecision: decision,
+        ownerReply,
+        ownerDecisionUpdatedAt: new Date(),
+      },
+      { new: true, lean: true }
+    );
+
+    if (!updatedOrder) {
+      response.status(404).json({ message: 'Order not found.' });
+      return;
+    }
+
+    await createInboxWithOwnerLog({
+      userId: updatedOrder.userId,
+      kind: 'order',
+      subject: `تم ${decision === 'approved' ? 'قبول' : 'رفض'} طلب الشراء`,
+      body:
+        ownerReply ||
+        (decision === 'approved'
+          ? `تمت الموافقة على طلبك رقم ${updatedOrder.id}.`
+          : `تم رفض طلبك رقم ${updatedOrder.id}.`),
+      relatedId: updatedOrder.id,
+    });
+
+    response.json({
+      message: 'Order decision updated successfully.',
+      order: updatedOrder,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete('/api/admin/orders/:id', requireOwnerAuth, async (request, response, next) => {
+  try {
+    const ownerReply = String(request.body?.reply || '').trim();
+    const deletedOrder = await Order.findOneAndDelete({ id: request.params.id }).lean();
+    if (!deletedOrder) {
+      response.status(404).json({ message: 'Order not found.' });
+      return;
+    }
+
+    await createInboxWithOwnerLog({
+      userId: deletedOrder.userId,
+      kind: 'order',
+      subject: 'تم حذف طلب الشراء',
+      body: ownerReply || `تم حذف طلبك رقم ${deletedOrder.id} من قبل المالك.`,
+      relatedId: deletedOrder.id,
+    });
+
+    response.json({
+      message: 'Order deleted successfully.',
+      orderId: deletedOrder.id,
+    });
   } catch (error) {
     next(error);
   }
@@ -1440,6 +1999,9 @@ app.post('/api/orders', requireAuth, async (request, response, next) => {
       payment: paymentSnapshot,
       items: normalizedItems,
       status: 'pending',
+      ownerDecision: 'pending',
+      ownerReply: '',
+      ownerDecisionUpdatedAt: new Date(),
       statusUpdatedAt: new Date(),
       subtotal: Number(subtotal.toFixed(2)),
       shippingCost,

@@ -60,6 +60,80 @@
   padding: 1rem;
 }
 
+.comm-panel {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.comm-panel h2 {
+  margin-top: 0;
+}
+
+.comm-hint {
+  margin: 0 0 0.75rem;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.comm-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.comm-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  background: #f8fafc;
+}
+
+.comm-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.comm-meta {
+  color: #64748b;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.comm-target {
+  margin: 0.25rem 0;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.comm-kind {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.comm-body {
+  margin: 0.35rem 0 0;
+  color: #0f172a;
+  white-space: pre-wrap;
+}
+
+.product-rating-hint {
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.product-rating-hint--muted {
+  color: #94a3b8;
+}
+
 .orders-panel h2 {
   margin-top: 0;
 }
@@ -127,6 +201,57 @@
 
 .order-status-row select {
   min-width: 170px;
+}
+
+.reply-label {
+  display: grid !important;
+  gap: 0.35rem !important;
+}
+
+.reply-label textarea {
+  min-height: 72px;
+}
+
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+}
+
+.order-actions button {
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  padding: 0.35rem 0.65rem;
+  cursor: pointer;
+}
+
+.order-actions .danger-btn {
+  border-color: #fecaca;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.order-actions button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.sell-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.sell-images img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
 }
 
 .product-form h2,

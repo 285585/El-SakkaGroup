@@ -353,6 +353,23 @@
   color: #475569;
 }
 
+.product-card__topline .rating {
+  font-weight: 700;
+  color: #b45309;
+  white-space: nowrap;
+}
+
+.product-card__topline .rating small {
+  font-weight: 600;
+  color: #64748b;
+  margin-inline-start: 0.2rem;
+}
+
+.product-card__topline .rating--empty {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 .product-card h3 {
   font-size: 1.05rem;
   margin: 0;

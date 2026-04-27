@@ -7,8 +7,10 @@ import {
   AuthLoginRequest,
   AuthLoginResponse,
   AuthSessionResponse,
+  CreateSellRequestResponse,
   CreateProductResponse,
   DeleteProductResponse,
+  DeleteSellRequestResponse,
   CreateOrderRequest,
   CreateOrderResponse,
   Product,
@@ -16,9 +18,15 @@ import {
   ProductListResponse,
   RegisterUserRequest,
   RegisterUserResponse,
+  SellRequest,
+  UpdateSellRequestDecisionResponse,
   UpdateUserCartRequest,
+  UserInboxMessage,
+  UserInboxReadResponse,
   UserCartResponse,
   UserOrder,
+  RateProductResponse,
+  OwnerCommunication,
 } from '../models/store.models';
 
 @Injectable({
@@ -63,8 +71,18 @@ export class StoreApiService {
     return this.http.get<string[]>(`${this.baseUrl}/brands`);
   }
 
-  getProductById(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.baseUrl}/products/${id}`);
+  getProductById(id: string, token?: string | null): Observable<Product> {
+    return this.http.get<Product>(`${this.baseUrl}/products/${id}`, {
+      headers: token ? this.createAuthHeaders(token) : undefined,
+    });
+  }
+
+  rateProduct(productId: string, value: number, token: string): Observable<RateProductResponse> {
+    return this.http.post<RateProductResponse>(
+      `${this.baseUrl}/products/${productId}/rate`,
+      { value },
+      { headers: this.createAuthHeaders(token) }
+    );
   }
 
   createOrder(payload: CreateOrderRequest, token: string): Observable<CreateOrderResponse> {
@@ -137,10 +155,80 @@ export class StoreApiService {
     });
   }
 
+  getAdminCommunications(token: string): Observable<OwnerCommunication[]> {
+    return this.http.get<OwnerCommunication[]>(`${this.baseUrl}/admin/communications`, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
   getUserOrders(token: string): Observable<UserOrder[]> {
     return this.http.get<UserOrder[]>(`${this.baseUrl}/user/orders`, {
       headers: this.createAuthHeaders(token),
     });
+  }
+
+  getUserInbox(token: string): Observable<UserInboxMessage[]> {
+    return this.http.get<UserInboxMessage[]>(`${this.baseUrl}/user/inbox`, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
+  markInboxAsRead(messageId: string, token: string): Observable<UserInboxReadResponse> {
+    return this.http.put<UserInboxReadResponse>(
+      `${this.baseUrl}/user/inbox/${messageId}/read`,
+      {},
+      {
+        headers: this.createAuthHeaders(token),
+      }
+    );
+  }
+
+  createSellRequest(formData: FormData, token: string): Observable<CreateSellRequestResponse> {
+    return this.http.post<CreateSellRequestResponse>(`${this.baseUrl}/user/sell-requests`, formData, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
+  getUserSellRequests(token: string): Observable<SellRequest[]> {
+    return this.http.get<SellRequest[]>(`${this.baseUrl}/user/sell-requests`, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
+  getAdminSellRequests(token: string): Observable<SellRequest[]> {
+    return this.http.get<SellRequest[]>(`${this.baseUrl}/admin/sell-requests`, {
+      headers: this.createAuthHeaders(token),
+    });
+  }
+
+  updateSellRequestDecision(
+    requestId: string,
+    decision: 'approved' | 'rejected',
+    reply: string,
+    token: string
+  ): Observable<UpdateSellRequestDecisionResponse> {
+    return this.http.put<UpdateSellRequestDecisionResponse>(
+      `${this.baseUrl}/admin/sell-requests/${requestId}/decision`,
+      { decision, reply },
+      {
+        headers: this.createAuthHeaders(token),
+      }
+    );
+  }
+
+  deleteSellRequest(
+    requestId: string,
+    reply: string,
+    token: string
+  ): Observable<DeleteSellRequestResponse> {
+    return this.http.request<DeleteSellRequestResponse>(
+      'delete',
+      `${this.baseUrl}/admin/sell-requests/${requestId}`,
+      {
+        headers: this.createAuthHeaders(token),
+        body: { reply },
+      }
+    );
   }
 
   updateOrderStatus(
@@ -153,6 +241,32 @@ export class StoreApiService {
       { status },
       {
         headers: this.createAuthHeaders(token),
+      }
+    );
+  }
+
+  updateOrderDecision(
+    orderId: string,
+    decision: 'approved' | 'rejected',
+    reply: string,
+    token: string
+  ): Observable<{ message: string; order: AdminOrder }> {
+    return this.http.put<{ message: string; order: AdminOrder }>(
+      `${this.baseUrl}/admin/orders/${orderId}/decision`,
+      { decision, reply },
+      {
+        headers: this.createAuthHeaders(token),
+      }
+    );
+  }
+
+  deleteOrder(orderId: string, reply: string, token: string): Observable<{ message: string; orderId: string }> {
+    return this.http.request<{ message: string; orderId: string }>(
+      'delete',
+      `${this.baseUrl}/admin/orders/${orderId}`,
+      {
+        headers: this.createAuthHeaders(token),
+        body: { reply },
       }
     );
   }

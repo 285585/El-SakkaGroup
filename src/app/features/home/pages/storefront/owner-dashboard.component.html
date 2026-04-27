@@ -36,12 +36,8 @@
           <input type="number" name="price" [(ngModel)]="price" min="1" required />
         </label>
         <label>
-          السعر قبل الخصم
+          السعر قبل الخصم (اختياري)
           <input type="number" name="oldPrice" [(ngModel)]="oldPrice" min="1" />
-        </label>
-        <label>
-          التقييم
-          <input type="number" name="rating" [(ngModel)]="rating" min="1" max="5" step="0.1" />
         </label>
         <label>
           الكمية المتاحة
@@ -128,6 +124,12 @@
           <div>
             <strong>{{ product.name }}</strong>
             <span>{{ product.price | number }} جنيه</span>
+            <span class="product-rating-hint" *ngIf="product.ratingsCount">
+              متوسط التقييم: {{ product.averageRating | number: '1.1-1' }} ({{ product.ratingsCount }})
+            </span>
+            <span class="product-rating-hint product-rating-hint--muted" *ngIf="!product.ratingsCount"
+              >لا يوجد تقييمات بعد</span
+            >
           </div>
           <div class="item-actions">
             <a [routerLink]="['/products', product.id]">عرض الصفحة</a>
@@ -182,6 +184,29 @@
       </p>
     </section>
 
+    <section class="comm-panel">
+      <h2>سجل الردود والمراسلات للعملاء</h2>
+      <p class="comm-hint">هنا يتخزن نسخة من كل رد أرسلته للمستخدم داخل بريده للرجوع إليه في أي وقت.</p>
+      <p *ngIf="isLoadingCommunications" class="status">جارٍ تحميل السجل...</p>
+      <div class="comm-list" *ngIf="!isLoadingCommunications && ownerCommunications.length > 0">
+        <article class="comm-card" *ngFor="let comm of ownerCommunications; trackBy: trackByCommunication">
+          <div class="comm-head">
+            <strong>{{ comm.subject }}</strong>
+            <span class="comm-meta">{{ comm.createdAt | date: 'short' }}</span>
+          </div>
+          <p class="comm-target">
+            <span class="comm-kind">{{ formatCommunicationKind(comm.kind) }}</span>
+            — للمستخدم: <strong>{{ comm.targetUsername || '—' }}</strong>
+            <span *ngIf="comm.relatedId"> — مرجع: {{ comm.relatedId }}</span>
+          </p>
+          <p class="comm-body">{{ comm.body }}</p>
+        </article>
+      </div>
+      <p *ngIf="!isLoadingCommunications && ownerCommunications.length === 0" class="status">
+        لا يوجد مراسلات مسجلة بعد.
+      </p>
+    </section>
+
     <section class="orders-panel">
       <h2>الطلبات الواردة (للمالك فقط)</h2>
       <p *ngIf="isLoadingOrders" class="status">جارٍ تحميل الطلبات...</p>
@@ -206,6 +231,44 @@
               </select>
             </label>
           </div>
+          <div class="order-status-row">
+            <strong>قرار المالك: {{ resolveDecisionLabel(order.ownerDecision || 'pending') }}</strong>
+          </div>
+          <div class="order-status-row">
+            <label class="reply-label">
+              رد المالك للمستخدم
+              <textarea
+                [value]="getOrderReplyValue(order)"
+                (input)="setOrderReplyDraft(order.id, $any($event.target).value)"
+                rows="2"
+              ></textarea>
+            </label>
+          </div>
+          <div class="order-actions">
+            <button
+              type="button"
+              [disabled]="isDecidingOrderId === order.id"
+              (click)="updateOrderDecision(order, 'approved')"
+            >
+              {{ isDecidingOrderId === order.id ? 'جارٍ الحفظ...' : 'موافقة' }}
+            </button>
+            <button
+              type="button"
+              class="danger-btn"
+              [disabled]="isDecidingOrderId === order.id"
+              (click)="updateOrderDecision(order, 'rejected')"
+            >
+              {{ isDecidingOrderId === order.id ? 'جارٍ الحفظ...' : 'رفض' }}
+            </button>
+            <button
+              type="button"
+              class="danger-btn"
+              [disabled]="isDeletingOrderId === order.id"
+              (click)="deleteOrder(order)"
+            >
+              {{ isDeletingOrderId === order.id ? 'جارٍ الحذف...' : 'حذف الطلب' }}
+            </button>
+          </div>
 
           <p>
             <strong>العميل:</strong> {{ order.customerName }} ({{ order.phone }}) - {{ order.email }}
@@ -227,6 +290,81 @@
       </div>
 
       <p *ngIf="!isLoadingOrders && orders.length === 0" class="status">لا توجد طلبات حتى الآن.</p>
+    </section>
+
+    <section class="orders-panel">
+      <h2>طلبات بيع المستخدمين</h2>
+      <p *ngIf="isLoadingSellRequests" class="status">جارٍ تحميل طلبات البيع...</p>
+
+      <div class="order-list" *ngIf="!isLoadingSellRequests && sellRequests.length > 0">
+        <article class="order-card" *ngFor="let requestItem of sellRequests; trackBy: trackBySellRequest">
+          <div class="order-head">
+            <strong>{{ requestItem.id }}</strong>
+            <span>{{ requestItem.createdAt | date: 'short' }}</span>
+          </div>
+          <p>
+            <strong>البائع:</strong> {{ requestItem.username }} ({{ requestItem.phone || 'بدون هاتف' }}) -
+            {{ requestItem.email || 'بدون إيميل' }}
+          </p>
+          <p><strong>الجهاز:</strong> {{ requestItem.name }} - {{ requestItem.brand }}</p>
+          <p>
+            <strong>المواصفات:</strong> {{ requestItem.cpu }} | {{ requestItem.ram }} |
+            {{ requestItem.storage }} | {{ requestItem.gpu || 'Integrated Graphics' }}
+          </p>
+          <p><strong>الحالة:</strong> {{ requestItem.condition }}</p>
+          <p><strong>السعر المطلوب:</strong> {{ requestItem.expectedPrice | number }} جنيه</p>
+          <p *ngIf="requestItem.description"><strong>الوصف:</strong> {{ requestItem.description }}</p>
+          <div class="sell-images" *ngIf="requestItem.images?.length">
+            <img
+              *ngFor="let imageUrl of requestItem.images"
+              [src]="imageUrl"
+              alt="Sell request image"
+            />
+          </div>
+          <div class="order-status-row">
+            <strong>قرار المالك: {{ resolveDecisionLabel(requestItem.decision || 'pending') }}</strong>
+          </div>
+          <div class="order-status-row">
+            <label class="reply-label">
+              رد المالك للمستخدم
+              <textarea
+                [value]="getSellReplyValue(requestItem)"
+                (input)="setSellReplyDraft(requestItem.id, $any($event.target).value)"
+                rows="2"
+              ></textarea>
+            </label>
+          </div>
+          <div class="order-actions">
+            <button
+              type="button"
+              [disabled]="isDecidingSellRequestId === requestItem.id"
+              (click)="updateSellRequestDecision(requestItem, 'approved')"
+            >
+              {{ isDecidingSellRequestId === requestItem.id ? 'جارٍ الحفظ...' : 'موافقة' }}
+            </button>
+            <button
+              type="button"
+              class="danger-btn"
+              [disabled]="isDecidingSellRequestId === requestItem.id"
+              (click)="updateSellRequestDecision(requestItem, 'rejected')"
+            >
+              {{ isDecidingSellRequestId === requestItem.id ? 'جارٍ الحفظ...' : 'رفض' }}
+            </button>
+            <button
+              type="button"
+              class="danger-btn"
+              [disabled]="isDeletingSellRequestId === requestItem.id"
+              (click)="deleteSellRequest(requestItem)"
+            >
+              {{ isDeletingSellRequestId === requestItem.id ? 'جارٍ الحذف...' : 'حذف الطلب' }}
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <p *ngIf="!isLoadingSellRequests && sellRequests.length === 0" class="status">
+        لا توجد طلبات بيع حالياً.
+      </p>
     </section>
   </div>
 </section>

@@ -2,7 +2,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { AdminOrder, AdminUser, OrderStatus, Product } from '../../models/store.models';
+import {
+  AdminOrder,
+  AdminUser,
+  OrderStatus,
+  OwnerDecision,
+  Product,
+  OwnerCommunication,
+  SellRequest,
+} from '../../models/store.models';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { StoreApiService } from '../../services/store-api.service';
 
@@ -20,7 +28,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   category = '';
   price: number | null = null;
   oldPrice: number | null = null;
-  rating = 4.5;
   stock = 1;
   shortDescription = '';
   cpu = '';
@@ -38,15 +45,25 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   isDeletingProductId = '';
   isLoadingProducts = false;
   isLoadingOrders = false;
+  isLoadingSellRequests = false;
   isLoadingUsers = false;
+  isLoadingCommunications = false;
   isUpdatingOrderId = '';
+  isDecidingOrderId = '';
+  isDeletingOrderId = '';
+  isDecidingSellRequestId = '';
+  isDeletingSellRequestId = '';
   errorMessage = '';
   successMessage = '';
   createdProductId = '';
 
   products: Product[] = [];
   orders: AdminOrder[] = [];
+  sellRequests: SellRequest[] = [];
   users: AdminUser[] = [];
+  ownerCommunications: OwnerCommunication[] = [];
+  orderReplyDraft: Record<string, string> = {};
+  sellReplyDraft: Record<string, string> = {};
   readonly orderStatusOptions: Array<{ value: OrderStatus; label: string }> = [
     { value: 'pending', label: 'قيد المراجعة' },
     { value: 'confirmed', label: 'تم التأكيد' },
@@ -73,7 +90,9 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     this.pendingEditId = this.route.snapshot.queryParamMap.get('editId') || '';
     this.loadAdminProducts();
     this.loadAdminOrders();
+    this.loadAdminSellRequests();
     this.loadAdminUsers();
+    this.loadAdminCommunications();
   }
 
   ngOnDestroy(): void {
@@ -127,8 +146,9 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     formData.append('brand', this.brand.trim());
     formData.append('category', this.category.trim());
     formData.append('price', String(this.price));
-    formData.append('oldPrice', String(this.oldPrice || this.price));
-    formData.append('rating', String(this.rating));
+    if (this.oldPrice !== null && this.oldPrice !== undefined && this.oldPrice > 0) {
+      formData.append('oldPrice', String(this.oldPrice));
+    }
     formData.append('stock', String(this.stock));
     formData.append('isFeatured', String(this.isFeatured));
     formData.append('shortDescription', this.shortDescription.trim());
@@ -181,7 +201,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     this.category = product.category;
     this.price = product.price;
     this.oldPrice = product.oldPrice;
-    this.rating = product.rating;
     this.stock = product.stock;
     this.shortDescription = product.shortDescription;
     this.cpu = product.specs.cpu;
@@ -249,6 +268,64 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     return user.id;
   }
 
+  trackByCommunication(_index: number, entry: OwnerCommunication): string {
+    return entry.id;
+  }
+
+  formatCommunicationKind(kind: string): string {
+    if (kind === 'order') {
+      return 'طلب شراء';
+    }
+    if (kind === 'sell_request') {
+      return 'طلب بيع';
+    }
+    return 'عام';
+  }
+
+  trackBySellRequest(_index: number, request: SellRequest): string {
+    return request.id;
+  }
+
+  resolveDecisionLabel(decision: OwnerDecision): string {
+    if (decision === 'approved') {
+      return 'تمت الموافقة';
+    }
+    if (decision === 'rejected') {
+      return 'مرفوض';
+    }
+    return 'قيد المراجعة';
+  }
+
+  setOrderReplyDraft(orderId: string, value: string): void {
+    this.orderReplyDraft[orderId] = value;
+  }
+
+  getOrderReplyDraft(orderId: string): string {
+    return this.orderReplyDraft[orderId] || '';
+  }
+
+  getOrderReplyValue(order: AdminOrder): string {
+    if (Object.prototype.hasOwnProperty.call(this.orderReplyDraft, order.id)) {
+      return this.orderReplyDraft[order.id] || '';
+    }
+    return order.ownerReply || '';
+  }
+
+  setSellReplyDraft(requestId: string, value: string): void {
+    this.sellReplyDraft[requestId] = value;
+  }
+
+  getSellReplyDraft(requestId: string): string {
+    return this.sellReplyDraft[requestId] || '';
+  }
+
+  getSellReplyValue(requestItem: SellRequest): string {
+    if (Object.prototype.hasOwnProperty.call(this.sellReplyDraft, requestItem.id)) {
+      return this.sellReplyDraft[requestItem.id] || '';
+    }
+    return requestItem.ownerReply || '';
+  }
+
   updateOrderStatus(order: AdminOrder, nextStatus: OrderStatus): void {
     const token = this.ownerAuthService.getToken();
     if (!token || order.status === nextStatus) {
@@ -268,6 +345,119 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
         },
         error: (error: HttpErrorResponse) => {
           this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر تحديث حالة الطلب.');
+        },
+      });
+  }
+
+  updateOrderDecision(order: AdminOrder, decision: 'approved' | 'rejected'): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    this.isDecidingOrderId = order.id;
+    this.storeApiService
+      .updateOrderDecision(order.id, decision, this.getOrderReplyDraft(order.id), token)
+      .pipe(finalize(() => (this.isDecidingOrderId = '')))
+      .subscribe({
+        next: ({ order: updatedOrder }) => {
+          this.orders = this.orders.map((entry) =>
+            entry.id === updatedOrder.id
+              ? {
+                  ...updatedOrder,
+                  status: (updatedOrder.status || 'pending') as OrderStatus,
+                  ownerDecision: (updatedOrder.ownerDecision || 'pending') as OwnerDecision,
+                }
+              : entry
+          );
+          this.successMessage = `تم تحديث قرار المالك للطلب ${order.id}.`;
+          this.loadAdminCommunications();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر تحديث قرار الطلب.');
+        },
+      });
+  }
+
+  deleteOrder(order: AdminOrder): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    const confirmed = window.confirm(`هل تريد حذف طلب الشراء ${order.id}؟`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.isDeletingOrderId = order.id;
+    this.storeApiService
+      .deleteOrder(order.id, this.getOrderReplyDraft(order.id), token)
+      .pipe(finalize(() => (this.isDeletingOrderId = '')))
+      .subscribe({
+        next: () => {
+          this.orders = this.orders.filter((entry) => entry.id !== order.id);
+          this.successMessage = `تم حذف الطلب ${order.id}.`;
+          this.loadAdminCommunications();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر حذف الطلب.');
+        },
+      });
+  }
+
+  updateSellRequestDecision(requestItem: SellRequest, decision: 'approved' | 'rejected'): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    this.isDecidingSellRequestId = requestItem.id;
+    this.storeApiService
+      .updateSellRequestDecision(
+        requestItem.id,
+        decision,
+        this.getSellReplyDraft(requestItem.id),
+        token
+      )
+      .pipe(finalize(() => (this.isDecidingSellRequestId = '')))
+      .subscribe({
+        next: ({ sellRequest }) => {
+          this.sellRequests = this.sellRequests.map((entry) =>
+            entry.id === sellRequest.id ? sellRequest : entry
+          );
+          this.successMessage = `تم تحديث قرار طلب البيع ${requestItem.id}.`;
+          this.loadAdminCommunications();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر تحديث قرار طلب البيع.');
+        },
+      });
+  }
+
+  deleteSellRequest(requestItem: SellRequest): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    const confirmed = window.confirm(`هل تريد حذف طلب بيع اللاب ${requestItem.id}؟`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.isDeletingSellRequestId = requestItem.id;
+    this.storeApiService
+      .deleteSellRequest(requestItem.id, this.getSellReplyDraft(requestItem.id), token)
+      .pipe(finalize(() => (this.isDeletingSellRequestId = '')))
+      .subscribe({
+        next: () => {
+          this.sellRequests = this.sellRequests.filter((entry) => entry.id !== requestItem.id);
+          this.successMessage = `تم حذف طلب البيع ${requestItem.id}.`;
+          this.loadAdminCommunications();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر حذف طلب البيع.');
         },
       });
   }
@@ -335,10 +525,32 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
           this.orders = orders.map((order) => ({
             ...order,
             status: (order.status || 'pending') as OrderStatus,
+            ownerDecision: (order.ownerDecision || 'pending') as OwnerDecision,
           }));
         },
         error: () => {
           this.orders = [];
+        },
+      });
+  }
+
+  private loadAdminSellRequests(): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    this.isLoadingSellRequests = true;
+    this.storeApiService
+      .getAdminSellRequests(token)
+      .pipe(finalize(() => (this.isLoadingSellRequests = false)))
+      .subscribe({
+        next: (requests) => {
+          this.sellRequests = requests;
+        },
+        error: (error: HttpErrorResponse) => {
+          this.sellRequests = [];
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر تحميل طلبات البيع.');
         },
       });
   }
@@ -364,6 +576,26 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadAdminCommunications(): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      return;
+    }
+
+    this.isLoadingCommunications = true;
+    this.storeApiService
+      .getAdminCommunications(token)
+      .pipe(finalize(() => (this.isLoadingCommunications = false)))
+      .subscribe({
+        next: (rows) => {
+          this.ownerCommunications = rows;
+        },
+        error: () => {
+          this.ownerCommunications = [];
+        },
+      });
+  }
+
   private resetForm(): void {
     this.editingProductId = null;
     this.name = '';
@@ -371,7 +603,6 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     this.category = '';
     this.price = null;
     this.oldPrice = null;
-    this.rating = 4.5;
     this.stock = 1;
     this.shortDescription = '';
     this.cpu = '';

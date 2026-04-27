@@ -4,18 +4,134 @@
     <p>مرحبًا {{ userName }}</p>
   </header>
 
-  <div class="account-box">
+  <div class="tabs">
+    <button [class.active]="activeTab === 'account'" (click)="setTab('account')">بيانات الحساب</button>
+    <button [class.active]="activeTab === 'mailbox'" (click)="setTab('mailbox')">مركز التواصل</button>
+    <button [class.active]="activeTab === 'sell'" (click)="setTab('sell')">بيع لاب</button>
+  </div>
+
+  <p class="status status--error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="status status--success" *ngIf="successMessage">{{ successMessage }}</p>
+
+  <div class="account-box" *ngIf="activeTab === 'account'">
     <h2>بيانات الحساب</h2>
     <p><strong>اسم المستخدم:</strong> {{ userName }}</p>
     <p><strong>البريد الإلكتروني:</strong> {{ userEmail || 'غير متوفر' }}</p>
     <p><strong>رقم الهاتف:</strong> {{ userPhone || 'غير متوفر' }}</p>
   </div>
 
-  <div class="notice-box">
-    <h2>متابعة الطلبات</h2>
-    <p>
-      تم إيقاف عرض الطلبات والبطاقات البنكية في حساب العميل. كل الطلبات بتظهر للمالك فقط، وهو
-      يراجعها ثم يتواصل معك على الهاتف.
+  <div class="mailbox-box" *ngIf="activeTab === 'mailbox'">
+    <h2>المراسلات والردود</h2>
+    <p class="mailbox-sub">كل الردود من المالك (طلبات، بيع) تتخزن هنا ولا تضيع.</p>
+    <p class="status" *ngIf="isLoadingInbox">جارٍ تحميل الرسائل...</p>
+
+    <div class="mail-list" *ngIf="!isLoadingInbox && inboxMessages.length > 0">
+      <article class="mail-card" *ngFor="let message of inboxMessages">
+        <div class="mail-head">
+          <strong>{{ message.subject }}</strong>
+          <span class="mail-badge" [class.mail-badge--read]="message.isRead">
+            {{ message.isRead ? 'مقروءة' : 'جديدة' }}
+          </span>
+        </div>
+        <p>{{ message.body }}</p>
+        <small>{{ message.createdAt | date: 'short' }}</small>
+        <button
+          type="button"
+          *ngIf="!message.isRead"
+          [disabled]="isMarkingMessageId === message.id"
+          (click)="markMessageAsRead(message)"
+        >
+          {{ isMarkingMessageId === message.id ? 'جارٍ التحديث...' : 'تعيين كمقروءة' }}
+        </button>
+      </article>
+    </div>
+
+    <p class="status" *ngIf="!isLoadingInbox && inboxMessages.length === 0">
+      لا توجد رسائل حالياً.
     </p>
+  </div>
+
+  <div class="sell-box" *ngIf="activeTab === 'sell'">
+    <form class="sell-form" (ngSubmit)="submitSellRequest()">
+      <h2>اعرض لابك للبيع</h2>
+      <div class="form-grid">
+        <label>
+          اسم الجهاز *
+          <input type="text" name="sellName" [(ngModel)]="sellName" required />
+        </label>
+        <label>
+          الماركة *
+          <input type="text" name="sellBrand" [(ngModel)]="sellBrand" required />
+        </label>
+        <label>
+          CPU *
+          <input type="text" name="sellCpu" [(ngModel)]="sellCpu" required />
+        </label>
+        <label>
+          RAM *
+          <input type="text" name="sellRam" [(ngModel)]="sellRam" required />
+        </label>
+        <label>
+          Storage *
+          <input type="text" name="sellStorage" [(ngModel)]="sellStorage" required />
+        </label>
+        <label>
+          GPU
+          <input type="text" name="sellGpu" [(ngModel)]="sellGpu" />
+        </label>
+        <label>
+          حالة اللاب *
+          <input type="text" name="sellCondition" [(ngModel)]="sellCondition" required />
+        </label>
+        <label>
+          السعر المطلوب *
+          <input
+            type="number"
+            name="sellExpectedPrice"
+            [(ngModel)]="sellExpectedPrice"
+            min="1"
+            required
+          />
+        </label>
+      </div>
+      <label>
+        وصف إضافي
+        <textarea name="sellDescription" [(ngModel)]="sellDescription" rows="3"></textarea>
+      </label>
+      <label>
+        صور اللاب *
+        <input type="file" accept="image/*" multiple (change)="onSellImagesSelected($event)" />
+      </label>
+      <div class="sell-preview-grid" *ngIf="sellImagePreviewUrls.length > 0">
+        <img *ngFor="let preview of sellImagePreviewUrls" [src]="preview" alt="Laptop preview image" />
+      </div>
+      <button type="submit" [disabled]="isSubmittingSellRequest">
+        {{ isSubmittingSellRequest ? 'جارٍ الإرسال...' : 'إرسال طلب البيع' }}
+      </button>
+    </form>
+
+    <div class="sell-requests-box">
+      <h2>طلبات البيع الخاصة بك</h2>
+      <p class="status" *ngIf="isLoadingSellRequests">جارٍ تحميل الطلبات...</p>
+
+      <div class="sell-request-list" *ngIf="!isLoadingSellRequests && sellRequests.length > 0">
+        <article class="sell-request-card" *ngFor="let requestItem of sellRequests">
+          <div class="mail-head">
+            <strong>{{ requestItem.name }}</strong>
+            <span class="mail-badge">
+              {{ resolveDecisionLabel(requestItem.decision) }}
+            </span>
+          </div>
+          <p><strong>السعر المطلوب:</strong> {{ requestItem.expectedPrice | number }} جنيه</p>
+          <p><strong>المواصفات:</strong> {{ requestItem.cpu }} | {{ requestItem.ram }} | {{ requestItem.storage }}</p>
+          <p *ngIf="requestItem.ownerReply"><strong>رد المالك:</strong> {{ requestItem.ownerReply }}</p>
+          <small>{{ requestItem.createdAt | date: 'short' }}</small>
+        </article>
+      </div>
+
+      <p class="status" *ngIf="!isLoadingSellRequests && sellRequests.length === 0">
+        لم تقم بإرسال طلبات بيع بعد.
+      </p>
+    </div>
   </div>
 </section>

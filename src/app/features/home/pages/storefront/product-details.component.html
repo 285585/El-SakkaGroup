@@ -46,6 +46,48 @@
         <small>{{ product.oldPrice | number }} جنيه</small>
       </div>
 
+      <div class="ratings-box">
+        <div class="ratings-summary" *ngIf="(product.ratingsCount ?? 0) > 0">
+          <span class="avg"
+            >★ {{ product.averageRating | number: '1.1-1' }}
+            <small>من {{ product.ratingsCount }} تقييم</small></span
+          >
+        </div>
+        <p class="ratings-none" *ngIf="!(product.ratingsCount ?? 0)">لا يوجد تقييمات بعد.</p>
+        <p class="my-rating-line" *ngIf="product.myRating != null && product.myRating > 0">
+          تقييمك: <strong>{{ product.myRating }}</strong> / 5
+        </p>
+        <p class="rate-hint rate-hint--error" *ngIf="ratingError">{{ ratingError }}</p>
+        <div class="rate-form" *ngIf="product.canRate && currentUser?.role === 'customer'">
+          <label>
+            قيّم المنتج (1–5)
+            <select
+              [(ngModel)]="ratingToSubmit"
+              name="productRating"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              <option *ngFor="let s of [1, 2, 3, 4, 5]" [ngValue]="s">{{ s }}</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            class="rate-submit"
+            (click)="submitRating()"
+            [disabled]="isSubmittingRating"
+          >
+            {{ isSubmittingRating ? 'جارٍ الحفظ...' : 'حفظ التقييم' }}
+          </button>
+        </div>
+        <p
+          class="rate-hint"
+          *ngIf="currentUser?.role === 'customer' && !product.canRate && (product.myRating == null || product.myRating === 0)"
+        >
+          يمكنك التقييم بعد <strong>استلام</strong> المنتج ضمن طلب بحالة «تم التوصيل».
+        </p>
+        <p class="rate-hint" *ngIf="!currentUser">سجّل الدخول لعرض إمكانية التقييم.</p>
+        <p class="rate-hint" *ngIf="currentUser?.role === 'owner'">تقييمات العملاء تظهر في المتجر تلقائياً.</p>
+      </div>
+
       <ul class="specs-list">
         <li><strong>المعالج:</strong> {{ product.specs.cpu }}</li>
         <li><strong>الرام:</strong> {{ product.specs.ram }}</li>

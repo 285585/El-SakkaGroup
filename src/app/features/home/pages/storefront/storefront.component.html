@@ -156,7 +156,11 @@
       <div class="product-card__content">
         <div class="product-card__topline">
           <span>{{ product.brand }} - {{ product.category }}</span>
-          <span class="rating">★ {{ product.rating }}</span>
+          <span class="rating" *ngIf="(product.ratingsCount ?? 0) > 0">
+            ★ {{ product.averageRating | number: '1.1-1' }}
+            <small>({{ product.ratingsCount }})</small>
+          </span>
+          <span class="rating rating--empty" *ngIf="!(product.ratingsCount ?? 0)">بدون تقييمات</span>
         </div>
         <h3>{{ product.name }}</h3>
         <p>{{ product.shortDescription }}</p>

@@ -1,8 +1,10 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
+import { OwnerAuthService } from '../../services/owner-auth.service';
 import { RecentlyViewedService } from '../../services/recently-viewed.service';
 import { StoreApiService } from '../../services/store-api.service';
 import { WishlistService } from '../../services/wishlist.service';
@@ -24,13 +26,17 @@ export class ProductDetailsComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
   successMessage = '';
+  ratingError = '';
+  ratingToSubmit: number = 5;
+  isSubmittingRating = false;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly storeApiService: StoreApiService,
     private readonly cartService: CartService,
     private readonly wishlistService: WishlistService,
-    private readonly recentlyViewedService: RecentlyViewedService
+    private readonly recentlyViewedService: RecentlyViewedService,
+    private readonly ownerAuthService: OwnerAuthService
   ) {}
 
   ngOnInit(): void {
@@ -42,14 +48,23 @@ export class ProductDetailsComponent implements OnInit {
       return;
     }
 
+    this.reloadProduct(productId);
+  }
+
+  private reloadProduct(productId: string): void {
+    this.isLoading = true;
+    const token = this.ownerAuthService.getToken();
     this.storeApiService
-      .getProductById(productId)
+      .getProductById(productId, token)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (product) => {
           this.product = product;
           this.activeImage = this.productImages[0];
           this.recentlyViewedService.add(product);
+          if (product.myRating != null && product.myRating > 0) {
+            this.ratingToSubmit = product.myRating;
+          }
         },
         error: () => {
           this.errorMessage = 'لم يتم العثور على المنتج المطلوب.';
@@ -126,5 +141,54 @@ export class ProductDetailsComponent implements OnInit {
 
   onMainImageLeave(): void {
     this.zoomVisible = false;
+  }
+
+  submitRating(): void {
+    if (!this.product) {
+      return;
+    }
+
+    const token = this.ownerAuthService.getToken();
+    this.ratingError = '';
+    this.successMessage = '';
+
+    if (!token) {
+      this.ratingError = 'سجّل الدخول كعميل لتتمكن من التقييم.';
+      return;
+    }
+
+    if (this.currentUser?.role === 'owner') {
+      this.ratingError = 'حساب المالك لا يضيف تقييماً للمنتجات.';
+      return;
+    }
+
+    this.isSubmittingRating = true;
+    this.storeApiService
+      .rateProduct(this.product.id, this.ratingToSubmit, token)
+      .pipe(finalize(() => (this.isSubmittingRating = false)))
+      .subscribe({
+        next: (res) => {
+          this.successMessage = res.message;
+          if (this.product) {
+            this.product = {
+              ...this.product,
+              averageRating: res.averageRating,
+              ratingsCount: res.ratingsCount,
+              myRating: res.myRating,
+              canRate: true,
+            };
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.ratingError =
+            typeof error.error?.message === 'string' && error.error.message.trim()
+              ? error.error.message
+              : 'تعذر حفظ التقييم.';
+        },
+      });
+  }
+
+  get currentUser() {
+    return this.ownerAuthService.getCurrentUser();
   }
 }

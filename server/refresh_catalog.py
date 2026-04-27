@@ -334,7 +334,7 @@ def build_product_object(item: dict, index: int, image_path: str) -> dict:
         "brand": infer_brand(item["name"]),
         "category": "Laptops",
         "price": price,
-        "oldPrice": price,
+        "oldPrice": price + 500,
         "rating": 4.7,
         "stock": 5,
         "isFeatured": index <= 8,
