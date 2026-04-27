@@ -1,6 +1,6 @@
 :host {
   display: block;
-  background: #f8fafc;
+  background: linear-gradient(165deg, #e4e1da 0%, #e7eaf0 100%);
   padding: 1.5rem 5vw 2rem;
 }
 
@@ -23,7 +23,7 @@
 
 .logout-btn {
   border: 1px solid #fecaca;
-  background: #fff;
+  background: var(--shell);
   color: #b91c1c;
   border-radius: 8px;
   padding: 0.55rem 0.9rem;
@@ -36,34 +36,40 @@
   gap: 1rem;
 }
 
-.product-form,
+.product-form {
+  background: var(--shell);
+  border: 1px solid #cfc6ba;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
 .products-panel {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--paper);
+  border: 1px solid #cfc6ba;
   border-radius: 12px;
   padding: 1rem;
 }
 
 .orders-panel {
   grid-column: 1 / -1;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--lilac-surface);
+  border: 1px solid #c9bdd8;
   border-radius: 12px;
   padding: 1rem;
 }
 
 .users-panel {
   grid-column: 1 / -1;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--mist);
+  border: 1px solid #b8c4d4;
   border-radius: 12px;
   padding: 1rem;
 }
 
 .comm-panel {
   grid-column: 1 / -1;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--sand-surface);
+  border: 1px solid #d4c4b0;
   border-radius: 12px;
   padding: 1rem;
 }
@@ -221,8 +227,8 @@
 
 .order-actions button {
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid #b8c0d0;
+  background: var(--paper);
   color: #334155;
   padding: 0.35rem 0.65rem;
   cursor: pointer;
@@ -317,16 +323,16 @@ textarea {
 .product-form button {
   border: none;
   border-radius: 8px;
-  background: #1d4ed8;
-  color: #fff;
+  background: linear-gradient(135deg, #4338ca, #0d9488);
+  color: var(--text-on-brand);
   font-weight: 700;
   padding: 0.65rem 0.9rem;
   cursor: pointer;
 }
 
 .product-form .secondary-btn {
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid #b8c0d0;
+  background: var(--shell);
   color: #334155;
 }
 
@@ -421,8 +427,8 @@ textarea {
 
 .item-actions button {
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid #b8c0d0;
+  background: var(--paper);
   color: #334155;
   padding: 0.35rem 0.65rem;
   cursor: pointer;

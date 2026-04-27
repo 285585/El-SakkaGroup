@@ -8,11 +8,21 @@
   --leading-base: 1.65;
   --primary-700: #4f46e5;
   --primary-600: #6366f1;
-  --accent-500: #06b6d4;
-  --surface-bg: #f3f6ff;
-  --surface-card: #ffffff;
+  --accent-500: #0d9488;
+  --accent-warm: #d97706;
+  /* Surfaces: warm/cool off-whites only (no pure white) */
+  --text-on-brand: #f2efe6;
+  --shell: #faf7f1;
+  --paper: #f3efe6;
+  --mist: #e9edf5;
+  --lilac-surface: #f0ebf7;
+  --sand-surface: #f2ebe0;
+  --surface-bg: #e8e4dc;
+  --surface-card: var(--shell);
   --text-main: #0f172a;
   --text-muted: #5b6480;
+  --glass-light: rgba(248, 244, 236, 0.14);
+  --glass-border: rgba(236, 230, 218, 0.28);
 }
 
 html,
@@ -20,7 +30,10 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: radial-gradient(circle at top, #eef2ff 0%, #f8faff 55%, #f3f6ff 100%);
+  background:
+    radial-gradient(ellipse 120% 80% at 10% -10%, #ddd4f0 0%, transparent 50%),
+    radial-gradient(ellipse 90% 70% at 92% 0%, #c8dce8 0%, transparent 45%),
+    linear-gradient(168deg, #e5e1d8 0%, #e8eaf2 42%, #e3dfd6 100%);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--leading-base);

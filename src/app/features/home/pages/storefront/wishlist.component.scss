@@ -1,6 +1,6 @@
 :host {
   display: block;
-  background: #f5f7ff;
+  background: linear-gradient(180deg, #e4e1f0 0%, #e8e5de 100%);
   padding: 1.8rem 5vw;
 }
 
@@ -20,8 +20,8 @@ header p {
 }
 
 .wishlist-card {
-  background: #fff;
-  border: 1px solid #e2e7fa;
+  background: var(--shell);
+  border: 1px solid #c9c2b6;
   border-radius: 12px;
   overflow: hidden;
   display: grid;
@@ -31,7 +31,7 @@ header p {
   width: 100%;
   height: 190px;
   object-fit: contain;
-  background: #fbfcff;
+  background: var(--mist);
   padding: 0.5rem;
 }
 
@@ -77,7 +77,7 @@ header p {
 
 .actions button {
   border: 1px solid #d6dbf1;
-  background: #fff;
+  background: var(--paper);
   color: #27345f;
   cursor: pointer;
 }
@@ -85,12 +85,12 @@ header p {
 .actions .danger {
   border-color: #fecaca;
   color: #b91c1c;
-  background: #fff5f5;
+  background: #fce8e8;
 }
 
 .empty-box {
-  background: #fff;
-  border: 1px solid #e2e7fa;
+  background: var(--lilac-surface);
+  border: 1px solid #c9bdd8;
   border-radius: 12px;
   padding: 1rem;
   display: grid;

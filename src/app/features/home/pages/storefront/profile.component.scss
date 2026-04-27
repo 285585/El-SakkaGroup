@@ -1,6 +1,6 @@
 :host {
   display: block;
-  background: #f5f7ff;
+  background: linear-gradient(165deg, #e2dde8 0%, #e6e3dc 100%);
   padding: 1.8rem 5vw;
 }
 
@@ -21,9 +21,9 @@
 }
 
 .tabs button {
-  border: 1px solid #cbd5e1;
+  border: 1px solid #b8c0d0;
   border-radius: 8px;
-  background: #fff;
+  background: var(--paper);
   color: #334155;
   padding: 0.45rem 0.8rem;
   cursor: pointer;
@@ -38,8 +38,8 @@
 .account-box,
 .mailbox-box,
 .sell-box {
-  background: #fff;
-  border: 1px solid #e2e7fa;
+  background: var(--shell);
+  border: 1px solid #c9c2b6;
   border-radius: 14px;
   padding: 1rem;
   margin-bottom: 0.9rem;
@@ -118,8 +118,8 @@
 .mail-card button,
 .sell-form button {
   margin-top: 0.55rem;
-  border: 1px solid #cbd5e1;
-  background: #fff;
+  border: 1px solid #b8c0d0;
+  background: var(--mist);
   color: #334155;
   border-radius: 8px;
   padding: 0.4rem 0.75rem;
