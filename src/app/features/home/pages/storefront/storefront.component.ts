@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product, ProductFilters } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
@@ -51,6 +51,10 @@ export class StorefrontComponent implements OnInit, OnDestroy {
     { value: 'priceDesc', label: 'السعر: الأعلى أولاً' },
     { value: 'rating', label: 'الأعلى تقييماً' },
   ];
+
+  get isAuthenticated$(): Observable<boolean> {
+    return this.ownerAuthService.isAuthenticated$;
+  }
 
   constructor(
     private readonly storeApiService: StoreApiService,
@@ -307,18 +311,6 @@ export class StorefrontComponent implements OnInit, OnDestroy {
 
   get recentlyViewedProducts(): Product[] {
     return this.recentlyViewed;
-  }
-
-  resolveProductImage(product: Product): string {
-    if (Array.isArray(product.images) && product.images.length > 0) {
-      return product.images[0];
-    }
-
-    if (product.image) {
-      return product.image;
-    }
-
-    return 'assets/images/laptop-placeholder.svg';
   }
 
   getDiscountPercent(product: Product): number {

@@ -51,7 +51,7 @@
           </li>
           <li *ngFor="let suggestion of searchSuggestions; trackBy: trackByProduct">
             <button type="button" (mousedown)="selectSuggestion(suggestion)">
-              <img [src]="resolveProductImage(suggestion)" [alt]="suggestion.name" loading="lazy" />
+              <img [appProductImage]="suggestion" [alt]="suggestion.name" loading="lazy" />
               <span>
                 <strong>{{ suggestion.name }}</strong>
                 <small>{{ suggestion.brand }} - {{ suggestion.price | number }} جنيه</small>
@@ -142,6 +142,7 @@
       [routerLink]="['/products', product.id]"
     >
       <button
+        *ngIf="isAuthenticated$ | async"
         type="button"
         class="wishlist-btn"
         [class.wishlist-btn--active]="isWishlisted(product.id)"
@@ -153,7 +154,7 @@
         -{{ getDiscountPercent(product) }}%
       </span>
       <span class="stock-badge stock-badge--out" *ngIf="isOutOfStock(product)">نفد المخزون</span>
-      <img [src]="resolveProductImage(product)" [alt]="product.name" loading="lazy" />
+      <img [appProductImage]="product" [alt]="product.name" loading="lazy" />
       <div class="product-card__content">
         <div class="product-card__topline">
           <span>{{ product.brand }} - {{ product.category }}</span>
@@ -194,7 +195,7 @@
             {{ isDeletingProductId === product.id ? 'جارٍ الحذف...' : 'حذف' }}
           </button>
         </div>
-        <div class="product-card__cart-wrap">
+        <div class="product-card__cart-wrap" *ngIf="isAuthenticated$ | async">
           <button
             type="button"
             class="product-card__cart"
@@ -239,7 +240,7 @@
 <section class="recently-viewed" *ngIf="recentlyViewedProducts.length > 0">
   <div class="recently-viewed__head">
     <h2>شوهدت مؤخراً</h2>
-    <a routerLink="/wishlist">فتح المفضلة</a>
+    <a *ngIf="isAuthenticated$ | async" routerLink="/wishlist">فتح المفضلة</a>
   </div>
   <div class="recently-viewed__grid">
     <a
@@ -247,7 +248,7 @@
       *ngFor="let product of recentlyViewedProducts; trackBy: trackByProduct"
       [routerLink]="['/products', product.id]"
     >
-      <img [src]="resolveProductImage(product)" [alt]="product.name" />
+      <img [appProductImage]="product" [alt]="product.name" />
       <strong>{{ product.name }}</strong>
       <small>{{ product.price | number }} جنيه</small>
     </a>

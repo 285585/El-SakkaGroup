@@ -6,7 +6,7 @@
 
   <div class="wishlist-grid" *ngIf="wishlistItems.length > 0; else emptyWishlist">
     <article class="wishlist-card" *ngFor="let product of wishlistItems; trackBy: trackByProduct">
-      <img [src]="resolveProductImage(product)" [alt]="product.name" />
+      <img [appProductImage]="product" [alt]="product.name" />
       <div class="content">
         <h3>{{ product.name }}</h3>
         <p>{{ product.brand }} - {{ product.category }}</p>

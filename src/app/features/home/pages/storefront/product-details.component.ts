@@ -1,8 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../../models/store.models';
+import {
+  getLocalLaptopVariantPath,
+  getProductImageUrl,
+  isLocalVariantPath,
+} from '../../utils/product-image.util';
 import { CartService } from '../../services/cart.service';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { RecentlyViewedService } from '../../services/recently-viewed.service';
@@ -15,9 +21,9 @@ import { WishlistService } from '../../services/wishlist.service';
   styleUrls: ['./product-details.component.scss'],
 })
 export class ProductDetailsComponent implements OnInit {
-  private readonly fallbackImage = 'assets/images/laptop-placeholder.svg';
   product: Product | null = null;
   activeImage = '';
+  thumbOverride: { [key: number]: string } = {};
   zoomBackgroundPosition = '50% 50%';
   zoomVisible = false;
   lensLeft = 0;
@@ -29,6 +35,10 @@ export class ProductDetailsComponent implements OnInit {
   ratingError = '';
   ratingToSubmit: number = 5;
   isSubmittingRating = false;
+
+  get isAuthenticated$(): Observable<boolean> {
+    return this.ownerAuthService.isAuthenticated$;
+  }
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -60,6 +70,7 @@ export class ProductDetailsComponent implements OnInit {
       .subscribe({
         next: (product) => {
           this.product = product;
+          this.thumbOverride = {};
           this.activeImage = this.productImages[0];
           this.recentlyViewedService.add(product);
           if (product.myRating != null && product.myRating > 0) {
@@ -74,14 +85,46 @@ export class ProductDetailsComponent implements OnInit {
 
   get productImages(): string[] {
     if (!this.product) {
-      return [this.fallbackImage];
+      return [];
     }
 
     if (Array.isArray(this.product.images) && this.product.images.length > 0) {
       return this.product.images;
     }
 
-    return this.product.image ? [this.product.image] : [this.fallbackImage];
+    if (this.product.image) {
+      return [this.product.image];
+    }
+
+    return [getProductImageUrl(this.product)];
+  }
+
+  getThumbUrl(index: number, original: string): string {
+    return this.thumbOverride[index] ?? original;
+  }
+
+  onMainImageError(): void {
+    if (!this.product) {
+      return;
+    }
+    if (isLocalVariantPath(this.activeImage)) {
+      return;
+    }
+    this.activeImage = getLocalLaptopVariantPath(this.product.id);
+  }
+
+  onThumbError(index: number, original: string): void {
+    if (!this.product) {
+      return;
+    }
+    if (isLocalVariantPath(original)) {
+      return;
+    }
+    const fallback = getLocalLaptopVariantPath(this.product.id);
+    this.thumbOverride[index] = fallback;
+    if (this.activeImage === original) {
+      this.activeImage = fallback;
+    }
   }
 
   selectImage(imageUrl: string): void {

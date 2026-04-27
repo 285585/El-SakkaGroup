@@ -7,7 +7,7 @@
   <div class="cart-layout" *ngIf="cartItems.length > 0; else emptyCart">
     <div class="cart-items">
       <article class="cart-item" *ngFor="let item of cartItems; trackBy: trackByCartItem">
-        <img [src]="resolveProductImage(item)" [alt]="item.product.name" />
+        <img [appProductImage]="item.product" [alt]="item.product.name" />
         <div class="item-main">
           <h3>{{ item.product.name }}</h3>
           <p>{{ item.product.brand }} - {{ item.product.category }}</p>

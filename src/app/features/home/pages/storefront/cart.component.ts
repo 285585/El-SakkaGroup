@@ -46,13 +46,6 @@ export class CartComponent {
     this.cartService.clear();
   }
 
-  resolveProductImage(item: CartItem): string {
-    if (Array.isArray(item.product.images) && item.product.images.length > 0) {
-      return item.product.images[0];
-    }
-    return item.product.image || 'assets/images/laptop-placeholder.svg';
-  }
-
   trackByCartItem(_index: number, item: CartItem): string {
     return item.product.id;
   }

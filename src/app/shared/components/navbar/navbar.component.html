@@ -16,12 +16,22 @@
     <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }"
       >المتجر</a
     >
-    <a routerLink="/cart" routerLinkActive="is-active" class="cart-link">
+    <a
+      *ngIf="isAuthenticated$ | async"
+      routerLink="/cart"
+      routerLinkActive="is-active"
+      class="cart-link"
+    >
       <i class="pi pi-shopping-cart"></i>
       <span>السلة</span>
       <b *ngIf="(cartItemsCount$ | async) as count">{{ count }}</b>
     </a>
-    <a routerLink="/wishlist" routerLinkActive="is-active" class="wishlist-link">
+    <a
+      *ngIf="isAuthenticated$ | async"
+      routerLink="/wishlist"
+      routerLinkActive="is-active"
+      class="wishlist-link"
+    >
       <i class="pi pi-heart"></i>
       <span>المفضلة</span>
       <b *ngIf="(wishlistCount$ | async) as count">{{ count }}</b>

@@ -12,7 +12,7 @@
         (mousemove)="onMainImageMove($event)"
         (mouseleave)="onMainImageLeave()"
       >
-        <img [src]="activeImage" [alt]="product.name" />
+        <img [src]="activeImage" [alt]="product.name" (error)="onMainImageError()" />
         <div class="image-lens" *ngIf="zoomVisible" [style.left.px]="lensLeft" [style.top.px]="lensTop"></div>
       </div>
 
@@ -27,11 +27,15 @@
       <div class="thumb-list" *ngIf="productImages.length > 1">
         <button
           type="button"
-          *ngFor="let imageUrl of productImages"
-          [class.thumb--active]="imageUrl === activeImage"
-          (click)="selectImage(imageUrl)"
+          *ngFor="let imageUrl of productImages; let i = index"
+          [class.thumb--active]="getThumbUrl(i, imageUrl) === activeImage"
+          (click)="selectImage(getThumbUrl(i, imageUrl))"
         >
-          <img [src]="imageUrl" [alt]="product.name" />
+          <img
+            [src]="getThumbUrl(i, imageUrl)"
+            [alt]="product.name"
+            (error)="onThumbError(i, imageUrl)"
+          />
         </button>
       </div>
     </div>
@@ -98,12 +102,17 @@
       </ul>
 
       <div class="cta-row">
-        <button type="button" class="primary-btn" [disabled]="product.stock <= 0" (click)="addToCart()">
-          {{ product.stock <= 0 ? 'غير متوفر' : 'أضف للسلة' }}
-        </button>
-        <button type="button" class="secondary-btn" (click)="toggleWishlist()">
-          {{ isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة' }}
-        </button>
+        <ng-container *ngIf="isAuthenticated$ | async; else ctaLoginHint">
+          <button type="button" class="primary-btn" [disabled]="product.stock <= 0" (click)="addToCart()">
+            {{ product.stock <= 0 ? 'غير متوفر' : 'أضف للسلة' }}
+          </button>
+          <button type="button" class="secondary-btn" (click)="toggleWishlist()">
+            {{ isWishlisted ? 'إزالة من المفضلة' : 'إضافة للمفضلة' }}
+          </button>
+        </ng-container>
+        <ng-template #ctaLoginHint>
+          <p class="cta-login-hint">سجّل الدخول لاستخدام السلة والمفضلة.</p>
+        </ng-template>
         <a routerLink="/contact" class="contact-link">تواصل لطلب المنتج</a>
       </div>
     </div>

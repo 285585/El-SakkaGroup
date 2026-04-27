@@ -13,6 +13,7 @@ import { CartComponent } from './cart.component';
 import { CheckoutComponent } from './checkout.component';
 import { ProfileComponent } from './profile.component';
 import { WishlistComponent } from './wishlist.component';
+import { ProductImageDirective } from 'src/app/shared/directives/product-image.directive';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { WishlistComponent } from './wishlist.component';
     FormsModule,
     StorefrontRoutingModule,
     RippleModule,
+    ProductImageDirective,
   ]
 })
 export class StorefrontModule { }

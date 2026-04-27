@@ -26,14 +26,6 @@ export class WishlistComponent {
     this.cartService.addProduct(product);
   }
 
-  resolveProductImage(product: Product): string {
-    if (Array.isArray(product.images) && product.images.length > 0) {
-      return product.images[0];
-    }
-
-    return product.image || 'assets/images/laptop-placeholder.svg';
-  }
-
   trackByProduct(_index: number, product: Product): string {
     return product.id;
   }
