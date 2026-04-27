@@ -17,7 +17,7 @@
       <span>تغطية لمعظم المحافظات</span>
     </div>
     <div class="hero__card">
-      <strong>أسعار تنافسية يومياً</strong>
+      <strong>أسعار لابات استيراد الخارج  تنافسية يومياً</strong>
       <span>تحديثات مستمرة للأسعار</span>
     </div>
   </div>
@@ -139,12 +139,13 @@
       class="product-card"
       *ngFor="let product of paginatedProducts; trackBy: trackByProduct"
       [class.product-card--out]="isOutOfStock(product)"
+      [routerLink]="['/products', product.id]"
     >
       <button
         type="button"
         class="wishlist-btn"
         [class.wishlist-btn--active]="isWishlisted(product.id)"
-        (click)="toggleWishlist(product)"
+        (click)="$event.stopPropagation(); toggleWishlist(product)"
       >
         ❤
       </button>
@@ -174,15 +175,21 @@
             <strong>{{ product.price | number }} جنيه</strong>
             <small>{{ product.oldPrice | number }} جنيه</small>
           </div>
-          <a class="product-card__details" [routerLink]="['/products', product.id]">التفاصيل</a>
+          <span class="product-card__details">التفاصيل</span>
         </div>
         <div class="owner-actions" *ngIf="ownerMode">
-          <button type="button" class="edit-btn" (click)="editProduct(product.id)">تعديل</button>
+          <button
+            type="button"
+            class="edit-btn"
+            (click)="$event.stopPropagation(); editProduct(product.id)"
+          >
+            تعديل
+          </button>
           <button
             type="button"
             class="delete-btn"
             [disabled]="isDeletingProductId === product.id"
-            (click)="deleteProduct(product.id)"
+            (click)="$event.stopPropagation(); deleteProduct(product.id)"
           >
             {{ isDeletingProductId === product.id ? 'جارٍ الحذف...' : 'حذف' }}
           </button>
@@ -192,7 +199,7 @@
             type="button"
             class="product-card__cart"
             [disabled]="isOutOfStock(product)"
-            (click)="addToCart(product)"
+            (click)="$event.stopPropagation(); addToCart(product)"
           >
             {{ isOutOfStock(product) ? 'غير متوفر' : 'أضف للسلة' }}
           </button>

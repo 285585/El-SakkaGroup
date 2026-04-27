@@ -302,6 +302,9 @@
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
 
 .product-card:hover {
