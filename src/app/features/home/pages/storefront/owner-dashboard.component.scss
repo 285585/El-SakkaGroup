@@ -30,6 +30,74 @@
   cursor: pointer;
 }
 
+.owner-history {
+  background: var(--shell);
+  border: 1px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.owner-history h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.owner-history__hint {
+  margin: 0 0 1rem;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.owner-history__columns {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.owner-history__block h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.owner-history__table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.owner-history__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.owner-history__table th,
+.owner-history__table td {
+  padding: 0.5rem 0.65rem;
+  text-align: start;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.owner-history__table th {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+}
+
+.owner-history__empty {
+  margin: 0.5rem 0 0;
+}
+
+.sale-date-line {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: #0f766e;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;

@@ -7,6 +7,109 @@
     <button type="button" class="logout-btn" (click)="logout()">تسجيل خروج</button>
   </div>
 
+  <section class="owner-history">
+    <h2>سجل تفاعلي (مبيعات ومرتجعات وطلبات بيع)</h2>
+    <p class="owner-history__hint">
+      تاريخ تسجيل «البيع» في الطلبات يُضبط تلقائياً <strong>بعد موافقتك بيومين</strong> من تاريخ
+      الموافقة.
+    </p>
+
+    <div class="owner-history__columns">
+      <div class="owner-history__block" *ngIf="approvedPurchaseOrders.length > 0">
+        <h3>طلبات شراء (موافق عليها — مسار البيع)</h3>
+        <div class="owner-history__table-wrap">
+          <table class="owner-history__table">
+            <thead>
+              <tr>
+                <th>رقم الطلب</th>
+                <th>الإجمالي</th>
+                <th>تاريخ الطلب</th>
+                <th>تاريخ الموافقة</th>
+                <th>تاريخ تسجيل البيع (بعد يومين)</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let o of approvedPurchaseOrders">
+                <td>{{ o.id }}</td>
+                <td>{{ o.total | number }} ج</td>
+                <td>{{ o.createdAt | date: 'short' }}</td>
+                <td>{{ o.ownerDecisionUpdatedAt | date: 'short' }}</td>
+                <td>{{ o.saleDate | date: 'short' }}</td>
+                <td>{{ resolveStatusLabel(o.status) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="owner-history__block" *ngIf="returnedOrders.length > 0">
+        <h3>مرتجعات</h3>
+        <div class="owner-history__table-wrap">
+          <table class="owner-history__table">
+            <thead>
+              <tr>
+                <th>رقم الطلب</th>
+                <th>الإجمالي</th>
+                <th>تاريخ الطلب</th>
+                <th>آخر تحديث (الإرجاع)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let o of returnedOrders">
+                <td>{{ o.id }}</td>
+                <td>{{ o.total | number }} ج</td>
+                <td>{{ o.createdAt | date: 'short' }}</td>
+                <td>{{ o.statusUpdatedAt | date: 'short' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="owner-history__block" *ngIf="approvedSellRequestsList.length > 0">
+        <h3>طلبات بيع لاب (موافق عليها)</h3>
+        <div class="owner-history__table-wrap">
+          <table class="owner-history__table">
+            <thead>
+              <tr>
+                <th>المرجع</th>
+                <th>المستخدم</th>
+                <th>الجهاز</th>
+                <th>السعر</th>
+                <th>تاريخ الطلب</th>
+                <th>تاريخ موافقة المالك</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of approvedSellRequestsList">
+                <td>{{ r.id }}</td>
+                <td>{{ r.username }}</td>
+                <td>{{ r.name }} ({{ r.brand }})</td>
+                <td>{{ r.expectedPrice | number }} ج</td>
+                <td>{{ r.createdAt | date: 'short' }}</td>
+                <td>{{ r.ownerDecisionUpdatedAt | date: 'short' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p
+      class="status owner-history__empty"
+      *ngIf="
+        !isLoadingOrders &&
+        !isLoadingSellRequests &&
+        approvedPurchaseOrders.length === 0 &&
+        returnedOrders.length === 0 &&
+        approvedSellRequestsList.length === 0
+      "
+    >
+      لا يوجد سجلات مبيعات أو مرتجعات بعد — ستظهر هنا بمجرد تسجيل الطلبات وموافقتك.
+    </p>
+  </section>
+
   <div class="dashboard-grid">
     <form class="product-form" (ngSubmit)="submitProduct()">
       <h2>{{ isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد' }}</h2>
@@ -234,6 +337,10 @@
           <div class="order-status-row">
             <strong>قرار المالك: {{ resolveDecisionLabel(order.ownerDecision || 'pending') }}</strong>
           </div>
+          <p *ngIf="order.ownerDecision === 'approved' && order.saleDate" class="sale-date-line">
+            <strong>تاريخ تسجيل البيع في السجل (يومان بعد موافقتك):</strong>
+            {{ order.saleDate | date: 'short' }}
+          </p>
           <div class="order-status-row">
             <label class="reply-label">
               رد المالك للمستخدم

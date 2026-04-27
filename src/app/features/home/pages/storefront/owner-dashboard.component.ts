@@ -466,6 +466,24 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     return Boolean(this.editingProductId);
   }
 
+  get approvedPurchaseOrders(): AdminOrder[] {
+    return this.orders.filter(
+      (o) => o.ownerDecision === 'approved' && o.status !== 'returned'
+    );
+  }
+
+  get returnedOrders(): AdminOrder[] {
+    return this.orders.filter((o) => o.status === 'returned');
+  }
+
+  get approvedSellRequestsList(): SellRequest[] {
+    return this.sellRequests.filter((r) => r.decision === 'approved');
+  }
+
+  resolveStatusLabel(status: OrderStatus): string {
+    return this.orderStatusOptions.find((o) => o.value === status)?.label ?? String(status);
+  }
+
   private loadAdminProducts(): void {
     const token = this.ownerAuthService.getToken();
     if (!token) {

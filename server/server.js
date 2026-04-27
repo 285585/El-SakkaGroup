@@ -1808,15 +1808,24 @@ app.put('/api/admin/orders/:id/decision', requireOwnerAuth, async (request, resp
       return;
     }
 
-    const updatedOrder = await Order.findOneAndUpdate(
-      { id: request.params.id },
-      {
-        ownerDecision: decision,
-        ownerReply,
-        ownerDecisionUpdatedAt: new Date(),
-      },
-      { new: true, lean: true }
-    );
+    const now = new Date();
+    const $set = {
+      ownerDecision: decision,
+      ownerReply,
+      ownerDecisionUpdatedAt: now,
+    };
+    if (decision === 'approved') {
+      $set.saleDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+    }
+    const update = { $set };
+    if (decision === 'rejected') {
+      update.$unset = { saleDate: 1 };
+    }
+
+    const updatedOrder = await Order.findOneAndUpdate({ id: request.params.id }, update, {
+      new: true,
+      lean: true,
+    });
 
     if (!updatedOrder) {
       response.status(404).json({ message: 'Order not found.' });

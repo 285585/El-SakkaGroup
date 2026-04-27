@@ -118,6 +118,8 @@ export interface AdminOrder extends CreatedOrder {
   ownerDecision: OwnerDecision;
   ownerReply: string;
   ownerDecisionUpdatedAt?: string;
+  /** تاريخ تسجيل البيع (يُضبط تلقائياً: يومان بعد موافقة المالك) */
+  saleDate?: string | null;
   items: Array<{
     productId: string;
     name: string;

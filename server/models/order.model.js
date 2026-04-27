@@ -60,6 +60,8 @@ const orderSchema = new mongoose.Schema(
     },
     ownerReply: { type: String, default: '', trim: true },
     ownerDecisionUpdatedAt: { type: Date, default: Date.now },
+    /** تاريخ تسجيل «البيع» في السجل: يومان بعد موافقة المالك */
+    saleDate: { type: Date, default: null },
     statusUpdatedAt: { type: Date, default: Date.now },
     subtotal: { type: Number, required: true, min: 0 },
     shippingCost: { type: Number, required: true, min: 0 },
