@@ -62,6 +62,23 @@ export class OwnerAuthService {
     return Boolean(this.getToken());
   }
 
+  /**
+   * يتطلب مستخدماً مسجّلاً (توكن + بيانات المستخدم). وإلا يُوجّه لصفحة الدخول.
+   * @returns true إن كان جلسة المستخدم جاهزة للاستخدام
+   */
+  requireRegisteredUser(returnUrl?: string): boolean {
+    if (this.getToken() && this.getCurrentUser()) {
+      return true;
+    }
+    const fromCaller = returnUrl?.trim();
+    const safe =
+      fromCaller && fromCaller.startsWith('/') && !fromCaller.startsWith('//')
+        ? fromCaller
+        : this.router.url;
+    this.router.navigate(['/login'], { queryParams: { returnUrl: safe } });
+    return false;
+  }
+
   isSessionValid(): Observable<boolean> {
     return this.storeApiServiceSync().pipe(map((user) => Boolean(user)));
   }

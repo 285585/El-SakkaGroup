@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 
@@ -27,7 +27,8 @@ export class OwnerLoginComponent implements OnInit {
 
   constructor(
     private readonly ownerAuthService: OwnerAuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -135,13 +136,27 @@ export class OwnerLoginComponent implements OnInit {
   }
 
   private redirectByRole(): void {
+    const returnUrl = this.getSafeReturnUrl();
     const user = this.ownerAuthService.getCurrentUser();
     if (user?.role === 'owner') {
       this.router.navigate(['/owner/dashboard']);
       return;
     }
 
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+      return;
+    }
+
     this.router.navigate(['/']);
+  }
+
+  private getSafeReturnUrl(): string | null {
+    const raw = this.route.snapshot.queryParamMap.get('returnUrl')?.trim();
+    if (!raw || !raw.startsWith('/') || raw.startsWith('//') || /:/.test(raw)) {
+      return null;
+    }
+    return raw;
   }
 
   private resolveAuthError(error: HttpErrorResponse): string {

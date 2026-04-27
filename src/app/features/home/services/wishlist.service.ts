@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Product } from '../models/store.models';
+import { OwnerAuthService } from './owner-auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,8 @@ export class WishlistService {
   private readonly storageKey = 'el_sakka_wishlist_items';
   private readonly wishlistSubject = new BehaviorSubject<Product[]>(this.readFromStorage());
   readonly wishlist$ = this.wishlistSubject.asObservable();
+
+  constructor(private readonly ownerAuthService: OwnerAuthService) {}
 
   getItems(): Product[] {
     return this.wishlistSubject.value;
@@ -23,6 +26,9 @@ export class WishlistService {
   }
 
   add(product: Product): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     if (this.has(product.id)) {
       return;
     }
@@ -31,10 +37,16 @@ export class WishlistService {
   }
 
   remove(productId: string): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     this.update(this.wishlistSubject.value.filter((item) => item.id !== productId));
   }
 
   toggle(product: Product): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     if (this.has(product.id)) {
       this.remove(product.id);
       return;

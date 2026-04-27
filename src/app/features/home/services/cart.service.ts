@@ -28,6 +28,9 @@ export class CartService {
   }
 
   addProduct(product: Product): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     const items = [...this.cartSubject.value];
     const existing = items.find((item) => item.product.id === product.id);
     if (existing) {
@@ -39,6 +42,9 @@ export class CartService {
   }
 
   increase(productId: string): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     const items = [...this.cartSubject.value];
     const item = items.find((entry) => entry.product.id === productId);
     if (!item) {
@@ -50,6 +56,9 @@ export class CartService {
   }
 
   decrease(productId: string): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     const items = [...this.cartSubject.value];
     const item = items.find((entry) => entry.product.id === productId);
     if (!item) {
@@ -66,10 +75,16 @@ export class CartService {
   }
 
   remove(productId: string): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     this.updateCart(this.cartSubject.value.filter((item) => item.product.id !== productId));
   }
 
   clear(): void {
+    if (!this.ownerAuthService.requireRegisteredUser()) {
+      return;
+    }
     this.updateCart([]);
   }
 

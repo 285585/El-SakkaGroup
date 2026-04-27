@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'products/:id', component: ProductDetailsComponent },
   { path: 'cart', component: CartComponent, canActivate: [UserAuthGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [UserAuthGuard] },
-  { path: 'wishlist', component: WishlistComponent },
+  { path: 'wishlist', component: WishlistComponent, canActivate: [UserAuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [UserAuthGuard] },
   { path: 'login', component: OwnerLoginComponent },
   { path: 'owner/login', redirectTo: 'login', pathMatch: 'full' },

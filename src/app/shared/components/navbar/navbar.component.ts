@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, combineLatest, map } from 'rxjs';
 import { AuthUser } from 'src/app/features/home/models/store.models';
 import { CartService } from 'src/app/features/home/services/cart.service';
 import { OwnerAuthService } from 'src/app/features/home/services/owner-auth.service';
@@ -27,10 +27,18 @@ export class NavbarComponent implements OnInit {
     this.ownerMode$ = this.ownerAuthService.ownerMode$;
     this.currentUser$ = this.ownerAuthService.currentUser$;
     this.isAuthenticated$ = this.ownerAuthService.isAuthenticated$;
-    this.cartItemsCount$ = this.cartService.cart$.pipe(
-      map((items) => items.reduce((sum, item) => sum + item.quantity, 0))
+    this.cartItemsCount$ = combineLatest([
+      this.ownerAuthService.isAuthenticated$,
+      this.cartService.cart$,
+    ]).pipe(
+      map(([isAuth, items]) =>
+        isAuth ? items.reduce((sum, item) => sum + item.quantity, 0) : 0
+      )
     );
-    this.wishlistCount$ = this.wishlistService.wishlist$.pipe(map((items) => items.length));
+    this.wishlistCount$ = combineLatest([
+      this.ownerAuthService.isAuthenticated$,
+      this.wishlistService.wishlist$,
+    ]).pipe(map(([isAuth, items]) => (isAuth ? items.length : 0)));
     this.ownerAuthService.isSessionValid().subscribe();
   }
 
