@@ -155,6 +155,16 @@ export class StorefrontComponent implements OnInit, OnDestroy {
     this.ownerActionMessage = `تمت إضافة "${product.name}" إلى السلة.`;
   }
 
+  goBuyProduct(product: Product, event?: Event): void {
+    event?.stopPropagation();
+    if (this.isOutOfStock(product)) {
+      this.errorMessage = 'هذا المنتج غير متوفر حالياً.';
+      return;
+    }
+    this.errorMessage = '';
+    this.router.navigate(['/checkout'], { queryParams: { productId: product.id, qty: 1 } });
+  }
+
   editProduct(productId: string): void {
     this.router.navigate(['/owner/dashboard'], {
       queryParams: {

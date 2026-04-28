@@ -575,11 +575,32 @@
 /* زر أضف للسلة: صف مخصص في أسفل البطاقة، بمحاذاة يسار الشاشة (الثابت بصرياً في RTL) */
 .product-card__cart-wrap {
   display: flex;
-  justify-content: flex-end; /* في RTL: نهاية السطر = اليسار البصري */
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.45rem;
   width: 100%;
   margin-top: auto;
   padding-top: 0.4rem;
   border-top: 1px solid #eef2f7;
+}
+
+.product-card__buy {
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  color: var(--text-on-brand);
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  min-width: 6.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.28);
+}
+
+.product-card__buy:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #64748b;
+  box-shadow: none;
 }
 
 .product-card__cart {

@@ -203,8 +203,17 @@
             {{ isDeletingProductId === product.id ? 'جارٍ الحذف...' : 'حذف' }}
           </button>
         </div>
-        <div class="product-card__cart-wrap" *ngIf="isAuthenticated$ | async">
+        <div class="product-card__cart-wrap">
           <button
+            type="button"
+            class="product-card__buy"
+            [disabled]="isOutOfStock(product)"
+            (click)="goBuyProduct(product, $event)"
+          >
+            {{ isOutOfStock(product) ? 'غير متوفر' : 'شراء' }}
+          </button>
+          <button
+            *ngIf="isAuthenticated$ | async"
             type="button"
             class="product-card__cart"
             [disabled]="isOutOfStock(product)"

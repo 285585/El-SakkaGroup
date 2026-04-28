@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product } from '../../models/store.models';
@@ -45,6 +45,7 @@ export class ProductDetailsComponent implements OnInit {
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly storeApiService: StoreApiService,
     private readonly cartService: CartService,
     private readonly wishlistService: WishlistService,
@@ -147,6 +148,16 @@ export class ProductDetailsComponent implements OnInit {
 
     this.cartService.addProduct(this.product);
     this.successMessage = 'تمت إضافة المنتج إلى السلة.';
+  }
+
+  buyNow(): void {
+    if (!this.product || Number(this.product.stock) <= 0) {
+      this.errorMessage = 'هذا المنتج غير متوفر حالياً.';
+      return;
+    }
+
+    this.errorMessage = '';
+    this.router.navigate(['/checkout'], { queryParams: { productId: this.product.id, qty: 1 } });
   }
 
   toggleWishlist(): void {

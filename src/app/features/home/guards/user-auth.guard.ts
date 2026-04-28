@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { OwnerAuthService } from '../services/owner-auth.service';
 
@@ -12,9 +12,18 @@ export class UserAuthGuard implements CanActivate {
     private readonly router: Router
   ) {}
 
-  canActivate(): Observable<boolean | UrlTree> {
+  canActivate(
+    _route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean | UrlTree> {
     return this.ownerAuthService.isSessionValid().pipe(
-      map((isValid) => (isValid ? true : this.router.createUrlTree(['/login'])))
+      map((isValid) =>
+        isValid
+          ? true
+          : this.router.createUrlTree(['/login'], {
+              queryParams: { returnUrl: state.url },
+            })
+      )
     );
   }
 }

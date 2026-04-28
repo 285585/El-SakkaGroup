@@ -33,6 +33,132 @@
   padding: 1rem;
 }
 
+.checkout-direct-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  color: #991b1b;
+}
+
+.checkout-direct-error .back-shop-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.direct-product-summary {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.direct-product-summary img {
+  width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.direct-product-summary__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.direct-product-summary__text strong {
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.direct-product-summary__text span {
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.direct-qty-label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.direct-qty-label input {
+  max-width: 6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+}
+
+.stock-line {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.contact-methods {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.contact-methods h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+.contact-methods__lead {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.contact-methods ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+}
+
+.contact-methods a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.contact-methods a:hover {
+  text-decoration: underline;
+}
+
+.contact-methods__more {
+  display: inline-block;
+  margin-top: 0.65rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.summary-back-link {
+  display: inline-block;
+  margin-top: 0.85rem;
+  font-weight: 600;
+  color: #4338ca;
+  text-decoration: none;
+}
+
+.summary-back-link:hover {
+  text-decoration: underline;
+}
+
 .checkout-summary-note {
   margin: 0.5rem 0 0.75rem;
   font-size: 0.9rem;

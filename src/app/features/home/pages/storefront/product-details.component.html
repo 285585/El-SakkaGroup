@@ -102,6 +102,14 @@
       </ul>
 
       <div class="cta-row">
+        <button
+          type="button"
+          class="buy-now-btn"
+          [disabled]="product.stock <= 0"
+          (click)="buyNow()"
+        >
+          {{ product.stock <= 0 ? 'غير متوفر' : 'تقديم طلب شراء' }}
+        </button>
         <ng-container *ngIf="isAuthenticated$ | async; else ctaLoginHint">
           <button type="button" class="primary-btn" [disabled]="product.stock <= 0" (click)="addToCart()">
             {{ product.stock <= 0 ? 'غير متوفر' : 'أضف للسلة' }}

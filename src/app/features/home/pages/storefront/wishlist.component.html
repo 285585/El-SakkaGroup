@@ -13,6 +13,9 @@
         <p class="public-pricing-hint public-pricing-hint--small">{{ publicPricingHint }}</p>
       </div>
       <div class="actions">
+        <button type="button" class="buy-btn" [disabled]="product.stock <= 0" (click)="buyNow(product)">
+          {{ product.stock <= 0 ? 'غير متوفر' : 'شراء' }}
+        </button>
         <a [routerLink]="['/products', product.id]">التفاصيل</a>
         <button type="button" (click)="addToCart(product)">أضف للسلة</button>
         <button type="button" class="danger" (click)="removeFromWishlist(product.id)">إزالة</button>

@@ -1,10 +1,22 @@
 <section class="checkout-page">
   <div class="checkout-header">
-    <h1>تأكيد الطلب</h1>
-    <p>املأ بيانات العنوان وسيتم إرسال الطلب للمالك للمراجعة والتواصل معك.</p>
+    <h1>{{ pageTitle }}</h1>
+    <p *ngIf="!productIdFromQuery">
+      املأ بيانات العنوان وسيتم إرسال الطلب للمالك للمراجعة والتواصل معك.
+    </p>
+    <p *ngIf="productIdFromQuery">
+      أكمل بياناتك أدناه؛ سيظهر المنتج في الملخص وسنتواصل معك لإتمام الشراء.
+    </p>
   </div>
 
-  <div class="checkout-layout">
+  <p class="status" *ngIf="isLoadingDirectProduct">جارٍ تحميل بيانات المنتج...</p>
+
+  <div class="checkout-direct-error" *ngIf="!isLoadingDirectProduct && directLoadError">
+    <p>{{ directLoadError }}</p>
+    <a routerLink="/" class="back-shop-link">العودة للمتجر</a>
+  </div>
+
+  <div class="checkout-layout" *ngIf="showCheckoutForm">
     <form class="checkout-form" (ngSubmit)="submitOrder()">
       <h2>بيانات العميل</h2>
       <div class="form-grid">
@@ -81,9 +93,49 @@
 
     <aside class="summary-box">
       <h2>ملخص الطلب</h2>
-      <p class="public-pricing-hint">{{ publicPricingHint }}</p>
-      <p class="checkout-summary-note">التسعير النهائي يحدد عند التواصل بعد استلام طلبك.</p>
-      <a routerLink="/cart">الرجوع إلى السلة</a>
+
+      <div class="direct-product-summary" *ngIf="directProduct">
+        <img [appProductImage]="directProduct" [alt]="directProduct.name" />
+        <div class="direct-product-summary__text">
+          <strong>{{ directProduct.name }}</strong>
+          <span>{{ directProduct.brand }} · {{ directProduct.category }}</span>
+        </div>
+        <label class="direct-qty-label">
+          الكمية
+          <input
+            type="number"
+            name="directQty"
+            min="1"
+            [max]="directProduct.stock"
+            [(ngModel)]="directQty"
+          />
+        </label>
+        <p class="stock-line">المتاح: {{ directProduct.stock }} قطعة</p>
+      </div>
+
+      <ng-container *ngIf="!directProduct">
+        <p class="public-pricing-hint">{{ publicPricingHint }}</p>
+        <p class="checkout-summary-note">التسعير النهائي يحدد عند التواصل بعد استلام طلبك.</p>
+      </ng-container>
+
+      <section class="contact-methods" aria-label="طرق التواصل">
+        <h3>تواصل معنا</h3>
+        <p class="contact-methods__lead">يمكنك المتابعة على أي من القنوات التالية:</p>
+        <ul>
+          <li><strong>موبايل وواتساب:</strong> <a href="tel:+201066449644" dir="ltr">01066449644</a></li>
+          <li>
+            <strong>واتساب:</strong>
+            <a href="https://wa.me/201066449644" target="_blank" rel="noopener noreferrer">مراسلة مباشرة</a>
+          </li>
+          <li><strong>البريد:</strong> <a href="mailto:sales@elsakka-group.com">sales@elsakka-group.com</a></li>
+        </ul>
+        <a routerLink="/contact" class="contact-methods__more">كل بيانات التواصل والعنوان</a>
+      </section>
+
+      <a *ngIf="!directProduct" routerLink="/cart" class="summary-back-link">الرجوع إلى السلة</a>
+      <a *ngIf="directProduct" [routerLink]="['/products', directProduct.id]" class="summary-back-link"
+        >العودة لصفحة المنتج</a
+      >
     </aside>
   </div>
 </section>

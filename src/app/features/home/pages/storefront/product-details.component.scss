@@ -234,6 +234,26 @@ h1 {
   color: #64748b;
 }
 
+.buy-now-btn {
+  display: inline-flex;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 8px;
+  padding: 0.65rem 1.15rem;
+  font-weight: 700;
+  color: var(--text-on-brand);
+  background: linear-gradient(135deg, #0d9488, #0f766e);
+  box-shadow: 0 2px 10px rgba(13, 148, 136, 0.3);
+}
+
+.buy-now-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #64748b;
+  box-shadow: none;
+}
+
 .primary-btn,
 .secondary-btn,
 .contact-link {

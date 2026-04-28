@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
 import { WishlistService } from '../../services/wishlist.service';
@@ -14,7 +15,8 @@ export class WishlistComponent {
 
   constructor(
     private readonly wishlistService: WishlistService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly router: Router
   ) {}
 
   get wishlistItems(): Product[] {
@@ -27,6 +29,13 @@ export class WishlistComponent {
 
   addToCart(product: Product): void {
     this.cartService.addProduct(product);
+  }
+
+  buyNow(product: Product): void {
+    if (product.stock <= 0) {
+      return;
+    }
+    this.router.navigate(['/checkout'], { queryParams: { productId: product.id, qty: 1 } });
   }
 
   trackByProduct(_index: number, product: Product): string {
