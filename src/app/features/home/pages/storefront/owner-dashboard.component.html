@@ -220,26 +220,46 @@
     </form>
 
     <aside class="products-panel">
-      <h2>المنتجات الحالية</h2>
-      <p *ngIf="isLoadingProducts" class="status">جارٍ تحميل المنتجات...</p>
-      <ul *ngIf="!isLoadingProducts && products.length > 0">
-        <li *ngFor="let product of products; trackBy: trackByProduct">
-          <div>
-            <strong>{{ product.name }}</strong>
-            <span>{{ product.price | number }} جنيه</span>
-            <span class="product-rating-hint" *ngIf="product.ratingsCount">
-              متوسط التقييم: {{ product.averageRating | number: '1.1-1' }} ({{ product.ratingsCount }})
-            </span>
-            <span class="product-rating-hint product-rating-hint--muted" *ngIf="!product.ratingsCount"
-              >لا يوجد تقييمات بعد</span
-            >
+      <div class="products-panel__head">
+        <h2>المنتجات الحالية</h2>
+        <span class="products-panel__badge" *ngIf="!isLoadingProducts && products.length > 0">
+          {{ products.length }} منتج
+        </span>
+      </div>
+      <p *ngIf="isLoadingProducts" class="status products-panel__status">جارٍ تحميل المنتجات...</p>
+      <ul class="product-cards" *ngIf="!isLoadingProducts && products.length > 0">
+        <li *ngFor="let product of products; trackBy: trackByProduct" class="product-card">
+          <div
+            class="product-card__thumb"
+            *ngIf="getProductListImage(product) as thumbUrl; else productThumbPlaceholder"
+          >
+            <img [src]="thumbUrl" [attr.alt]="product.name" loading="lazy" />
           </div>
-          <div class="item-actions">
-            <a [routerLink]="['/products', product.id]">عرض الصفحة</a>
-            <button type="button" (click)="editProduct(product)">تعديل</button>
+          <ng-template #productThumbPlaceholder>
+            <div class="product-card__thumb product-card__thumb--placeholder" aria-hidden="true">
+              {{ product.name.trim().charAt(0) || '؟' }}
+            </div>
+          </ng-template>
+          <div class="product-card__body">
+            <strong class="product-card__title">{{ product.name }}</strong>
+            <div class="product-card__meta">
+              <span class="product-card__price">{{ product.price | number }} جنيه</span>
+              <span class="product-rating-hint" *ngIf="product.ratingsCount">
+                متوسط التقييم: {{ product.averageRating | number: '1.1-1' }} · {{ product.ratingsCount }} تقييم
+              </span>
+              <span class="product-rating-hint product-rating-hint--muted" *ngIf="!product.ratingsCount">
+                لا يوجد تقييمات بعد
+              </span>
+            </div>
+          </div>
+          <div class="product-card__actions">
+            <a class="product-card__link" [routerLink]="['/products', product.id]">عرض الصفحة</a>
+            <button type="button" class="product-card__btn product-card__btn--secondary" (click)="editProduct(product)">
+              تعديل
+            </button>
             <button
               type="button"
-              class="danger-btn"
+              class="product-card__btn product-card__btn--danger"
               [disabled]="isDeletingProductId === product.id"
               (click)="deleteProduct(product)"
             >
@@ -248,7 +268,7 @@
           </div>
         </li>
       </ul>
-      <p *ngIf="!isLoadingProducts && products.length === 0" class="status">
+      <p *ngIf="!isLoadingProducts && products.length === 0" class="status products-panel__empty">
         لا توجد منتجات حالياً.
       </p>
     </aside>
