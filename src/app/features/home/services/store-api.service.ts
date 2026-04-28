@@ -155,6 +155,30 @@ export class StoreApiService {
     });
   }
 
+  deleteAdminUser(
+    userId: string,
+    token: string
+  ): Observable<{ message: string; userId: string }> {
+    return this.http.delete<{ message: string; userId: string }>(
+      `${this.baseUrl}/admin/users/${userId}`,
+      {
+        headers: this.createAuthHeaders(token),
+      }
+    );
+  }
+
+  deleteOwnerCommunication(
+    communicationId: string,
+    token: string
+  ): Observable<{ message: string; communicationId: string }> {
+    return this.http.delete<{ message: string; communicationId: string }>(
+      `${this.baseUrl}/admin/communications/${communicationId}`,
+      {
+        headers: this.createAuthHeaders(token),
+      }
+    );
+  }
+
   getAdminCommunications(token: string): Observable<OwnerCommunication[]> {
     return this.http.get<OwnerCommunication[]>(`${this.baseUrl}/admin/communications`, {
       headers: this.createAuthHeaders(token),

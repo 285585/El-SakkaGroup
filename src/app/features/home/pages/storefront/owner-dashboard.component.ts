@@ -53,6 +53,8 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   isDeletingOrderId = '';
   isDecidingSellRequestId = '';
   isDeletingSellRequestId = '';
+  isDeletingUserId = '';
+  isDeletingCommunicationId = '';
   errorMessage = '';
   successMessage = '';
   createdProductId = '';
@@ -270,6 +272,78 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
 
   trackByCommunication(_index: number, entry: OwnerCommunication): string {
     return entry.id;
+  }
+
+  deleteUser(user: AdminUser): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      this.errorMessage = 'انتهت الجلسة، سجل الدخول مرة أخرى.';
+      return;
+    }
+
+    const label = user.username || user.email || user.id;
+    const confirmed = window.confirm(
+      `سيتم حذف الحساب «${label}» نهائياً مع الطلبات وطلبات البيع والرسائل والسلة والتقييمات المرتبطة به. هل أنت متأكد؟`
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isDeletingUserId = user.id;
+
+    this.storeApiService
+      .deleteAdminUser(user.id, token)
+      .pipe(finalize(() => (this.isDeletingUserId = '')))
+      .subscribe({
+        next: () => {
+          this.users = this.users.filter((entry) => entry.id !== user.id);
+          this.successMessage = `تم حذف المستخدم ${label}.`;
+          this.loadAdminOrders();
+          this.loadAdminSellRequests();
+          this.loadAdminCommunications();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر حذف المستخدم.');
+          if (error.status === 401) {
+            this.ownerAuthService.logout();
+          }
+        },
+      });
+  }
+
+  deleteCommunication(entry: OwnerCommunication): void {
+    const token = this.ownerAuthService.getToken();
+    if (!token) {
+      this.errorMessage = 'انتهت الجلسة، سجل الدخول مرة أخرى.';
+      return;
+    }
+
+    const confirmed = window.confirm('هل تريد حذف هذه المراسلة من السجل؟ (تُزال أيضاً من بريد المستخدم إن وُجدت)');
+    if (!confirmed) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isDeletingCommunicationId = entry.id;
+
+    this.storeApiService
+      .deleteOwnerCommunication(entry.id, token)
+      .pipe(finalize(() => (this.isDeletingCommunicationId = '')))
+      .subscribe({
+        next: () => {
+          this.ownerCommunications = this.ownerCommunications.filter((row) => row.id !== entry.id);
+          this.successMessage = 'تم حذف المراسلة.';
+        },
+        error: (error: HttpErrorResponse) => {
+          this.errorMessage = this.resolveOwnerErrorMessage(error, 'تعذر حذف المراسلة.');
+          if (error.status === 401) {
+            this.ownerAuthService.logout();
+          }
+        },
+      });
   }
 
   formatCommunicationKind(kind: string): string {

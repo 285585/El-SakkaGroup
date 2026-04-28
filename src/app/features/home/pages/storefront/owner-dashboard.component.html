@@ -267,6 +267,7 @@
               <th>الإيميل</th>
               <th>اسم المستخدم</th>
               <th>تاريخ التسجيل</th>
+              <th>إجراءات</th>
             </tr>
           </thead>
           <tbody>
@@ -277,6 +278,16 @@
               <td>{{ user.email }}</td>
               <td>{{ user.username }}</td>
               <td>{{ user.createdAt | date: 'short' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="danger-btn"
+                  [disabled]="isDeletingUserId === user.id"
+                  (click)="deleteUser(user)"
+                >
+                  {{ isDeletingUserId === user.id ? 'جارٍ الحذف...' : 'حذف الحساب' }}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -296,6 +307,14 @@
           <div class="comm-head">
             <strong>{{ comm.subject }}</strong>
             <span class="comm-meta">{{ comm.createdAt | date: 'short' }}</span>
+            <button
+              type="button"
+              class="danger-btn comm-delete-btn"
+              [disabled]="isDeletingCommunicationId === comm.id"
+              (click)="deleteCommunication(comm)"
+            >
+              {{ isDeletingCommunicationId === comm.id ? 'جارٍ الحذف...' : 'حذف الرسالة' }}
+            </button>
           </div>
           <p class="comm-target">
             <span class="comm-kind">{{ formatCommunicationKind(comm.kind) }}</span>

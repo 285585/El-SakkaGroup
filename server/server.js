@@ -1790,6 +1790,73 @@ app.get('/api/admin/users', requireOwnerAuth, async (_request, response, next) =
   }
 });
 
+app.delete('/api/admin/users/:id', requireOwnerAuth, async (request, response, next) => {
+  try {
+    const rawId = String(request.params.id || '').trim();
+    if (!mongoose.Types.ObjectId.isValid(rawId)) {
+      response.status(400).json({ message: 'معرّف المستخدم غير صالح.' });
+      return;
+    }
+
+    const userObjectId = new mongoose.Types.ObjectId(rawId);
+    const existingUser = await User.findById(userObjectId).lean();
+    if (!existingUser) {
+      response.status(404).json({ message: 'المستخدم غير موجود.' });
+      return;
+    }
+
+    const sellRequests = await SellRequest.find({ userId: userObjectId }).lean();
+    await Promise.all(
+      sellRequests.flatMap((row) => (row.images || []).map((imagePath) => removeUploadedImageByPath(imagePath)))
+    );
+
+    await SellRequest.deleteMany({ userId: userObjectId });
+    await Order.deleteMany({ userId: userObjectId });
+    await Cart.deleteMany({ userId: userObjectId });
+    await ProductRating.deleteMany({ userId: userObjectId });
+    await InboxMessage.deleteMany({ userId: userObjectId });
+    await OwnerCommunication.deleteMany({ userId: userObjectId });
+    await User.findByIdAndDelete(userObjectId);
+
+    response.json({
+      message: 'تم حذف حساب المستخدم وجميع البيانات المرتبطة به.',
+      userId: rawId,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete('/api/admin/communications/:id', requireOwnerAuth, async (request, response, next) => {
+  try {
+    const commId = String(request.params.id || '').trim();
+    if (!commId) {
+      response.status(400).json({ message: 'معرّف المراسلة مطلوب.' });
+      return;
+    }
+
+    const existing = await OwnerCommunication.findOne({ id: commId }).lean();
+    if (!existing) {
+      response.status(404).json({ message: 'المراسلة غير موجودة.' });
+      return;
+    }
+
+    const inboxId = String(existing.userInboxMessageId || '').trim();
+    if (inboxId) {
+      await InboxMessage.findOneAndDelete({ id: inboxId });
+    }
+
+    await OwnerCommunication.findOneAndDelete({ id: commId });
+
+    response.json({
+      message: 'تم حذف المراسلة بنجاح.',
+      communicationId: commId,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/api/admin/orders', requireOwnerAuth, async (_request, response, next) => {
   try {
     const orders = await Order.find({}).sort({ createdAt: -1 }).lean();

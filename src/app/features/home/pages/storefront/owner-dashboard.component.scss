@@ -166,9 +166,20 @@
 
 .comm-head {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: 0.5rem 0.75rem;
+}
+
+.comm-head strong {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.comm-delete-btn {
+  margin-inline-start: auto;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.6rem;
 }
 
 .comm-meta {
