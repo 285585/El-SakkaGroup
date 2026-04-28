@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CartItem } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
+import { PUBLIC_CONTACT_FOR_PRICING } from '../../constants/public-pricing.message';
 
 @Component({
   selector: 'app-cart',
@@ -8,6 +9,8 @@ import { CartService } from '../../services/cart.service';
   styleUrls: ['./cart.component.scss'],
 })
 export class CartComponent {
+  readonly publicPricingHint = PUBLIC_CONTACT_FOR_PRICING;
+
   constructor(private readonly cartService: CartService) {}
 
   get cartItems(): CartItem[] {
@@ -16,18 +19,6 @@ export class CartComponent {
 
   get cartItemsCount(): number {
     return this.cartService.getCount();
-  }
-
-  get cartSubtotal(): number {
-    return this.cartService.getSubtotal();
-  }
-
-  get shippingCost(): number {
-    return this.cartService.getShippingCost();
-  }
-
-  get cartTotal(): number {
-    return this.cartService.getTotal();
   }
 
   increaseQuantity(item: CartItem): void {

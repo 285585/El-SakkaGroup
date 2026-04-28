@@ -111,8 +111,15 @@
   </section>
 
   <div class="dashboard-grid">
+    <section class="products-workspace" aria-labelledby="products-workspace-title">
+      <header class="products-workspace__header">
+        <h2 id="products-workspace-title">إدارة المنتجات</h2>
+        <p>أضف منتجات جديدة أو عدّل القائمة الحالية مع معاينة مصغّرة وبحث سريع.</p>
+      </header>
+
+      <div class="products-workspace__split">
     <form class="product-form" (ngSubmit)="submitProduct()">
-      <h2>{{ isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد' }}</h2>
+      <h3>{{ isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد' }}</h3>
       <p class="editing-note" *ngIf="isEditing">
         أنت الآن في وضع التعديل. يمكنك تعديل البيانات ثم الضغط على تحديث المنتج.
       </p>
@@ -221,25 +228,49 @@
 
     <aside class="products-panel">
       <div class="products-panel__head">
-        <h2>المنتجات الحالية</h2>
+        <h3>المنتجات الحالية</h3>
         <span class="products-panel__badge" *ngIf="!isLoadingProducts && products.length > 0">
-          {{ products.length }} منتج
+          <ng-container *ngIf="productListFilter.trim(); else productsTotalBadge">
+            {{ filteredProducts.length }} نتيجة · إجمالي {{ products.length }}
+          </ng-container>
+          <ng-template #productsTotalBadge>{{ products.length }} منتج</ng-template>
         </span>
       </div>
+
+      <div class="products-panel__search" *ngIf="!isLoadingProducts && products.length > 0">
+        <label class="products-panel__search-label">
+          بحث في المنتجات
+          <input
+            type="search"
+            name="productListFilter"
+            [(ngModel)]="productListFilter"
+            autocomplete="off"
+            placeholder="ابحث بالاسم، الماركة، الفئة، رقم المنتج، أو جزء من الوصف…"
+          />
+        </label>
+        <p class="products-panel__filter-hint" *ngIf="productListFilter.trim()">
+          يتم تصفية القائمة مباشرة أثناء الكتابة.
+        </p>
+      </div>
+
       <p *ngIf="isLoadingProducts" class="status products-panel__status">جارٍ تحميل المنتجات...</p>
-      <ul class="product-cards" *ngIf="!isLoadingProducts && products.length > 0">
-        <li *ngFor="let product of products; trackBy: trackByProduct" class="product-card">
+      <ul class="product-cards" *ngIf="!isLoadingProducts && filteredProducts.length > 0">
+        <li *ngFor="let product of filteredProducts; trackBy: trackByProduct" class="product-card">
           <div
             class="product-card__thumb"
-            *ngIf="getProductListImage(product) as thumbUrl; else productThumbPlaceholder"
+            [class.product-card__thumb--placeholder]="!shouldShowProductThumb(product)"
           >
-            <img [src]="thumbUrl" [attr.alt]="product.name" loading="lazy" />
+            <img
+              *ngIf="shouldShowProductThumb(product)"
+              [src]="resolveProductThumbUrl(product)"
+              [attr.alt]="product.name"
+              loading="lazy"
+              (error)="onProductThumbError(product)"
+            />
+            <span *ngIf="!shouldShowProductThumb(product)" class="product-card__thumb-letter" aria-hidden="true">
+              {{ productInitialLetter(product) }}
+            </span>
           </div>
-          <ng-template #productThumbPlaceholder>
-            <div class="product-card__thumb product-card__thumb--placeholder" aria-hidden="true">
-              {{ product.name.trim().charAt(0) || '؟' }}
-            </div>
-          </ng-template>
           <div class="product-card__body">
             <strong class="product-card__title">{{ product.name }}</strong>
             <div class="product-card__meta">
@@ -268,10 +299,19 @@
           </div>
         </li>
       </ul>
+      <p
+        *ngIf="!isLoadingProducts && products.length > 0 && filteredProducts.length === 0"
+        class="status products-panel__empty"
+      >
+        لا توجد منتجات تطابق البحث الحالي.
+      </p>
       <p *ngIf="!isLoadingProducts && products.length === 0" class="status products-panel__empty">
         لا توجد منتجات حالياً.
       </p>
     </aside>
+
+      </div>
+    </section>
 
     <section class="users-panel">
       <h2>بيانات المستخدمين (للمالك فقط)</h2>

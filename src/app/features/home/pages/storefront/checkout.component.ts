@@ -6,6 +6,7 @@ import { CreateOrderRequest } from '../../models/store.models';
 import { CartService } from '../../services/cart.service';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { StoreApiService } from '../../services/store-api.service';
+import { PUBLIC_CONTACT_FOR_PRICING } from '../../constants/public-pricing.message';
 
 @Component({
   selector: 'app-checkout',
@@ -13,6 +14,8 @@ import { StoreApiService } from '../../services/store-api.service';
   styleUrls: ['./checkout.component.scss'],
 })
 export class CheckoutComponent implements OnInit {
+  readonly publicPricingHint = PUBLIC_CONTACT_FOR_PRICING;
+
   customerName = '';
   email = '';
   phone = '';
@@ -64,18 +67,6 @@ export class CheckoutComponent implements OnInit {
     if (user?.phone) {
       this.phone = user.phone;
     }
-  }
-
-  get cartSubtotal(): number {
-    return this.cartService.getSubtotal();
-  }
-
-  get shippingCost(): number {
-    return this.cartService.getShippingCost();
-  }
-
-  get cartTotal(): number {
-    return this.cartService.getTotal();
   }
 
   submitOrder(): void {

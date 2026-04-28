@@ -5,6 +5,9 @@
     <p>
       نوفر أحدث أجهزة اللاب توب للأعمال، الدراسة، والألعاب مع شحن سريع وخدمة ما بعد البيع.
     </p>
+    <p class="hero__pricing-note public-pricing-hint public-pricing-hint--spaced">
+      {{ publicPricingHint }}
+    </p>
     <a href="#products" class="hero__cta">ابدأ التسوق الآن</a>
   </div>
   <div class="hero__cards">
@@ -17,8 +20,8 @@
       <span>تغطية لمعظم المحافظات</span>
     </div>
     <div class="hero__card">
-      <strong>أسعار لابات استيراد الخارج  تنافسية يومياً</strong>
-      <span>تحديثات مستمرة للأسعار</span>
+      <strong>تشكيلة واسعة ومحدثة</strong>
+      <span>لابات أعمال وجيمينج واستيراد — استفسر عن المتوفر</span>
     </div>
   </div>
 </section>
@@ -39,7 +42,7 @@
     >
       <img [appProductImage]="product" [alt]="product.name" />
       <strong>{{ product.name }}</strong>
-      <small>{{ product.price | number }} جنيه</small>
+      <small class="public-pricing-hint public-pricing-hint--small">{{ publicPricingHint }}</small>
     </a>
   </div>
 </section>
@@ -75,7 +78,7 @@
               <img [appProductImage]="suggestion" [alt]="suggestion.name" loading="lazy" />
               <span>
                 <strong>{{ suggestion.name }}</strong>
-                <small>{{ suggestion.brand }} - {{ suggestion.price | number }} جنيه</small>
+                <small>{{ suggestion.brand }}</small>
               </span>
             </button>
           </li>
@@ -98,17 +101,6 @@
           {{ option.label }}
         </option>
       </select>
-    </div>
-
-    <div class="filters__price-range">
-      <div class="filters__field">
-        <label for="minPrice">أقل سعر</label>
-        <input id="minPrice" type="number" min="0" [(ngModel)]="filters.minPrice" inputmode="numeric" />
-      </div>
-      <div class="filters__field">
-        <label for="maxPrice">أعلى سعر</label>
-        <input id="maxPrice" type="number" min="0" [(ngModel)]="filters.maxPrice" inputmode="numeric" />
-      </div>
     </div>
 
     <label class="filters__check">
@@ -172,9 +164,6 @@
       >
         ❤
       </button>
-      <span class="discount-badge" *ngIf="getDiscountPercent(product) > 0">
-        -{{ getDiscountPercent(product) }}%
-      </span>
       <span class="stock-badge stock-badge--out" *ngIf="isOutOfStock(product)">نفد المخزون</span>
       <img [appProductImage]="product" [alt]="product.name" loading="lazy" />
       <div class="product-card__content">
@@ -194,10 +183,7 @@
           <li>{{ product.specs.gpu }}</li>
         </ul>
         <div class="product-card__meta-row">
-          <div class="product-card__prices">
-            <strong>{{ product.price | number }} جنيه</strong>
-            <small>{{ product.oldPrice | number }} جنيه</small>
-          </div>
+          <p class="product-card__pricing-text public-pricing-hint">{{ publicPricingHint }}</p>
           <span class="product-card__details">التفاصيل</span>
         </div>
         <div class="owner-actions" *ngIf="ownerMode">

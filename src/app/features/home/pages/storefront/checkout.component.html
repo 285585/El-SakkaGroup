@@ -81,9 +81,8 @@
 
     <aside class="summary-box">
       <h2>ملخص الطلب</h2>
-      <p>الإجمالي الفرعي: <strong>{{ cartSubtotal | number }} جنيه</strong></p>
-      <p>الشحن: <strong>{{ shippingCost | number }} جنيه</strong></p>
-      <p class="total">الإجمالي النهائي: <strong>{{ cartTotal | number }} جنيه</strong></p>
+      <p class="public-pricing-hint">{{ publicPricingHint }}</p>
+      <p class="checkout-summary-note">التسعير النهائي يحدد عند التواصل بعد استلام طلبك.</p>
       <a routerLink="/cart">الرجوع إلى السلة</a>
     </aside>
   </div>

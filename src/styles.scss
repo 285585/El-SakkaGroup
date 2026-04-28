@@ -74,3 +74,27 @@ textarea,
 select {
   text-align: right;
 }
+
+/* نص موحّد بدل عرض الأسعار للمتسوقين */
+.public-pricing-hint {
+  color: var(--accent-500);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+small .public-pricing-hint,
+.public-pricing-hint--small {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.public-pricing-hint--spaced {
+  margin-top: 0.35rem;
+}
+
+.public-pricing-hint--block {
+  display: block;
+}
+

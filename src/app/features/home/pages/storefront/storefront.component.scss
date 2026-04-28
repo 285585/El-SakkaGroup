@@ -550,22 +550,12 @@
   flex-wrap: wrap;
 }
 
-.product-card__prices {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.product-card__prices strong {
-  color: #0f172a;
-  font-size: 1.2rem;
-  line-height: 1.2;
-}
-
-.product-card__prices small {
-  color: #64748b;
-  text-decoration: line-through;
+.product-card__pricing-text {
+  flex: 1 1 12rem;
+  min-width: 0;
+  text-align: right;
   font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .product-card__details {

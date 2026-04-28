@@ -11,7 +11,9 @@
         <div class="item-main">
           <h3>{{ item.product.name }}</h3>
           <p>{{ item.product.brand }} - {{ item.product.category }}</p>
-          <strong>{{ item.product.price | number }} جنيه</strong>
+          <p class="public-pricing-hint public-pricing-hint--small public-pricing-hint--spaced">
+            {{ publicPricingHint }}
+          </p>
         </div>
         <div class="item-actions">
           <button type="button" (click)="decreaseQuantity(item)">-</button>
@@ -27,9 +29,8 @@
     <aside class="cart-summary">
       <h2>ملخص الطلب</h2>
       <p>عدد القطع: <strong>{{ cartItemsCount }}</strong></p>
-      <p>الإجمالي الفرعي: <strong>{{ cartSubtotal | number }} جنيه</strong></p>
-      <p>الشحن: <strong>{{ shippingCost | number }} جنيه</strong></p>
-      <p class="total">الإجمالي النهائي: <strong>{{ cartTotal | number }} جنيه</strong></p>
+      <p class="public-pricing-hint public-pricing-hint--spaced">{{ publicPricingHint }}</p>
+      <p class="cart-summary__note">بعد إرسال الطلب يتواصل معك فريق المتجر لتحديد السعر النهائي وإتمام التوريد.</p>
 
       <div class="summary-actions">
         <a routerLink="/checkout">متابعة إلى الدفع</a>

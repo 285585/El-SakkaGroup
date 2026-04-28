@@ -66,6 +66,10 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
   ownerCommunications: OwnerCommunication[] = [];
   orderReplyDraft: Record<string, string> = {};
   sellReplyDraft: Record<string, string> = {};
+  /** تصفية قائمة المنتجات في لوحة المالك */
+  productListFilter = '';
+  /** معرّفات المنتجات التي فشل تحميل صورتها المصغّرة */
+  private brokenProductThumbs = new Set<string>();
   readonly orderStatusOptions: Array<{ value: OrderStatus; label: string }> = [
     { value: 'pending', label: 'قيد المراجعة' },
     { value: 'confirmed', label: 'تم التأكيد' },
@@ -266,12 +270,73 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
     return product.id;
   }
 
-  /** صورة صغيرة لقائمة المنتجات في لوحة المالك */
+  get filteredProducts(): Product[] {
+    const q = this.productListFilter.trim().toLowerCase();
+    if (!q) {
+      return this.products;
+    }
+    return this.products.filter((p) => {
+      const name = (p.name || '').toLowerCase();
+      const brand = (p.brand || '').toLowerCase();
+      const id = (p.id || '').toLowerCase();
+      const category = (p.category || '').toLowerCase();
+      const desc = (p.shortDescription || '').toLowerCase();
+      const cpu = (p.specs?.cpu || '').toLowerCase();
+      return (
+        name.includes(q) ||
+        brand.includes(q) ||
+        id.includes(q) ||
+        category.includes(q) ||
+        desc.includes(q) ||
+        cpu.includes(q)
+      );
+    });
+  }
+
+  /** أول مسار صورة للعرض في القائمة */
   getProductListImage(product: Product): string {
     if (Array.isArray(product.images) && product.images.length > 0) {
-      return product.images[0];
+      const first = String(product.images[0] || '').trim();
+      if (first) {
+        return first;
+      }
     }
-    return product.image?.trim() ? product.image : '';
+    const single = String(product.image || '').trim();
+    return single;
+  }
+
+  resolveProductThumbUrl(product: Product): string {
+    const raw = this.getProductListImage(product).trim();
+    if (!raw) {
+      return '';
+    }
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      return raw;
+    }
+    if (raw.startsWith('/')) {
+      return raw;
+    }
+    return `/${raw}`;
+  }
+
+  shouldShowProductThumb(product: Product): boolean {
+    if (this.brokenProductThumbs.has(product.id)) {
+      return false;
+    }
+    return Boolean(this.getProductListImage(product).trim());
+  }
+
+  onProductThumbError(product: Product): void {
+    const id = product.id;
+    if (!id || this.brokenProductThumbs.has(id)) {
+      return;
+    }
+    this.brokenProductThumbs = new Set([...this.brokenProductThumbs, id]);
+  }
+
+  productInitialLetter(product: Product): string {
+    const n = (product.name || '').trim();
+    return n.charAt(0) || '؟';
   }
 
   trackByUser(_index: number, user: AdminUser): string {
@@ -580,6 +645,7 @@ export class OwnerDashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (products) => {
           this.products = products;
+          this.brokenProductThumbs = new Set();
           if (this.pendingEditId) {
             const productToEdit = products.find((product) => product.id === this.pendingEditId);
             if (productToEdit) {

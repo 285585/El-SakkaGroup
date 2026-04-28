@@ -45,9 +45,9 @@
       <h1>{{ product.name }}</h1>
       <p class="description">{{ product.shortDescription }}</p>
 
-      <div class="price-box">
-        <strong>{{ product.price | number }} جنيه</strong>
-        <small>{{ product.oldPrice | number }} جنيه</small>
+      <div class="pricing-contact-callout">
+        <p class="public-pricing-hint">{{ publicPricingHint }}</p>
+        <a routerLink="/contact" class="contact-link contact-link--emphasis">تواصل معنا للاستفسار</a>
       </div>
 
       <div class="ratings-box">
@@ -113,7 +113,6 @@
         <ng-template #ctaLoginHint>
           <p class="cta-login-hint">سجّل الدخول لاستخدام السلة والمفضلة.</p>
         </ng-template>
-        <a routerLink="/contact" class="contact-link">تواصل لطلب المنتج</a>
       </div>
     </div>
   </article>

@@ -14,6 +14,7 @@ import { OwnerAuthService } from '../../services/owner-auth.service';
 import { RecentlyViewedService } from '../../services/recently-viewed.service';
 import { StoreApiService } from '../../services/store-api.service';
 import { WishlistService } from '../../services/wishlist.service';
+import { PUBLIC_CONTACT_FOR_PRICING } from '../../constants/public-pricing.message';
 
 @Component({
   selector: 'app-product-details',
@@ -21,6 +22,8 @@ import { WishlistService } from '../../services/wishlist.service';
   styleUrls: ['./product-details.component.scss'],
 })
 export class ProductDetailsComponent implements OnInit {
+  readonly publicPricingHint = PUBLIC_CONTACT_FOR_PRICING;
+
   product: Product | null = null;
   activeImage = '';
   thumbOverride: { [key: number]: string } = {};

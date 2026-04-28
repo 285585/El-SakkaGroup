@@ -113,15 +113,20 @@ h1 {
   line-height: 1.6;
 }
 
-.price-box strong {
-  display: block;
-  color: #0f172a;
-  font-size: 1.5rem;
+.pricing-contact-callout {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%);
 }
 
-.price-box small {
-  color: #64748b;
-  text-decoration: line-through;
+.pricing-contact-callout .public-pricing-hint {
+  margin-bottom: 0.55rem;
+}
+
+.contact-link--emphasis {
+  font-weight: 700;
 }
 
 .ratings-box {

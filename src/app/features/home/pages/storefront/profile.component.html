@@ -84,7 +84,7 @@
           <input type="text" name="sellCondition" [(ngModel)]="sellCondition" required />
         </label>
         <label>
-          السعر المطلوب *
+          توقعك للسعر (للمراجعة مع المالك) *
           <input
             type="number"
             name="sellExpectedPrice"
@@ -122,7 +122,9 @@
               {{ resolveDecisionLabel(requestItem.decision) }}
             </span>
           </div>
-          <p><strong>السعر المطلوب:</strong> {{ requestItem.expectedPrice | number }} جنيه</p>
+          <p class="public-pricing-hint public-pricing-hint--small">
+            سيتواصل المالك معك لتحديد السعر المناسب بعد مراجعة الطلب.
+          </p>
           <p><strong>المواصفات:</strong> {{ requestItem.cpu }} | {{ requestItem.ram }} | {{ requestItem.storage }}</p>
           <p *ngIf="requestItem.ownerReply"><strong>رد المالك:</strong> {{ requestItem.ownerReply }}</p>
           <small>{{ requestItem.createdAt | date: 'short' }}</small>

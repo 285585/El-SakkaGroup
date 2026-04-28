@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Product, ProductFilters } from '../../models/store.models';
+import { PUBLIC_CONTACT_FOR_PRICING } from '../../constants/public-pricing.message';
 import { CartService } from '../../services/cart.service';
 import { OwnerAuthService } from '../../services/owner-auth.service';
 import { RecentlyViewedService } from '../../services/recently-viewed.service';
@@ -16,6 +17,8 @@ import { WishlistService } from '../../services/wishlist.service';
   styleUrls: ['./storefront.component.scss']
 })
 export class StorefrontComponent implements OnInit, OnDestroy {
+  readonly publicPricingHint = PUBLIC_CONTACT_FOR_PRICING;
+
   products: Product[] = [];
   allProducts: Product[] = [];
   recentlyViewed: Product[] = [];
@@ -47,8 +50,6 @@ export class StorefrontComponent implements OnInit, OnDestroy {
 
   readonly sortOptions = [
     { value: 'featured', label: 'المميزة' },
-    { value: 'priceAsc', label: 'السعر: الأقل أولاً' },
-    { value: 'priceDesc', label: 'السعر: الأعلى أولاً' },
     { value: 'rating', label: 'الأعلى تقييماً' },
   ];
 
@@ -313,14 +314,6 @@ export class StorefrontComponent implements OnInit, OnDestroy {
     return this.recentlyViewed;
   }
 
-  getDiscountPercent(product: Product): number {
-    if (!product.oldPrice || product.oldPrice <= product.price) {
-      return 0;
-    }
-
-    return Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
-  }
-
   isOutOfStock(product: Product): boolean {
     return Number(product.stock) <= 0;
   }
@@ -345,8 +338,6 @@ export class StorefrontComponent implements OnInit, OnDestroy {
       product.name,
       product.brand,
       product.category,
-      product.price,
-      product.oldPrice,
       product.stock,
       product.shortDescription,
       product.specs.cpu,
