@@ -33,6 +33,7 @@ const FRONTEND_DIST_DIR = process.env.FRONTEND_DIST_DIR
   ? path.resolve(process.env.FRONTEND_DIST_DIR)
   : path.join(PROJECT_ROOT, 'dist', 'e-commerce');
 const FRONTEND_INDEX_FILE = path.join(FRONTEND_DIST_DIR, 'index.html');
+const PRODUCT_UPLOAD_FALLBACK_FILE = path.join(__dirname, 'product-upload-fallback.svg');
 const DATA_DIR = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
   : path.join(__dirname, 'data');
@@ -653,7 +654,15 @@ app.use(
 );
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan(IS_PRODUCTION ? 'combined' : 'dev'));
-app.use('/api/uploads', express.static(UPLOADS_DIR));
+app.use('/api/uploads', express.static(UPLOADS_DIR, { fallthrough: true }));
+app.use('/api/uploads', (req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    next();
+    return;
+  }
+  res.type('image/svg+xml');
+  res.sendFile(PRODUCT_UPLOAD_FALLBACK_FILE);
+});
 
 app.get('/api/health', (_request, response) => {
   response.json({
